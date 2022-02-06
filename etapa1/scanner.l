@@ -25,9 +25,9 @@ STRING \"(\\.|[^\n"\\])*\"
 \\. -> https://stringr.tidyverse.org/articles/regular-expressions.html#escaping
 https://stackoverflow.com/questions/2039795/regular-expression-for-a-string-literal-in-flex-lex
 */
-COMMENT_SINGLE \/\/.*\n
+COMMENT_SINGLE \/\/[^\n\r]+
 /*n sei se boto o \n opcional no final ou não (e se tiver um  no final, sem \n e ele n identificar?), meus testes foram inconclusivos*/
-TO_IGNORE [ {COMMENT_SINGLE}\t]
+TO_IGNORE [ \t\n]+|{COMMENT_SINGLE}
 %%
 \n succ_num_lines();
 "int" return TK_PR_INT;
@@ -58,7 +58,7 @@ TO_IGNORE [ {COMMENT_SINGLE}\t]
 "end" return TK_PR_END;
 "default" return TK_PR_DEFAULT;
 
-"<=" return TK_OC_LE; /*n tem que botar um espaço antes e depois de tds??? teste com <<<*/
+"<=" return TK_OC_LE;
 ">=" return TK_OC_GE;
 "==" return TK_OC_EQ;
 "!=" return TK_OC_NE;
@@ -85,8 +85,6 @@ TO_IGNORE [ {COMMENT_SINGLE}\t]
 
 {SPECIAL} return get_ascii_value(yytext);
 .+ return TOKEN_ERRO;
-
-
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
 void succ_num_lines() { ++num_lines; }
