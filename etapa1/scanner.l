@@ -17,8 +17,7 @@ ID {ALPHA_}({ALPHA_}|{DIGIT})*
 SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&%#\^.$]
 OPT_SIGNAL (\+|\-)?
 INT {OPT_SIGNAL}{DIGIT}+ 
-FLOAT ({OPT_SIGNAL}{DIGIT}+)?\.{DIGIT}+((E|e){INT})?
-/*acho q só com um ponto no inicio eh tecnicamente n permitido, tirar dps*/
+FLOAT ({OPT_SIGNAL}{DIGIT}*)?\.{DIGIT}+((E|e){INT})?
 CHAR '.'
 STRING \"(\\.|[^"\\])*\"
 /* eh impressao minha ou ele n botou a especificação de string no doc mas deixou o token?? 
