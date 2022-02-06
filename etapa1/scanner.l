@@ -13,15 +13,19 @@ int get_line_number(void) { return num_lines; }
 %}
 DIGIT [0-9]
 ALPHA_ [a-zA-Z_]
-ID {ALPHA_}({ALPHA_}|[0-9])*
+ID {ALPHA_}({ALPHA_}|{DIGIT})*
 SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&%#\^.$]
 OPT_SIGNAL (\+|\-)?
 INT {OPT_SIGNAL}{DIGIT}+ 
 FLOAT ({OPT_SIGNAL}{DIGIT}+)?\.{DIGIT}+((E|e){INT})?
 /*acho q só com um ponto no inicio eh tecnicamente n permitido, tirar dps*/
 CHAR '.'
-STRING \".+\"
-/* eh impressao minha ou ele n botou a especificação de string no doc mas deixou o token?? */
+STRING \"(\\.|[^"\\])*\"
+/* eh impressao minha ou ele n botou a especificação de string no doc mas deixou o token?? 
+
+\\. -> https://stringr.tidyverse.org/articles/regular-expressions.html#escaping
+https://stackoverflow.com/questions/2039795/regular-expression-for-a-string-literal-in-flex-lex
+*/
 COMMENT_SINGLE \/\/.*\n
 /*n sei se boto o \n opcional no final ou não (e se tiver um  no final, sem \n e ele n identificar?), meus testes foram inconclusivos*/
 %%
@@ -63,21 +67,21 @@ COMMENT_SINGLE \/\/.*\n
 ">>" return TK_OC_SL;
 "<<" return TK_OC_SR;
 
-{ID} return TK_IDENTIFICADOR;
+"true" return TK_LIT_TRUE;
+"false" return TK_LIT_FALSE;
 
+{ID} return TK_IDENTIFICADOR;
 {FLOAT} return TK_LIT_FLOAT;
 {INT} return TK_LIT_INT;
 {CHAR} return TK_LIT_CHAR;
 {STRING} return TK_LIT_STRING;
-"true" return TK_LIT_TRUE;
-"false" return TK_LIT_FALSE;
-
 {COMMENT_SINGLE}
+
 "/*" BEGIN(comment);
 <comment>[^*\n]*
 <comment>"*"+[^*/\n]*
 <comment>"\n" succ_num_lines();
-<comment>"*"+"/" BEGIN(INITIAL); /* de http://westes.github.io/flex/manual/Start-Conditions.html*/*/
+<comment>"*"+"/" BEGIN(INITIAL); /* de http://westes.github.io/flex/manual/Start-Conditions.html*/
 
 {SPECIAL} return get_ascii_value(yytext);
 
