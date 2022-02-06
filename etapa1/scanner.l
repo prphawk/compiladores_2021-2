@@ -25,7 +25,7 @@ STRING \"(\\.|[^\n"\\])*\"
 \\. -> https://stringr.tidyverse.org/articles/regular-expressions.html#escaping
 https://stackoverflow.com/questions/2039795/regular-expression-for-a-string-literal-in-flex-lex
 */
-COMMENT_SINGLE \/\/[^\n\r]+
+COMMENT_SINGLE \/\/[^\n\r]*
 /*n sei se boto o \n opcional no final ou não (e se tiver um  no final, sem \n e ele n identificar?), meus testes foram inconclusivos*/
 TO_IGNORE [ \t\n]+|{COMMENT_SINGLE}
 %%
