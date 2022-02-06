@@ -17,17 +17,11 @@ ID {ALPHA_}({ALPHA_}|{DIGIT})*
 SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&%#\^.$]
 OPT_SIGNAL (\+|\-)?
 INT {OPT_SIGNAL}{DIGIT}+ 
-FLOAT ({OPT_SIGNAL}{DIGIT}*)?\.{DIGIT}+((E|e){INT})?
+FLOAT {OPT_SIGNAL}{DIGIT}+\.{DIGIT}+((E|e){INT})?
 CHAR '.'
-STRING \"(\\.|[^\n"\\])*\"
-/* eh impressao minha ou ele n botou a especificação de string no doc mas deixou o token?? 
-
-\\. -> https://stringr.tidyverse.org/articles/regular-expressions.html#escaping
-https://stackoverflow.com/questions/2039795/regular-expression-for-a-string-literal-in-flex-lex
-*/
+STRING \"([^\n"])*\"
 COMMENT_SINGLE \/\/[^\n\r]*
-/*n sei se boto o \n opcional no final ou não (e se tiver um  no final, sem \n e ele n identificar?), meus testes foram inconclusivos*/
-TO_IGNORE [ \t\n]+|{COMMENT_SINGLE}
+TO_IGNORE [ \t\n\r]+|{COMMENT_SINGLE}
 %%
 \n succ_num_lines();
 "int" return TK_PR_INT;
@@ -81,10 +75,14 @@ TO_IGNORE [ \t\n]+|{COMMENT_SINGLE}
 <comment>[^*\n]*
 <comment>"*"+[^*/\n]*
 <comment>"\n" succ_num_lines();
-<comment>"*"+"/" BEGIN(INITIAL); /* de http://westes.github.io/flex/manual/Start-Conditions.html*/
+<comment><<EOF>> { BEGIN(INITIAL); return TOKEN_ERRO;};
+<comment>"*"+"/" BEGIN(INITIAL);
 
 {SPECIAL} return get_ascii_value(yytext);
-.+ return TOKEN_ERRO;
+. return TOKEN_ERRO;
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
 void succ_num_lines() { ++num_lines; }
+void error_comment() {
+   
+}
