@@ -63,14 +63,15 @@ COMMENT_SINGLE \/\/.*\n
 ">>" return TK_OC_SL;
 "<<" return TK_OC_SR;
 
-"true" return TK_LIT_TRUE;
-"false" return TK_LIT_FALSE;
-
 {ID} return TK_IDENTIFICADOR;
+
 {FLOAT} return TK_LIT_FLOAT;
 {INT} return TK_LIT_INT;
 {CHAR} return TK_LIT_CHAR;
 {STRING} return TK_LIT_STRING;
+"true" return TK_LIT_TRUE;
+"false" return TK_LIT_FALSE;
+
 {COMMENT_SINGLE}
 "/*" BEGIN(comment);
 <comment>[^*\n]*
@@ -79,6 +80,7 @@ COMMENT_SINGLE \/\/.*\n
 <comment>"*"+"/" BEGIN(INITIAL); /* de http://westes.github.io/flex/manual/Start-Conditions.html*/*/
 
 {SPECIAL} return get_ascii_value(yytext);
+
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
 void succ_num_lines() { ++num_lines; }
