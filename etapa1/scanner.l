@@ -1,9 +1,13 @@
-/* DEFINITIONS */
+%option noyywrap
 %{ 
-DIGIT [0-9]
-ID [a-z][a-z0-9]*
+#include<stdio.h>
+#include "tokens.h"
 %}
+DIGIT [0-9]
+CHAR [a-zA-Z_]
 %%
-%{/* REGEX RULES AND ACTIONS */%}
 %%
-%{/* (optional) AUXILIARY FUNCTIONS */%}
+int main() {
+   yylex();
+   return 0;
+};

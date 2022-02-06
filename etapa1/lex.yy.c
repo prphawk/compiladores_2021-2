@@ -321,6 +321,10 @@ void yyfree ( void *  );
 	}
 #define YY_AT_BOL() (YY_CURRENT_BUFFER_LVALUE->yy_at_bol)
 
+/* Begin user sect3 */
+
+#define yywrap() (/*CONSTCOND*/1)
+#define YY_SKIP_YYWRAP
 typedef flex_uint8_t YY_CHAR;
 
 FILE *yyin = NULL, *yyout = NULL;
@@ -436,12 +440,11 @@ int yy_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
 #line 1 "scanner.l"
-/* DEFINITIONS */
 #line 3 "scanner.l"
-DIGIT [0-9]
-ID [a-z][a-z0-9]*
-#line 444 "lex.yy.c"
-#line 445 "lex.yy.c"
+#include<stdio.h>
+#include "tokens.h"
+#line 447 "lex.yy.c"
+#line 448 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -658,13 +661,9 @@ YY_DECL
 		}
 
 	{
-#line 6 "scanner.l"
+#line 8 "scanner.l"
 
-/* REGEX RULES AND ACTIONS */%}
-#line 9 "scanner.l"
-%%
-/* (optional) AUXILIARY FUNCTIONS */%}
-#line 668 "lex.yy.c"
+#line 667 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -723,10 +722,10 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 11 "scanner.l"
+#line 9 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 730 "lex.yy.c"
+#line 729 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1731,4 +1730,10 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 11 "scanner.l"
+#line 9 "scanner.l"
+
+int main() {
+   yylex();
+   return 0;
+};
+
