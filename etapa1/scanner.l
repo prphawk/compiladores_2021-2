@@ -9,7 +9,8 @@ int num_lines = 1;
 int get_line_number(void) { return num_lines; }
 %}
 DIGIT [0-9]
-WORD [a-zA-Z]*
+CHAR [a-zA-Z_]
+ID {CHAR}({CHAR}|[0-9])*
 SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&%#\^.$]
 
 %%
@@ -53,8 +54,8 @@ SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&%#\^.$]
 
 
 {DIGIT} { print_regex(); }
-{WORD} { print_regex(); }
 {SPECIAL} { return get_ascii_value(yytext); }
+{ID} { printf("huhh"); }
 %%
 static void print_regex() {
    printf("foi regex (lembrar de tirar esse print dps...)");
