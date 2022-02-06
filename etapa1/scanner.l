@@ -5,8 +5,11 @@
 #include "tokens.h"
 #include "main.c"
 static void print_regex();
+void succ_num_lines();
 int get_ascii_value(char* yytext);
+
 int num_lines = 1;
+
 int get_line_number(void) { return num_lines; }
 %}
 DIGIT [0-9]
@@ -20,14 +23,12 @@ FLOAT ({OPT_SIGNAL}{DIGIT}+)?\.{DIGIT}+((E|e){INT})?
 CHAR '.'
 STRING \".+\"
 /* eh impressao minha ou ele n botou a especificação de string no doc mas deixou o token?? */
-COMMENT_SINGLE \/\/.*\n?
+COMMENT_SINGLE \/\/.*\n
 /*n sei se boto o \n opcional no final ou não (e se tiver um  no final, sem \n e ele n identificar?), meus testes foram inconclusivos*/
 
-/*COMMENT_MULTI \/\*\*\/ ta errado pegar resposta aqui http://westes.github.io/flex/manual/Start-Conditions.html
-/*testar a contagem de linha nesse tipo de comment*/
-
+/*COMMENT_MULTI \/\*\*\/ ta errado pegar resposta aqui http://westes.github.io/flex/manual/Start-Conditions.html*/
 %%
-\n ++num_lines;
+\n succ_num_lines();
 "int" return TK_PR_INT;
 "float" return TK_PR_FLOAT;
 "bool" return TK_PR_BOOL;
@@ -68,23 +69,26 @@ COMMENT_SINGLE \/\/.*\n?
 "true" return TK_LIT_TRUE;
 "false" return TK_LIT_FALSE;
 
-{ID} { return TK_IDENTIFICADOR;  }
-{FLOAT} { return TK_LIT_FLOAT; }
-{INT} { return TK_LIT_INT; }
-{CHAR} { return TK_LIT_CHAR; }
-{STRING} { return TK_LIT_STRING; }
-{COMMENT_SINGLE} { return printf("comment!\n"); }
+{ID} return TK_IDENTIFICADOR;
+{FLOAT} return TK_LIT_FLOAT;
+{INT} return TK_LIT_INT;
+{CHAR} return TK_LIT_CHAR;
+{STRING} return TK_LIT_STRING;
+{COMMENT_SINGLE}
 "/*" BEGIN(comment);
 <comment>[^*\n]*
 <comment>"*"+[^*/\n]*
-<comment>"\n" ++num_lines;
+<comment>"\n" succ_num_lines();
 <comment>"*"+"/" BEGIN(INITIAL); /* daquele link q botei na em cima*/
 
-{SPECIAL} { return get_ascii_value(yytext); }
+{SPECIAL} return get_ascii_value(yytext);
 %%
 static void print_regex() {
    printf("foi regex (lembrar de tirar esse print dps...)");
 }
 int get_ascii_value(char* yytext) {
    return (int) yytext[0];
+}
+void succ_num_lines() {
+   ++num_lines;
 }
