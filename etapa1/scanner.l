@@ -4,7 +4,6 @@
 #include<stdio.h>
 #include "tokens.h"
 #include "main.c"
-static void print_regex();
 void succ_num_lines();
 int get_ascii_value(char* yytext);
 
@@ -25,8 +24,6 @@ STRING \".+\"
 /* eh impressao minha ou ele n botou a especificação de string no doc mas deixou o token?? */
 COMMENT_SINGLE \/\/.*\n
 /*n sei se boto o \n opcional no final ou não (e se tiver um  no final, sem \n e ele n identificar?), meus testes foram inconclusivos*/
-
-/*COMMENT_MULTI \/\*\*\/ ta errado pegar resposta aqui http://westes.github.io/flex/manual/Start-Conditions.html*/
 %%
 \n succ_num_lines();
 "int" return TK_PR_INT;
@@ -79,16 +76,9 @@ COMMENT_SINGLE \/\/.*\n
 <comment>[^*\n]*
 <comment>"*"+[^*/\n]*
 <comment>"\n" succ_num_lines();
-<comment>"*"+"/" BEGIN(INITIAL); /* daquele link q botei na em cima*/
+<comment>"*"+"/" BEGIN(INITIAL); /* de http://westes.github.io/flex/manual/Start-Conditions.html*/*/
 
 {SPECIAL} return get_ascii_value(yytext);
 %%
-static void print_regex() {
-   printf("foi regex (lembrar de tirar esse print dps...)");
-}
-int get_ascii_value(char* yytext) {
-   return (int) yytext[0];
-}
-void succ_num_lines() {
-   ++num_lines;
-}
+int get_ascii_value(char* yytext) { return (int) yytext[0]; }
+void succ_num_lines() { ++num_lines; }
