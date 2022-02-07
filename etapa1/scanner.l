@@ -21,7 +21,7 @@ FLOAT {OPT_SIGNAL}{DIGIT}+\.{DIGIT}+((E|e){INT})?
 CHAR '.'
 STRING \"([^\n"])*\"
 COMMENT_SINGLE \/\/[^\n\r]*
-TO_IGNORE [ \t\n\r]+|{COMMENT_SINGLE}
+TO_IGNORE [ \t\r]+|{COMMENT_SINGLE}
 %%
 \n succ_num_lines();
 "int" return TK_PR_INT;
@@ -72,9 +72,10 @@ TO_IGNORE [ \t\n\r]+|{COMMENT_SINGLE}
 {TO_IGNORE}
 
 "/*" BEGIN(comment);
-<comment>[^*\n]*
-<comment>"*"+[^*/\n]*
 <comment>"\n" succ_num_lines();
+<comment>[^*\n]* /* precisamos desse (consumir tudo que não for "*") e do de baixo pra td q for 
+escrito num comentário não fechado ser consumido e não interpretado como nada além de erro */
+<comment>"*"+[^*/\n]* /* consome "*" não seguido de "/" */
 <comment><<EOF>> { BEGIN(INITIAL); return TOKEN_ERRO;};
 <comment>"*"+"/" BEGIN(INITIAL);
 
