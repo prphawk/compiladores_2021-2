@@ -73,9 +73,9 @@ TO_IGNORE [ \t\r]+|{COMMENT_SINGLE}
 
 "/*" BEGIN(comment);
 <comment>"\n" succ_num_lines();
-<comment>[^*\n]* /* precisamos desse (consumir tudo que não for "*") e do de baixo pra td q for 
-escrito num comentário não fechado ser consumido e não interpretado como nada além de erro */
-<comment>"*"+[^*/\n]* /* consome "*" não seguido de "/" */
+<comment>[^*\n]* /* precisamos dessa (consumir tudo que não for "*") e a pattern abaixo para que tudo
+que for escrito num comentário não fechado seja consumido e não interpretado como nada além de erro */
+<comment>"*"+[^\/\n]* /* consome "*" não seguido de "/" */
 <comment><<EOF>> { BEGIN(INITIAL); return TOKEN_ERRO;};
 <comment>"*"+"/" BEGIN(INITIAL);
 
@@ -84,6 +84,3 @@ escrito num comentário não fechado ser consumido e não interpretado como nada
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
 void succ_num_lines() { ++num_lines; }
-void error_comment() {
-   
-}
