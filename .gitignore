@@ -4,3 +4,7 @@ etapa1/lex.yy.c
 etapa1/etapa1
 
 *.pdf
+
+*.tgz
+
+etapa1/teste.txt
