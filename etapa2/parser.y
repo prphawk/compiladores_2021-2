@@ -49,6 +49,54 @@ void yyerror (char const *s);
 
 %%
 
-programa:
+programa: declaracoes;
+
+declaracoes: declaracao declaracoes | ;
+
+declaracao: decvariavel | decfuncao;
+
+decvariavel: staticopc tipo nomevariavel ';';
+
+nomevariavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
+
+staticopc: TK_STATIC | ;
+
+tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
+
+decfuncao: cabecalho corpo;
+
+cabecalho: staticopc tipo TK_IDENTIFICADOR '(' parametros ')';
+
+parametros: listparametros | ;
+
+listparametros: parametro | parametro ',' listparametros;
+
+parametro: tipo TK_IDENTIFICADOR | TK_PR_CONST tipo TK_IDENTIFICADOR;
+
+corpo: '{' comandos '}';
+
+comandos: comando ';' comandos | ;
+
+comando: decvar | atribuicao | entrada | saida | funcao | shift | retorno | breakoucontinue | confluxo | expressao;
+
+decvar: ;
+
+atribuicao: ;
+
+entrada: ;
+
+saida: ;
+
+funcao: ;
+
+shift: ;
+
+retorno: ;
+
+breakoucontinue: ;
+
+confluxo: ;
+
+expressao: ;
 
 %%
