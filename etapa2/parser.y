@@ -50,8 +50,11 @@ extern int get_line_number (void);
 %token TOKEN_ERRO
 
 //https://www.gnu.org/software/bison/manual/html_node/Precedence-Decl.html
-%left TK_OC_LE TK_OC_EQ TK_OC_GE TK_OC_NE
-%left '+' '-' '%' '|' '&' '^' '*' '/'
+%left TK_OC_LE TK_OC_EQ TK_OC_GE TK_OC_NE TK_OC_OR TK_OC_AND TK_OC_SL TK_OC_SR
+%left '+' '-' 
+%left '%' '^' '|' '?' ':' '!'
+%left '*' '/'
+%right '#' '&'
 // e os unarios associativos `a direita ???
 /*
 Na Sec 3.5 temos os operadores unários, binários e ternários. 
@@ -74,16 +77,11 @@ declaracao: declaracao_variavel_global | declaracao_funcao;
 declaracao_variavel_global: static_opcional tipo lista_nome_variavel ';'
                            | tipo lista_nome_variavel ';'
                            ;
+*/
 
 nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
 
 lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel
-
-static_opcional: TK_PR_STATIC | ;
-
-const_opcional: TK_PR_CONST | ;
-
-tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
 declaracao_funcao: cabecalho corpo;
 
@@ -94,6 +92,12 @@ parametros: lista_parametros | ;
 lista_parametros: parametro | parametro ',' lista_parametros;
 
 parametro: tipo TK_IDENTIFICADOR | TK_PR_CONST tipo TK_IDENTIFICADOR;
+
+tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
+
+static_opcional: TK_PR_STATIC | ;
+
+const_opcional: TK_PR_CONST | ;
 
 corpo: bloco_comandos;
 
@@ -150,11 +154,8 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atri
                   | TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
                   ;
 
-*/
 
-argumento: expressao 
-         | literal // ta certo isso? eu q botei ele aqui
-         ; 
+argumento: expressao; 
 
 argumentos: argumento',' argumentos | argumento;
 
@@ -164,35 +165,19 @@ literal: TK_LIT_CHAR
          | TK_LIT_STRING
          | TK_LIT_TRUE
          | TK_LIT_FALSE
-         | literal_numerico
+         | TK_LIT_FLOAT 
+         | TK_LIT_INT
          ;
 
-literal_numerico: TK_LIT_FLOAT 
-                  | TK_LIT_INT
-                  ;
-
-expressao: '(' expressao ')'
+expressao: literal
+         | '(' expressao ')'
          | TK_IDENTIFICADOR
          | TK_IDENTIFICADOR'[' expressao ']' //vetor
          | TK_IDENTIFICADOR '(' lista_argumentos ')'; // chamada função
-/*
-         | literal_numerico
-
-
-         | '+' expressao
-         | '-' expressao
-         | '!' expressao
-         | '&' expressao
-         | '*' expressao
-         | '?' expressao
-         | '#' expressao
- 
          | expressao '+' expressao
-         | expressao '-' expressao 
-         | expressao '%' expressao 
-         | expressao '*' expressao /*The relative precedence of different operators is controlled by the order in which they are declared. 
-         The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
-         the next such declaration declares the operators whose precedence is a little higher, and so on. 
+         | expressao '-' expressao
+         | expressao '%' expressao
+         | expressao '*' expressao
          | expressao '/' expressao
          | expressao '|' expressao
          | expressao '&' expressao
@@ -204,6 +189,16 @@ expressao: '(' expressao ')'
          | expressao TK_OC_OR expressao
 	      | expressao TK_OC_AND expressao
          | expressao '?' expressao ':' expressao
+         | '+' expressao //DIFERENCIAR OS UNÁRIOS??????
+         | '-' expressao
+         | '!' expressao
+         | '&' expressao
+         | '*' expressao
+         | '?' expressao
+         | '#' expressao 
+         /*The relative precedence of different operators is controlled by the order in which they are declared. 
+         The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
+         the next such declaration declares the operators whose precedence is a little higher, and so on. 
          */
          ;
 
