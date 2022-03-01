@@ -1,8 +1,9 @@
 %{
+#include<stdio.h>
 int yylex(void);
-void yyerror (char const *s);
+int yyerror (char const *s); //mudar pra void?
 %}
-
+%token TK_STATIC //cade esse static? add. tem q tirar?
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
@@ -100,3 +101,8 @@ confluxo: ;
 expressao: ;
 
 %%
+
+int yyerror (char const *s) {
+   printf("%s\n", s);
+   return 1;
+}

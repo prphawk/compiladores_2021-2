@@ -1,9 +1,15 @@
 # Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
-etapa1.o: lex.yy.c
-	gcc lex.yy.c -o etapa1
+etapa2: lex.yy.c parser.tab.o
+	gcc -o etapa2 lex.yy.o parser.tab.o
+
+lex.yy.o parser.tab.o: lex.yy.c parser.tab.c
+	gcc -c lex.yy.c parser.tab.c
 
 lex.yy.c: scanner.l
 	flex scanner.l
 
-clean: 
-	rm lex.yy.c etapa1
+parser.tab.c parser.tab.h: parser.y
+	bison -d parser.y
+
+clean:
+	rm lex.yy.* parser.tab.* etapa2

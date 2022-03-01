@@ -2,7 +2,7 @@
 %x comment
 %{ 
 #include<stdio.h>
-#include "tokens.h"
+#include "parser.tab.h"
 #include "main.c"
 void succ_num_lines();
 int get_ascii_value(char* yytext);
