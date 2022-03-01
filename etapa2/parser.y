@@ -53,49 +53,63 @@ programa: declaracoes;
 
 declaracoes: declaracao declaracoes | ;
 
-declaracao: decvariavel | decfuncao;
+declaracao: declaracao_variavel | declaracao_funcao;
 
-decvariavel: staticopc tipo nomevariavel ';';
+declaracao_variavel: static_opcional tipo nome_variavel ';'; // aqui tem q ser uma lista pra validar int a, b, c; 
+// o static tem q ser opcional
 
-nomevariavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
+nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
 
-staticopc: TK_PR_STATIC | ;
+static_opcional: TK_PR_STATIC | ;
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
-decfuncao: cabecalho corpo;
+declaracao_funcao: cabecalho corpo;
 
-cabecalho: staticopc tipo TK_IDENTIFICADOR '(' parametros ')';
+cabecalho: static_opcional tipo TK_IDENTIFICADOR '(' parametros ')';
 
-parametros: listparametros | ;
+parametros: lista_parametros | ;
 
-listparametros: parametro | parametro ',' listparametros;
+lista_parametros: parametro | parametro ',' lista_parametros;
 
 parametro: tipo TK_IDENTIFICADOR | TK_PR_CONST tipo TK_IDENTIFICADOR;
 
-corpo: '{' comandos '}';
+corpo: bloco_comandos;
 
-comandos: comando ';' comandos | ;
+bloco_comandos: '{' comando_simples ';' bloco_comandos '}' | ;
 
-comando: decvar | atribuicao | entrada | saida | funcao | shift | retorno | breakoucontinue | confluxo | expressao;
+comando_simples: declaracao_var 
+               | comando_atribuicao 
+               | comando_entrada 
+               | comando_saida 
+               | chamada_funcao 
+               | comando_shift 
+               | comando_retorno 
+               | comando_break 
+               | comando_continue 
+               | comando_condicional 
+               | expressao 
+               | bloco_comandos;
 
-decvar: ;
+declaracao_var: ;
 
-atribuicao: ;
+comando_atribuicao: ;
 
-entrada: ;
+comando_entrada: ;
 
-saida: ;
+comando_saida: ;
 
-funcao: ;
+chamada_funcao: ;
 
-shift: ;
+comando_shift: ;
 
-retorno: ;
+comando_retorno: TK_PR_RETURN expressao ;
 
-breakoucontinue: ;
+comando_break: TK_PR_BREAK;
 
-confluxo: ;
+comando_continue: TK_PR_CONTINUE;
+
+comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos ;
 
 expressao: ;
 
