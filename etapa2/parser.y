@@ -2,6 +2,8 @@
 #include<stdio.h>
 int yylex(void);
 int yyerror (char const *s); //mudar pra void?
+extern int get_line_number (void);
+
 %}
 %token TK_PR_INT
 %token TK_PR_FLOAT
@@ -47,20 +49,38 @@ int yyerror (char const *s); //mudar pra void?
 %token TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+//https://www.gnu.org/software/bison/manual/html_node/Precedence-Decl.html
+%left TK_OC_LE TK_OC_EQ TK_OC_GE TK_OC_NE
+%left '+' '-' '%' '|' '&' '^' '*' '/'
+// e os unarios associativos `a direita ???
+/*
+Na Sec 3.5 temos os operadores unários, binários e ternários. 
+São operadores aritméticos unários: 
++ sinal positivo explı́cito; - inverte o sinal; & acesso ao endereço da variável; * acesso ao valor do ponteiro; 
+# acesso a um identificador como uma tabela hash. São operadores aritméticos binários: + soma; - subtração; * multiplicação; / divisão; 
+% resto da divisão inteira; | bitwise OR; & bitwise AND; ^ exponenciação. 
+São operadores aritméticos ternários: ?: conforme a descrição no texto. 
+São operadores lógicos unários e binários: aqueles que sobraram na listagem.
+*/
 %%
 
 programa: declaracoes;
 
 declaracoes: declaracao declaracoes | ;
 
-declaracao: declaracao_variavel | declaracao_funcao;
+declaracao: declaracao_variavel_global | declaracao_funcao;
 
-declaracao_variavel: static_opcional tipo nome_variavel ';'; // aqui tem q ser uma lista pra validar int a, b, c; 
-// o static tem q ser opcional
+declaracao_variavel_global: static_opcional tipo lista_nome_variavel ';'
+                           | tipo lista_nome_variavel ';'
+                           ;
 
 nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
 
+lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel
+
 static_opcional: TK_PR_STATIC | ;
+
+const_opcional: TK_PR_CONST | ;
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
@@ -85,55 +105,111 @@ comando_simples: declaracao_var_local
                | chamada_funcao 
                | comando_shift 
                | comando_retorno
-               | comando_break 
-               | comando_continue 
+               | TK_PR_BREAK
+               | TK_PR_CONTINUE
                | comando_condicional 
+               | comando_iterativo
                | expressao 
-               | bloco_comandos;
+               | bloco_comandos
+               ;
 
-declaracao_var_local: ;
+declaracao_var_local: static_opcional const_opcional tipo lista_nome_variavel_local;
+
+lista_nome_variavel_local: TK_IDENTIFICADOR 
+                           | TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR 
+                           | TK_IDENTIFICADOR TK_OC_LE literal 
+                           | TK_IDENTIFICADOR ',' lista_nome_variavel_local
+                           ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao
-TK_IDENTIFICADOR'['expressao']' '=' expressao;
+                     | TK_IDENTIFICADOR'['expressao']' '=' expressao
+                     ;
 
 comando_entrada: TK_PR_INPUT TK_IDENTIFICADOR;
 
 literal: TK_LIT_CHAR
-         | TK_LIT_FLOAT
-         | TK_LIT_INT
          | TK_LIT_STRING
          | TK_LIT_TRUE
-         | TK_LIT_FALSE;
+         | TK_LIT_FALSE
+         | literal_numerico
+         ;
+
+literal_numerico: TK_LIT_FLOAT 
+                  | TK_LIT_INT
+                  ;
 
 comando_saida: TK_PR_OUTPUT TK_IDENTIFICADOR 
                | TK_PR_OUTPUT literal
+               ;
 
-chamada_funcao: TK_IDENTIFICADOR'(' argumentos ')';
+chamada_funcao: TK_IDENTIFICADOR '(' argumentos ')';
 
-argumento: expressao | literal // ta certo isso? eu q botei ele aqui
+argumento: expressao 
+            | literal
+            ; // ta certo isso? eu q botei ele aqui
 
-argumentos: argumento',' argumentos
+argumentos: argumento',' argumentos;
 
-comando_shift: ;
+comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT 
+               | TK_IDENTIFICADOR'['expressao']' TK_OC_SL TK_LIT_INT
+               | TK_IDENTIFICADOR TK_OC_SR TK_LIT_INT 
+               | TK_IDENTIFICADOR'['expressao']' TK_OC_SR TK_LIT_INT
+               ;
 
-comando_retorno: TK_PR_RETURN expressao ;
-
-comando_break: TK_PR_BREAK;
-
-comando_continue: TK_PR_CONTINUE;
+comando_retorno: TK_PR_RETURN expressao;
 
 comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos
-                     | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos;
+                     | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos
+                     ;
 
-comando_iterativo_for: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atribuicao')' bloco_comandos
+comando_iterativo: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atribuicao')' bloco_comandos
+                  | TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
+                  ;
 
-comando_iterativo_while: TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
+expressao: TK_IDENTIFICADOR
+         | expressao
+         | '(' expressao ')'
+         | TK_IDENTIFICADOR'['expressao']'
+         | literal_numerico
+         | chamada_funcao
 
-expressao: ;
+         | '+' expressao
+         | '-' expressao
+         | '!' expressao
+         | '&' expressao
+         | '*' expressao
+         | '?' expressao
+         | '#' expressao
+ 
+         | expressao '+' expressao
+         | expressao '-' expressao 
+         | expressao '%' expressao 
+         | expressao '*' expressao /*The relative precedence of different operators is controlled by the order in which they are declared. 
+         The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
+         the next such declaration declares the operators whose precedence is a little higher, and so on. */
+         | expressao '/' expressao
+         | expressao '|' expressao
+         | expressao '&' expressao
+         | expressao '^' expressao
+         | expressao TK_OC_LE expressao  
+         | expressao TK_OC_EQ expressao   
+         | expressao TK_OC_GE expressao   
+         | expressao TK_OC_NE expressao 
+         | expressao TK_OC_OR expressao
+	      | expressao TK_OC_AND expressao
+         | expressao '?' expressao ':' expressao
+         ;
+
+/*  botamos??
+         | expressao '<' expressao 
+         | expressao '>' expressao 
+*/
+         
+
 
 %%
 
 int yyerror (char const *s) {
-   printf("%s\n", s);
+   printf("%s on line %d\n", s, get_line_number());
    return 1;
 }
