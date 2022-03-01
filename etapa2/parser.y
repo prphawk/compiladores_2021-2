@@ -70,22 +70,25 @@ São operadores lógicos unários e binários: aqueles que sobraram na listagem.
 /*
 programa: declaracoes;
 
+*/
 declaracoes: declaracao declaracoes | ;
 
 declaracao: declaracao_variavel_global | declaracao_funcao;
 
-declaracao_variavel_global: static_opcional tipo lista_nome_variavel ';'
+declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';'
                            | tipo lista_nome_variavel ';'
                            ;
-*/
 
-nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
 
-lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel
+nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']';
+
+lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
 
 declaracao_funcao: cabecalho corpo;
 
-cabecalho: static_opcional tipo TK_IDENTIFICADOR '(' parametros ')';
+cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')'
+         | tipo TK_IDENTIFICADOR '(' parametros ')'
+         ;
 
 parametros: lista_parametros | ;
 
@@ -94,10 +97,6 @@ lista_parametros: parametro | parametro ',' lista_parametros;
 parametro: tipo TK_IDENTIFICADOR | TK_PR_CONST tipo TK_IDENTIFICADOR;
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
-
-static_opcional: TK_PR_STATIC | ;
-
-const_opcional: TK_PR_CONST | ;
 
 corpo: bloco_comandos;
 
@@ -118,7 +117,11 @@ comando_simples: declaracao_var_local
                | bloco_comandos
                ;
 
-declaracao_var_local: static_opcional const_opcional tipo lista_nome_variavel_local;
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local; 
+                     | TK_PR_CONST tipo lista_nome_variavel_local
+                     | TK_PR_STATIC tipo lista_nome_variavel_local
+                     | tipo lista_nome_variavel_local
+                     ;
 
 lista_nome_variavel_local: TK_IDENTIFICADOR 
                            | TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR 
