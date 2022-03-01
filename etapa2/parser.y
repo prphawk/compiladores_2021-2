@@ -78,28 +78,41 @@ corpo: bloco_comandos;
 
 bloco_comandos: '{' comando_simples ';' bloco_comandos '}' | ;
 
-comando_simples: declaracao_var 
+comando_simples: declaracao_var_local 
                | comando_atribuicao 
                | comando_entrada 
                | comando_saida 
                | chamada_funcao 
                | comando_shift 
-               | comando_retorno 
+               | comando_retorno
                | comando_break 
                | comando_continue 
                | comando_condicional 
                | expressao 
                | bloco_comandos;
 
-declaracao_var: ;
+declaracao_var_local: ;
 
-comando_atribuicao: ;
+comando_atribuicao: TK_IDENTIFICADOR '=' expressao
+TK_IDENTIFICADOR'['expressao']' '=' expressao;
 
-comando_entrada: ;
+comando_entrada: TK_PR_INPUT TK_IDENTIFICADOR;
 
-comando_saida: ;
+literal: TK_LIT_CHAR
+         | TK_LIT_FLOAT
+         | TK_LIT_INT
+         | TK_LIT_STRING
+         | TK_LIT_TRUE
+         | TK_LIT_FALSE;
 
-chamada_funcao: ;
+comando_saida: TK_PR_OUTPUT TK_IDENTIFICADOR 
+               | TK_PR_OUTPUT literal
+
+chamada_funcao: TK_IDENTIFICADOR'(' argumentos ')';
+
+argumento: expressao | literal // ta certo isso? eu q botei ele aqui
+
+argumentos: argumento',' argumentos
 
 comando_shift: ;
 
@@ -109,7 +122,12 @@ comando_break: TK_PR_BREAK;
 
 comando_continue: TK_PR_CONTINUE;
 
-comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos ;
+comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos
+                     | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos;
+
+comando_iterativo_for: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atribuicao')' bloco_comandos
+
+comando_iterativo_while: TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
 
 expressao: ;
 
