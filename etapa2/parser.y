@@ -3,7 +3,6 @@
 int yylex(void);
 int yyerror (char const *s); //mudar pra void?
 %}
-%token TK_STATIC //cade esse static? add. tem q tirar?
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
@@ -60,7 +59,7 @@ decvariavel: staticopc tipo nomevariavel ';';
 
 nomevariavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
 
-staticopc: TK_STATIC | ;
+staticopc: TK_PR_STATIC | ;
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
