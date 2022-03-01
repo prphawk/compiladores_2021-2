@@ -64,6 +64,7 @@ São operadores lógicos unários e binários: aqueles que sobraram na listagem.
 */
 %%
 
+/*
 programa: declaracoes;
 
 declaracoes: declaracao declaracoes | ;
@@ -102,14 +103,14 @@ comando_simples: declaracao_var_local
                | comando_atribuicao 
                | comando_entrada 
                | comando_saida 
-               | chamada_funcao 
+               //| chamada_funcao 
                | comando_shift 
                | comando_retorno
                | TK_PR_BREAK
                | TK_PR_CONTINUE
                | comando_condicional 
                | comando_iterativo
-               | expressao 
+               | expressao
                | bloco_comandos
                ;
 
@@ -127,28 +128,11 @@ comando_atribuicao: TK_IDENTIFICADOR '=' expressao
 
 comando_entrada: TK_PR_INPUT TK_IDENTIFICADOR;
 
-literal: TK_LIT_CHAR
-         | TK_LIT_STRING
-         | TK_LIT_TRUE
-         | TK_LIT_FALSE
-         | literal_numerico
-         ;
-
-literal_numerico: TK_LIT_FLOAT 
-                  | TK_LIT_INT
-                  ;
-
 comando_saida: TK_PR_OUTPUT TK_IDENTIFICADOR 
                | TK_PR_OUTPUT literal
                ;
 
-chamada_funcao: TK_IDENTIFICADOR '(' argumentos ')';
 
-argumento: expressao 
-            | literal
-            ; // ta certo isso? eu q botei ele aqui
-
-argumentos: argumento',' argumentos;
 
 comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT 
                | TK_IDENTIFICADOR'['expressao']' TK_OC_SL TK_LIT_INT
@@ -166,12 +150,34 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atri
                   | TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
                   ;
 
-expressao: TK_IDENTIFICADOR
-         | expressao
-         | '(' expressao ')'
-         | TK_IDENTIFICADOR'['expressao']'
+*/
+
+argumento: expressao 
+         | literal // ta certo isso? eu q botei ele aqui
+         ; 
+
+argumentos: argumento',' argumentos | argumento;
+
+lista_argumentos: argumentos | ;
+
+literal: TK_LIT_CHAR
+         | TK_LIT_STRING
+         | TK_LIT_TRUE
+         | TK_LIT_FALSE
          | literal_numerico
-         | chamada_funcao
+         ;
+
+literal_numerico: TK_LIT_FLOAT 
+                  | TK_LIT_INT
+                  ;
+
+expressao: '(' expressao ')'
+         | TK_IDENTIFICADOR
+         | TK_IDENTIFICADOR'[' expressao ']' //vetor
+         | TK_IDENTIFICADOR '(' lista_argumentos ')'; // chamada função
+/*
+         | literal_numerico
+
 
          | '+' expressao
          | '-' expressao
@@ -186,7 +192,7 @@ expressao: TK_IDENTIFICADOR
          | expressao '%' expressao 
          | expressao '*' expressao /*The relative precedence of different operators is controlled by the order in which they are declared. 
          The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
-         the next such declaration declares the operators whose precedence is a little higher, and so on. */
+         the next such declaration declares the operators whose precedence is a little higher, and so on. 
          | expressao '/' expressao
          | expressao '|' expressao
          | expressao '&' expressao
@@ -198,14 +204,8 @@ expressao: TK_IDENTIFICADOR
          | expressao TK_OC_OR expressao
 	      | expressao TK_OC_AND expressao
          | expressao '?' expressao ':' expressao
+         */
          ;
-
-/*  botamos??
-         | expressao '<' expressao 
-         | expressao '>' expressao 
-*/
-         
-
 
 %%
 
