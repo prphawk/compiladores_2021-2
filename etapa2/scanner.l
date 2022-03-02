@@ -3,7 +3,7 @@
 %{ 
 #include<stdio.h>
 #include "parser.tab.h"
-#include "main.h"
+#include "main.c"
 void succ_num_lines();
 int get_ascii_value(char* yytext);
 
