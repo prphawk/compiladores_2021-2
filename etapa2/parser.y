@@ -3,7 +3,6 @@
 int yylex(void);
 int yyerror (char const *s); //mudar pra void?
 extern int get_line_number (void);
-
 %}
 %token TK_PR_INT
 %token TK_PR_FLOAT
@@ -49,13 +48,19 @@ extern int get_line_number (void);
 %token TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+/*The relative precedence of different operators is controlled by the order in which they are declared. 
+The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
+the next ssauch declaration declares the operators whose precedence is a little higher, and so on. 
+*/
+
 //https://www.gnu.org/software/bison/manual/html_node/Precedence-Decl.html
 %left TK_OC_LE TK_OC_EQ TK_OC_GE TK_OC_NE TK_OC_OR TK_OC_AND TK_OC_SL TK_OC_SR
-%left '+' '-' 
+%left '+' '-'
 %left '%' '^' '|' '?' ':' '!'
 %left '*' '/'
-%right '#' '&'
+%right '#' '&' '='
 // e os unarios associativos `a direita ???
+// TODO: isso só pode ta errado
 /*
 Na Sec 3.5 temos os operadores unários, binários e ternários. 
 São operadores aritméticos unários: 
@@ -67,18 +72,14 @@ São operadores lógicos unários e binários: aqueles que sobraram na listagem.
 */
 %%
 
-/*
+
 programa: declaracoes;
 
-*/
 declaracoes: declaracao declaracoes | ;
 
 declaracao: declaracao_variavel_global | declaracao_funcao;
 
-declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';'
-                           | tipo lista_nome_variavel ';'
-                           ;
-
+declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
 
 nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']';
 
@@ -86,9 +87,7 @@ lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
 
 declaracao_funcao: cabecalho corpo;
 
-cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')'
-         | tipo TK_IDENTIFICADOR '(' parametros ')'
-         ;
+cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' | tipo TK_IDENTIFICADOR '(' parametros ')';
 
 parametros: lista_parametros | ;
 
@@ -100,20 +99,21 @@ tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
 corpo: bloco_comandos;
 
-bloco_comandos: '{' comando_simples ';' bloco_comandos '}' | ;
+lista_comandos: comando_simples ';' lista_comandos | ;
+
+bloco_comandos: '{' lista_comandos '}' ;
 
 comando_simples: declaracao_var_local 
                | comando_atribuicao 
                | comando_entrada 
                | comando_saida 
-               //| chamada_funcao 
                | comando_shift 
                | comando_retorno
                | TK_PR_BREAK
                | TK_PR_CONTINUE
                | comando_condicional 
                | comando_iterativo
-               | expressao
+               | expressao               //| chamada_funcao (expressao ja tem)
                | bloco_comandos
                ;
 
@@ -139,8 +139,6 @@ comando_saida: TK_PR_OUTPUT TK_IDENTIFICADOR
                | TK_PR_OUTPUT literal
                ;
 
-
-
 comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT 
                | TK_IDENTIFICADOR'['expressao']' TK_OC_SL TK_LIT_INT
                | TK_IDENTIFICADOR TK_OC_SR TK_LIT_INT 
@@ -157,8 +155,7 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atri
                   | TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
                   ;
 
-
-argumento: expressao; 
+argumento: expressao;
 
 argumentos: argumento',' argumentos | argumento;
 
@@ -172,42 +169,37 @@ literal: TK_LIT_CHAR
          | TK_LIT_INT
          ;
 
+// essas declarações separadas tão dando as 30 shift-reduce, mas temos q atacar o real problema de associatividade e precedencia
+operador_binario: '*'   
+                  | '/' 
+                  | '^' 
+                  | '+' 
+                  | '-' 
+                  | '%' 
+                  | '|' 
+                  | '&' 
+                  | TK_OC_LE  
+                  | TK_OC_EQ   
+                  | TK_OC_GE   
+                  | TK_OC_NE 
+                  | TK_OC_OR
+                  | TK_OC_AND
+                  ;
+
+operador_unario: '-' | '+' | '!' | '&' | '*' | '?' | '#';
+
 expressao: literal
-         | '(' expressao ')'
+         | '('expressao')'
          | TK_IDENTIFICADOR
-         | TK_IDENTIFICADOR'[' expressao ']' //vetor
-         | TK_IDENTIFICADOR '(' lista_argumentos ')'; // chamada função
-         | expressao '+' expressao
-         | expressao '-' expressao
-         | expressao '%' expressao
-         | expressao '*' expressao
-         | expressao '/' expressao
-         | expressao '|' expressao
-         | expressao '&' expressao
-         | expressao '^' expressao
-         | expressao TK_OC_LE expressao  
-         | expressao TK_OC_EQ expressao   
-         | expressao TK_OC_GE expressao   
-         | expressao TK_OC_NE expressao 
-         | expressao TK_OC_OR expressao
-	      | expressao TK_OC_AND expressao
+         | TK_IDENTIFICADOR'['expressao']'
+         | TK_IDENTIFICADOR'('lista_argumentos')';
          | expressao '?' expressao ':' expressao
-         | '+' expressao //DIFERENCIAR OS UNÁRIOS??????
-         | '-' expressao
-         | '!' expressao
-         | '&' expressao
-         | '*' expressao
-         | '?' expressao
-         | '#' expressao 
-         /*The relative precedence of different operators is controlled by the order in which they are declared. 
-         The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
-         the next such declaration declares the operators whose precedence is a little higher, and so on. 
-         */
+         | operador_unario expressao //DIFERENCIAR OS UNÁRIOS??????
+         | expressao operador_binario expressao
          ;
 
 %%
-
 int yyerror (char const *s) {
-   printf("%s on line %d\n", s, get_line_number());
+   printf("line %d: %s\n", get_line_number(), s);
    return 1;
 }
