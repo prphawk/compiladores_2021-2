@@ -54,11 +54,19 @@ the next ssauch declaration declares the operators whose precedence is a little 
 */
 
 //https://www.gnu.org/software/bison/manual/html_node/Precedence-Decl.html
+/*
 %left TK_OC_LE TK_OC_EQ TK_OC_GE TK_OC_NE TK_OC_OR TK_OC_AND TK_OC_SL TK_OC_SR
 %left '+' '-'
 %left '%' '^' '|' '?' ':' '!'
 %left '*' '/'
 %right '#' '&' '='
+*/
+%precedence TK_OC_OR TK_OC_AND
+%precedence TK_OC_EQ TK_OC_NE TK_OC_LE TK_OC_GE '<' '>' '|' '&'
+%precedence '+' '-'
+%precedence '*' '/' '%'
+%precedence '^'
+
 // e os unarios associativos `a direita ???
 // TODO: isso só pode ta errado
 /*
@@ -71,7 +79,6 @@ São operadores aritméticos ternários: ?: conforme a descrição no texto.
 São operadores lógicos unários e binários: aqueles que sobraram na listagem.
 */
 %%
-
 
 programa: declaracoes;
 
@@ -113,7 +120,7 @@ comando_simples: declaracao_var_local
                | TK_PR_CONTINUE
                | comando_condicional 
                | comando_iterativo
-               | expressao               //| chamada_funcao (expressao ja tem)
+               | expressao
                | bloco_comandos
                ;
 
@@ -178,26 +185,39 @@ operador_binario: '*'
                   | '%' 
                   | '|' 
                   | '&' 
-                  | TK_OC_LE  
+                  | '<'
+                  | '>'
+                  | TK_OC_LE
                   | TK_OC_EQ   
                   | TK_OC_GE   
                   | TK_OC_NE 
                   | TK_OC_OR
                   | TK_OC_AND
                   ;
+                  
 
-operador_unario: '-' | '+' | '!' | '&' | '*' | '?' | '#';
+operador_unario: '-' 
+               | '+' 
+               | '!' 
+               | '&' 
+               | '*' 
+               | '?' 
+               | '#'
+               ;
 
-expressao: literal
-         | '('expressao')'
-         | TK_IDENTIFICADOR
-         | TK_IDENTIFICADOR'['expressao']'
-         | TK_IDENTIFICADOR'('lista_argumentos')';
-         | expressao '?' expressao ':' expressao
-         | operador_unario expressao //DIFERENCIAR OS UNÁRIOS??????
-         | expressao operador_binario expressao
-         ;
+expressao: expr_binaria | expressao '?' expr_binaria ':' expr_binaria;
+expr_binaria: expr_unaria | expr_binaria operador_binario expr_unaria;
+expr_unaria: expr_final | operador_unario expr_final;
+expr_final: operando | '(' expressao ')'; 
 
+operando: TK_LIT_TRUE
+         | TK_LIT_FALSE
+         | TK_LIT_FLOAT 
+         | TK_LIT_INT 
+         | TK_IDENTIFICADOR 
+         | TK_IDENTIFICADOR '[' expressao ']' 
+         | TK_IDENTIFICADOR'('lista_argumentos')'
+         ; 
 %%
 int yyerror (char const *s) {
    printf("line %d: %s\n", get_line_number(), s);
