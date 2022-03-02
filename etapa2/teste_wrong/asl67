@@ -1,0 +1,5 @@
+int f()
+{
+  int x;
+  do { } while (i);
+}

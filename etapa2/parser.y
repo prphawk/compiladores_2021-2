@@ -215,7 +215,7 @@ operando: TK_LIT_TRUE
          | TK_LIT_FLOAT 
          | TK_LIT_INT 
          | TK_IDENTIFICADOR 
-         | TK_IDENTIFICADOR '[' expressao ']' 
+         | TK_IDENTIFICADOR '['expressao']' 
          | TK_IDENTIFICADOR'('lista_argumentos')'
          ; 
 %%

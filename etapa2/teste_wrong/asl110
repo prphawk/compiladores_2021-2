@@ -1,0 +1,4 @@
+class
+minhaClasse [
+    public const int idade
+];
