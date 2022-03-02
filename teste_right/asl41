@@ -1,0 +1,4 @@
+int f ()
+{
+  const int a;
+}
