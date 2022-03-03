@@ -61,11 +61,13 @@ the next ssauch declaration declares the operators whose precedence is a little 
 %left '*' '/'
 %right '#' '&' '='
 */
+/* 
 %precedence TK_OC_OR TK_OC_AND
 %precedence TK_OC_EQ TK_OC_NE TK_OC_LE TK_OC_GE '<' '>' '|' '&'
 %precedence '+' '-'
 %precedence '*' '/' '%'
-%precedence '^'
+%precedence '^' 
+*/
 
 // e os unarios associativos `a direita ???
 // TODO: isso só pode ta errado
@@ -176,15 +178,14 @@ literal: TK_LIT_CHAR
          | TK_LIT_INT
          ;
 
-// essas declarações separadas tão dando as 30 shift-reduce, mas temos q atacar o real problema de associatividade e precedencia
-operador_binario: '*'   
-                  | '/' 
-                  | '^' 
-                  | '+' 
-                  | '-' 
-                  | '%' 
-                  | '|' 
-                  | '&' 
+operador_binario: '*'
+                  | '/'
+                  | '^'
+                  | '+'
+                  | '-'
+                  | '%'
+                  | '|'
+                  | '&'
                   | '<'
                   | '>'
                   | TK_OC_LE
@@ -210,13 +211,13 @@ expr_binaria: expr_unaria | expr_binaria operador_binario expr_unaria;
 expr_unaria: expr_final | operador_unario expr_final;
 expr_final: operando | '(' expressao ')'; 
 
-operando: TK_LIT_TRUE
+operando: TK_IDENTIFICADOR 
+         | TK_IDENTIFICADOR'['expressao']' 
+         | TK_IDENTIFICADOR'('lista_argumentos')'
+         | TK_LIT_TRUE
          | TK_LIT_FALSE
          | TK_LIT_FLOAT 
-         | TK_LIT_INT 
-         | TK_IDENTIFICADOR 
-         | TK_IDENTIFICADOR '['expressao']' 
-         | TK_IDENTIFICADOR'('lista_argumentos')'
+         | TK_LIT_INT
          ; 
 %%
 int yyerror (char const *s) {
