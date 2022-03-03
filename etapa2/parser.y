@@ -195,7 +195,6 @@ operador_binario: '*'
                   | TK_OC_OR
                   | TK_OC_AND
                   ;
-                  
 
 operador_unario: '-' 
                | '+' 
@@ -206,10 +205,10 @@ operador_unario: '-'
                | '#'
                ;
 
-expressao: expr_binaria | expressao '?' expr_binaria ':' expr_binaria;
-expr_binaria: expr_unaria | expr_binaria operador_binario expr_unaria;
-expr_unaria: expr_final | operador_unario expr_final;
-expr_final: operando | '(' expressao ')'; 
+expressao: expr_binaria_ou | expressao '?' expr_binaria_ou ':' expr_binaria_ou;
+expr_binaria_ou: expr_unaria_ou | expr_binaria_ou operador_binario expr_unaria_ou;
+expr_unaria_ou: expr_parenteses_ou | operador_unario expr_parenteses_ou;
+expr_parenteses_ou: operando | '(' expressao ')'; 
 
 operando: TK_IDENTIFICADOR 
          | TK_IDENTIFICADOR'['expressao']' 
