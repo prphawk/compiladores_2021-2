@@ -51,27 +51,9 @@ extern int get_line_number (void);
 /*The relative precedence of different operators is controlled by the order in which they are declared. 
 The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
 the next ssauch declaration declares the operators whose precedence is a little higher, and so on. 
-*/
 
 //https://www.gnu.org/software/bison/manual/html_node/Precedence-Decl.html
-/*
-%left TK_OC_LE TK_OC_EQ TK_OC_GE TK_OC_NE TK_OC_OR TK_OC_AND TK_OC_SL TK_OC_SR
-%left '+' '-'
-%left '%' '^' '|' '?' ':' '!'
-%left '*' '/'
-%right '#' '&' '='
-*/
-/* 
-%precedence TK_OC_OR TK_OC_AND
-%precedence TK_OC_EQ TK_OC_NE TK_OC_LE TK_OC_GE '<' '>' '|' '&'
-%precedence '+' '-'
-%precedence '*' '/' '%'
-%precedence '^' 
-*/
 
-// e os unarios associativos `a direita ???
-// TODO: isso só pode ta errado
-/*
 Na Sec 3.5 temos os operadores unários, binários e ternários. 
 São operadores aritméticos unários: 
 + sinal positivo explı́cito; - inverte o sinal; & acesso ao endereço da variável; * acesso ao valor do ponteiro; 
