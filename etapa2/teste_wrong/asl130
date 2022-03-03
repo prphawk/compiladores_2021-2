@@ -1,0 +1,5 @@
+int main()
+{
+  if (true)
+    x = 2;
+}

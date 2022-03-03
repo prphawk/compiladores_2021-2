@@ -1,0 +1,4 @@
+int func1(char param1)
+{
+    char teste = 'a';
+}

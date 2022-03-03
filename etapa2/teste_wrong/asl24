@@ -1,0 +1,4 @@
+class ASL_t [ public int a ];
+ASL_t f (ASL_t xis)
+{
+}
