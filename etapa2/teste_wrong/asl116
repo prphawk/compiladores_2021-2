@@ -1,4 +1,4 @@
 int func1(char param1) {
     float a;
-    a <= 3.5;
+    a <= 3.5; //aaa ele passa pq ele acha q eh uma expressão!!!!
 }

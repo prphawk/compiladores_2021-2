@@ -1,4 +1,7 @@
 int main() {
   int x;
+  b ? a : c;
+  x + 1;
   x = x+1 ? 1 : 2;
+
 }

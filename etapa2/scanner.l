@@ -14,10 +14,9 @@ int get_line_number(void) { return num_lines; }
 DIGIT [0-9]
 ALPHA_ [a-zA-Z_]
 ID {ALPHA_}({ALPHA_}|{DIGIT})*
-SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&%#\^.$]
-OPT_SIGNAL (\+|\-)?
-INT {OPT_SIGNAL}{DIGIT}+ 
-FLOAT {OPT_SIGNAL}{DIGIT}+\.{DIGIT}+((E|e){INT})?
+SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&?%#\^.$]
+INT {DIGIT}+ 
+FLOAT {DIGIT}+\.{DIGIT}+((E|e){INT})?
 CHAR '.'
 STRING \"([^\n"])*\"
 COMMENT_SINGLE \/\/[^\n\r]*

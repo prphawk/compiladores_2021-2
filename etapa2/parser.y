@@ -108,7 +108,7 @@ comando_simples: declaracao_var_local
                | bloco_comandos
                ;
 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local; 
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local
                      | TK_PR_CONST tipo lista_nome_variavel_local
                      | TK_PR_STATIC tipo lista_nome_variavel_local
                      | tipo lista_nome_variavel_local
