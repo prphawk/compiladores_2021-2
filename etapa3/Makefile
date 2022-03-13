@@ -1,5 +1,5 @@
 # Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
-etapa2: lex.yy.c parser.tab.o
+etapa3: lex.yy.c parser.tab.o
 	gcc -o etapa2 lex.yy.o parser.tab.o -lfl
 
 lex.yy.o parser.tab.o: lex.yy.c parser.tab.c

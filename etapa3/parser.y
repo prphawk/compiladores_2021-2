@@ -4,6 +4,12 @@ int yylex(void);
 int yyerror (char const *s); //mudar pra void?
 extern int get_line_number (void);
 %}
+%code requires {
+    #include "valor_lexico.h"
+}
+%union {
+   valorLexico valor_lexico;
+}
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL

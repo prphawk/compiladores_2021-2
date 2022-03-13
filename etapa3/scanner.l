@@ -4,8 +4,11 @@
 #include<stdio.h>
 #include "parser.tab.h"
 #include "main.c"
+#define YYSTYPE valorLexico
+
 void succ_num_lines();
 int get_ascii_value(char* yytext);
+void atribui_yylval(Tipo tipo, TipoLiteral tipo_literal) ;
 
 int num_lines = 1;
 int get_line_number(void) { return num_lines; }
@@ -64,9 +67,9 @@ TO_IGNORE [ \t\r]+|{COMMENT_SINGLE}
 "false" return TK_LIT_FALSE;
 
 {ID} return TK_IDENTIFICADOR;
-{FLOAT} return TK_LIT_FLOAT;
-{INT} return TK_LIT_INT;
-{CHAR} return TK_LIT_CHAR;
+{FLOAT} { atribui_yylval(LITERAL, FLOAT); yylval.valor_lexico.valor.valor_int=atof(yytext); return TK_LIT_FLOAT;}
+{INT} { atribui_yylval(LITERAL, INTEIRO); yylval.valor_lexico.valor.valor_int=atoi(yytext); return TK_LIT_INT;}
+{CHAR} { atribui_yylval(LITERAL, CHAR); yylval.valor_lexico.valor.valor_char=yytext[1]; return TK_LIT_CHAR;}
 {STRING} return TK_LIT_STRING;
 {TO_IGNORE}
 
@@ -83,3 +86,9 @@ que for escrito num comentário não fechado seja consumido e não interpretado 
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
 void succ_num_lines() { ++num_lines; }
+void atribui_yylval(Tipo tipo, TipoLiteral tipo_literal) 
+{
+    yylval.valor_lexico.linha=num_lines; 
+    yylval.valor_lexico.tipo=tipo; 
+    yylval.valor_lexico.tipo_literal=tipo_literal;
+}
