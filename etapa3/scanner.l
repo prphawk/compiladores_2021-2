@@ -2,6 +2,7 @@
 %x comment
 %{ 
 #include<stdio.h>
+#include<string.h>
 #include "parser.tab.h"
 #include "main.c"
 #define YYSTYPE valorLexico
@@ -9,6 +10,7 @@
 void succ_num_lines();
 int get_ascii_value(char* yytext);
 void atribui_yylval(Tipo tipo, TipoLiteral tipo_literal) ;
+void atribui_string();
 
 int num_lines = 1;
 int get_line_number(void) { return num_lines; }
@@ -54,23 +56,23 @@ TO_IGNORE [ \t\r]+|{COMMENT_SINGLE}
 "end" return TK_PR_END;
 "default" return TK_PR_DEFAULT;
 
-"<=" return TK_OC_LE;
-">=" return TK_OC_GE;
-"==" return TK_OC_EQ;
-"!=" return TK_OC_NE;
-"&&" return TK_OC_AND;
-"||" return TK_OC_OR; 
-">>" return TK_OC_SL;
-"<<" return TK_OC_SR;
+">=" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_GE;}
+"<=" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_LE;}
+"==" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_EQ;}
+"!=" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_NE;}
+"&&" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_AND;}
+"||" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_OR;}
+">>" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_SL;}
+"<<" { atribui_yylval(OPERADOR_COMPOSTO, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_OC_SR;}
 
-"true" return TK_LIT_TRUE;
-"false" return TK_LIT_FALSE;
+"true" { atribui_yylval(LITERAL, BOOL); yylval.valor_lexico.valor.valor_bool=1; return TK_LIT_TRUE;}
+"false" { atribui_yylval(LITERAL, BOOL); yylval.valor_lexico.valor.valor_bool=0; return TK_LIT_FALSE;}
 
-{ID} return TK_IDENTIFICADOR;
+{ID} { atribui_yylval(IDENTIFICADOR, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return TK_IDENTIFICADOR;}
 {FLOAT} { atribui_yylval(LITERAL, FLOAT); yylval.valor_lexico.valor.valor_int=atof(yytext); return TK_LIT_FLOAT;}
 {INT} { atribui_yylval(LITERAL, INTEIRO); yylval.valor_lexico.valor.valor_int=atoi(yytext); return TK_LIT_INT;}
 {CHAR} { atribui_yylval(LITERAL, CHAR); yylval.valor_lexico.valor.valor_char=yytext[1]; return TK_LIT_CHAR;}
-{STRING} return TK_LIT_STRING;
+{STRING} { atribui_yylval(LITERAL, STRING); atribui_string(); return TK_LIT_STRING;}
 {TO_IGNORE}
 
 "/*" BEGIN(comment);
@@ -81,7 +83,7 @@ que for escrito num comentário não fechado seja consumido e não interpretado 
 <comment><<EOF>> { BEGIN(INITIAL); return TOKEN_ERRO;};
 <comment>"*"+"/" BEGIN(INITIAL);
 
-{SPECIAL} return get_ascii_value(yytext);
+{SPECIAL} {atribui_yylval(CARACTERE_ESPECIAL, NAO_LITERAL); yylval.valor_lexico.valor.valor_string = strdup(yytext); return get_ascii_value(yytext);}
 . return TOKEN_ERRO;
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
@@ -91,4 +93,10 @@ void atribui_yylval(Tipo tipo, TipoLiteral tipo_literal)
     yylval.valor_lexico.linha=num_lines; 
     yylval.valor_lexico.tipo=tipo; 
     yylval.valor_lexico.tipo_literal=tipo_literal;
+}
+void atribui_string()
+{
+    yylval.valor_lexico.valor.valor_string = strdup(yytext);
+    yylval.valor_lexico.valor.valor_string++;
+    yylval.valor_lexico.valor.valor_string[strlen(yylval.valor_lexico.valor.valor_string)-1] = '\0';
 }

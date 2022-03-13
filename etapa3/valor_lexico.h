@@ -10,6 +10,7 @@ typedef enum tipoLiteral
 {
     INTEIRO,
     FLOAT,
+    BOOL,
     CHAR,
     STRING,
     NAO_LITERAL
@@ -23,6 +24,7 @@ typedef struct valorLexico
     union valor {
         int valor_int;
         float valor_float;
+        int valor_bool;
         char valor_char;
         char *valor_string;
     } valor;
