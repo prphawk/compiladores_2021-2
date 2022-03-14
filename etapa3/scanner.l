@@ -3,6 +3,7 @@
 %{ 
 #include<stdio.h>
 #include<string.h>
+#include "ast.h"
 #include "parser.tab.h"
 #include "main.c"
 #define YYSTYPE valorLexico
@@ -94,7 +95,8 @@ void atribui_yylval(Tipo tipo, TipoLiteral tipo_literal)
     yylval.valor_lexico.tipo=tipo; 
     yylval.valor_lexico.tipo_literal=tipo_literal;
 }
-void atribui_string()
+// TODO free string
+void atribui_string() 
 {
     yylval.valor_lexico.valor.valor_string = strdup(yytext);
     yylval.valor_lexico.valor.valor_string++;

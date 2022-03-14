@@ -1,3 +1,4 @@
+#pragma once
 typedef enum tipo
 {
     CARACTERE_ESPECIAL,
