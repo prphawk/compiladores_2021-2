@@ -16,8 +16,3 @@ struct LseNodo
     nodo *nodo;
     lseNodo *proximo;
 };
-
-nodo *adiciona_nodo(valorLexico valor_lexico);
-void adiciona_filho(nodo *pai, nodo *filho);
-lseNodo *acha_ultimo_filho(lseNodo *filhos);
-void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao);

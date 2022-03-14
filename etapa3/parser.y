@@ -4,6 +4,14 @@
 int yylex(void);
 int yyerror (char const *s); //mudar pra void?
 extern int get_line_number (void);
+nodo *adiciona_nodo(valorLexico valor_lexico);
+void adiciona_filho(nodo *pai, nodo *filho);
+lseNodo *acha_ultimo_filho(lseNodo *filhos);
+void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao);
+void libera_arvore(void *pai);
+void libera_irmaos(void *filhos);
+void libera_nodo(nodo *nodo);
+void libera_valor_lexico(valorLexico valor_lexico);
 %}
 %code requires {
    #include "valor_lexico.h"
@@ -11,48 +19,48 @@ extern int get_line_number (void);
 %union {
    valorLexico valor_lexico;
 }
-%token TK_PR_INT
-%token TK_PR_FLOAT
-%token TK_PR_BOOL
-%token TK_PR_CHAR
-%token TK_PR_STRING
-%token TK_PR_IF
-%token TK_PR_THEN
-%token TK_PR_ELSE
-%token TK_PR_WHILE
-%token TK_PR_DO
-%token TK_PR_INPUT
-%token TK_PR_OUTPUT
-%token TK_PR_RETURN
-%token TK_PR_CONST
-%token TK_PR_STATIC
-%token TK_PR_FOREACH
-%token TK_PR_FOR
-%token TK_PR_SWITCH
-%token TK_PR_CASE
-%token TK_PR_BREAK
-%token TK_PR_CONTINUE
-%token TK_PR_CLASS
-%token TK_PR_PRIVATE
-%token TK_PR_PUBLIC
-%token TK_PR_PROTECTED
-%token TK_PR_END
-%token TK_PR_DEFAULT
-%token TK_OC_LE
-%token TK_OC_GE
-%token TK_OC_EQ
-%token TK_OC_NE
-%token TK_OC_AND
-%token TK_OC_OR
-%token TK_OC_SL
-%token TK_OC_SR
-%token TK_LIT_INT
-%token TK_LIT_FLOAT
-%token TK_LIT_FALSE
-%token TK_LIT_TRUE
+%token<valor_lexico> TK_PR_INT
+%token<valor_lexico> TK_PR_FLOAT
+%token<valor_lexico> TK_PR_BOOL
+%token<valor_lexico> TK_PR_CHAR
+%token<valor_lexico> TK_PR_STRING
+%token<valor_lexico> TK_PR_IF
+%token<valor_lexico> TK_PR_THEN
+%token<valor_lexico> TK_PR_ELSE
+%token<valor_lexico> TK_PR_WHILE
+%token<valor_lexico> TK_PR_DO
+%token<valor_lexico> TK_PR_INPUT
+%token<valor_lexico> TK_PR_OUTPUT
+%token<valor_lexico> TK_PR_RETURN
+%token<valor_lexico> TK_PR_CONST
+%token<valor_lexico> TK_PR_STATIC
+%token<valor_lexico> TK_PR_FOREACH
+%token<valor_lexico> TK_PR_FOR
+%token<valor_lexico> TK_PR_SWITCH
+%token<valor_lexico> TK_PR_CASE
+%token<valor_lexico> TK_PR_BREAK
+%token<valor_lexico> TK_PR_CONTINUE
+%token<valor_lexico> TK_PR_CLASS
+%token<valor_lexico> TK_PR_PRIVATE
+%token<valor_lexico> TK_PR_PUBLIC
+%token<valor_lexico> TK_PR_PROTECTED
+%token<valor_lexico> TK_PR_END
+%token<valor_lexico> TK_PR_DEFAULT
+%token<valor_lexico> TK_OC_LE
+%token<valor_lexico> TK_OC_GE
+%token<valor_lexico> TK_OC_EQ
+%token<valor_lexico> TK_OC_NE
+%token<valor_lexico> TK_OC_AND
+%token<valor_lexico> TK_OC_OR
+%token<valor_lexico> TK_OC_SL
+%token<valor_lexico> TK_OC_SR
+%token<valor_lexico> TK_LIT_INT
+%token<valor_lexico> TK_LIT_FLOAT
+%token<valor_lexico> TK_LIT_FALSE
+%token<valor_lexico> TK_LIT_TRUE
 %token<valor_lexico> TK_LIT_CHAR
-%token TK_LIT_STRING
-%token TK_IDENTIFICADOR
+%token<valor_lexico> TK_LIT_STRING
+%token<valor_lexico> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
 /*The relative precedence of different operators is controlled by the order in which they are declared. 
@@ -79,7 +87,9 @@ declaracao: declaracao_variavel_global | declaracao_funcao;
 
 declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
 
-nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']';
+nome_variavel: TK_IDENTIFICADOR {
+            nodo *novo_nodo = adiciona_nodo($1);
+         }| TK_IDENTIFICADOR '[' TK_LIT_INT ']';
 
 lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
 
@@ -160,9 +170,6 @@ argumentos: argumento',' argumentos | argumento;
 lista_argumentos: argumentos | ;
 
 literal: TK_LIT_CHAR
-         {
-            adiciona_nodo($1);
-         }
          | TK_LIT_STRING
          | TK_LIT_TRUE
          | TK_LIT_FALSE
@@ -214,4 +221,101 @@ operando: TK_IDENTIFICADOR
 int yyerror (char const *s) {
    printf("line %d: %s\n", get_line_number(), s);
    return 1;
+}
+
+nodo *adiciona_nodo(valorLexico valor_lexico)
+{
+    nodo *nodo;
+
+    nodo = malloc(sizeof(nodo));
+    nodo->valor_lexico = valor_lexico;
+    nodo->filhos = NULL;
+
+    return nodo;
+}
+
+void adiciona_filho(nodo *pai, nodo *filho) 
+{
+
+   lseNodo lse_nodo;
+   lse_nodo.nodo = filho;
+   lse_nodo.proximo = NULL;
+   lse_nodo.pai = pai;
+
+   if(pai->filhos == NULL)
+   {
+      pai->filhos = &lse_nodo;
+   }
+   else
+   {
+      adiciona_irmao(acha_ultimo_filho(pai->filhos), &lse_nodo);
+   }
+
+   return;
+}
+
+//TODO função de alterar nodo
+//TODO função de remover nodo
+//TODO função de printar árvore
+
+lseNodo *acha_ultimo_filho(lseNodo *filhos)
+{
+    lseNodo *aux_nodo = filhos;
+    while(aux_nodo->proximo!=NULL)
+    {
+        aux_nodo = aux_nodo->proximo;
+    }
+    return aux_nodo;
+}
+
+void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao)
+{
+    irmao->proximo = novo_irmao;
+    return;
+}
+
+void libera_arvore(void *pai)
+{
+    if(pai == NULL) return;
+
+    nodo *pai_arvore = (nodo*)pai;
+
+    lseNodo *filhos = pai_arvore->filhos;
+
+    free(pai);
+
+    libera_nodo(pai_arvore);
+    libera_irmaos(filhos);
+    return;
+}
+
+void libera_irmaos(void *filhos)
+{
+    if(filhos == NULL) return;
+
+    lseNodo *irmaos = (lseNodo*)filhos; 
+
+    nodo *nodo_irmao = irmaos->nodo;
+    lseNodo *proximo = irmaos->proximo;
+
+    free(irmaos);
+
+    libera_nodo(nodo_irmao);
+    libera_irmaos(proximo);
+    return;
+}
+
+void libera_nodo(nodo *nodo)
+{
+    valorLexico valor_lexico = nodo->valor_lexico;
+    free(nodo);
+    libera_valor_lexico(valor_lexico);
+    return;
+}
+
+void libera_valor_lexico(valorLexico valor_lexico)
+{
+    if(valor_lexico.valor.valor_string != NULL)
+        free(valor_lexico.valor.valor_string);
+    return;
 }
