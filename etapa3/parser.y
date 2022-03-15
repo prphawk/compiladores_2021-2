@@ -5,7 +5,7 @@ int yylex(void);
 int yyerror (char const *s); //mudar pra void?
 extern int get_line_number (void);
 nodo *adiciona_nodo(valorLexico valor_lexico);
-void adiciona_filho(nodo *pai, nodo *filho);
+void adiciona_filho(nodo *pai, nodo *filho) ;
 lseNodo *acha_ultimo_filho(lseNodo *filhos);
 void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao);
 void libera_arvore(void *pai);
@@ -18,34 +18,35 @@ void libera_valor_lexico(valorLexico valor_lexico);
 }
 %union {
    valorLexico valor_lexico;
+   nodo *nodo;
 }
-%token<valor_lexico> TK_PR_INT
-%token<valor_lexico> TK_PR_FLOAT
-%token<valor_lexico> TK_PR_BOOL
-%token<valor_lexico> TK_PR_CHAR
-%token<valor_lexico> TK_PR_STRING
-%token<valor_lexico> TK_PR_IF
-%token<valor_lexico> TK_PR_THEN
-%token<valor_lexico> TK_PR_ELSE
-%token<valor_lexico> TK_PR_WHILE
-%token<valor_lexico> TK_PR_DO
-%token<valor_lexico> TK_PR_INPUT
-%token<valor_lexico> TK_PR_OUTPUT
-%token<valor_lexico> TK_PR_RETURN
-%token<valor_lexico> TK_PR_CONST
-%token<valor_lexico> TK_PR_STATIC
-%token<valor_lexico> TK_PR_FOREACH
-%token<valor_lexico> TK_PR_FOR
-%token<valor_lexico> TK_PR_SWITCH
-%token<valor_lexico> TK_PR_CASE
-%token<valor_lexico> TK_PR_BREAK
-%token<valor_lexico> TK_PR_CONTINUE
-%token<valor_lexico> TK_PR_CLASS
-%token<valor_lexico> TK_PR_PRIVATE
-%token<valor_lexico> TK_PR_PUBLIC
-%token<valor_lexico> TK_PR_PROTECTED
-%token<valor_lexico> TK_PR_END
-%token<valor_lexico> TK_PR_DEFAULT
+%token TK_PR_INT
+%token TK_PR_FLOAT
+%token TK_PR_BOOL
+%token TK_PR_CHAR
+%token TK_PR_STRING
+%token TK_PR_IF
+%token TK_PR_THEN
+%token TK_PR_ELSE
+%token TK_PR_WHILE
+%token TK_PR_DO
+%token TK_PR_INPUT
+%token TK_PR_OUTPUT
+%token TK_PR_RETURN
+%token TK_PR_CONST
+%token TK_PR_STATIC
+%token TK_PR_FOREACH
+%token TK_PR_FOR
+%token TK_PR_SWITCH
+%token TK_PR_CASE
+%token TK_PR_BREAK
+%token TK_PR_CONTINUE
+%token TK_PR_CLASS
+%token TK_PR_PRIVATE
+%token TK_PR_PUBLIC
+%token TK_PR_PROTECTED
+%token TK_PR_END
+%token TK_PR_DEFAULT
 %token<valor_lexico> TK_OC_LE
 %token<valor_lexico> TK_OC_GE
 %token<valor_lexico> TK_OC_EQ
@@ -62,6 +63,9 @@ void libera_valor_lexico(valorLexico valor_lexico);
 %token<valor_lexico> TK_LIT_STRING
 %token<valor_lexico> TK_IDENTIFICADOR
 %token TOKEN_ERRO
+
+%type<nodo> literal
+%type<nodo> lista_nome_variavel_local
 
 /*The relative precedence of different operators is controlled by the order in which they are declared. 
 The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
@@ -87,9 +91,7 @@ declaracao: declaracao_variavel_global | declaracao_funcao;
 
 declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
 
-nome_variavel: TK_IDENTIFICADOR {
-            nodo *novo_nodo = adiciona_nodo($1);
-         }| TK_IDENTIFICADOR '[' TK_LIT_INT ']';
+nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']';
 
 lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
 
@@ -131,10 +133,26 @@ declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local
                      | tipo lista_nome_variavel_local
                      ;
 
-lista_nome_variavel_local: TK_IDENTIFICADOR 
+lista_nome_variavel_local: TK_IDENTIFICADOR { $$ = adiciona_nodo($1);}
                            | TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR 
+                            { 
+                                nodo *novo_nodo = adiciona_nodo($2);
+                                adiciona_filho(novo_nodo, adiciona_nodo($1));
+                                adiciona_filho(novo_nodo, adiciona_nodo($3));
+                                $$ = novo_nodo;
+                            }
                            | TK_IDENTIFICADOR TK_OC_LE literal 
+                           { 
+                                nodo *novo_nodo = adiciona_nodo($2);
+                                adiciona_filho(novo_nodo, adiciona_nodo($1));
+                                adiciona_filho(novo_nodo, $3);
+                                $$ = novo_nodo;
+                            }
                            | TK_IDENTIFICADOR ',' lista_nome_variavel_local
+                           { 
+                                adiciona_filho($$, adiciona_nodo($1));
+                                adiciona_filho($$, $3);
+                            }
                            ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao
@@ -169,12 +187,12 @@ argumentos: argumento',' argumentos | argumento;
 
 lista_argumentos: argumentos | ;
 
-literal: TK_LIT_CHAR
-         | TK_LIT_STRING
-         | TK_LIT_TRUE
-         | TK_LIT_FALSE
-         | TK_LIT_FLOAT 
-         | TK_LIT_INT
+literal: TK_LIT_CHAR { $$ = adiciona_nodo($1);}
+         | TK_LIT_STRING { $$ = adiciona_nodo($1);}
+         | TK_LIT_TRUE { $$ = adiciona_nodo($1);}
+         | TK_LIT_FALSE { $$ = adiciona_nodo($1);}
+         | TK_LIT_FLOAT { $$ = adiciona_nodo($1);}
+         | TK_LIT_INT { $$ = adiciona_nodo($1);}
          ;
 
 operador_binario: '*'
@@ -240,7 +258,7 @@ void adiciona_filho(nodo *pai, nodo *filho)
    lseNodo lse_nodo;
    lse_nodo.nodo = filho;
    lse_nodo.proximo = NULL;
-   lse_nodo.pai = pai;
+   lse_nodo.nodo->pai = pai;
 
    if(pai->filhos == NULL)
    {
