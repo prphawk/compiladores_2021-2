@@ -4,7 +4,8 @@ typedef enum tipo
     CARACTERE_ESPECIAL,
     OPERADOR_COMPOSTO,
     IDENTIFICADOR,
-    LITERAL
+    LITERAL,
+    OUTRO
 } Tipo;
 
 typedef enum tipoLiteral
@@ -22,6 +23,7 @@ typedef struct valorLexico
     int linha;
     Tipo tipo;
     TipoLiteral tipo_literal;
+    char *label;
     union valor {
         int valor_int;
         float valor_float;

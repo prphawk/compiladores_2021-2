@@ -94,8 +94,9 @@ void atribui_yylval(Tipo tipo, TipoLiteral tipo_literal)
     yylval.valor_lexico.linha=num_lines; 
     yylval.valor_lexico.tipo=tipo; 
     yylval.valor_lexico.tipo_literal=tipo_literal;
+    yylval.valor_lexico.label = strdup(yytext);
 }
-// TODO free string
+
 void atribui_string() 
 {
     yylval.valor_lexico.valor.valor_string = strdup(yytext);
