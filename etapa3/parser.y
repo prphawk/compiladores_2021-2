@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<string.h>
 #include "ast.h"
+#include "main.h"
 int yylex(void);
 int yyerror (char const *s); //mudar pra void?
 extern int get_line_number (void);
@@ -85,7 +86,16 @@ void libera_valor_lexico(valorLexico valor_lexico);
 %type<nodo> expr_unaria_ou
 %type<nodo> expr_parenteses_ou
 %type<nodo> operando
-
+%type<nodo> lista_comandos
+%type<nodo> corpo
+%type<nodo> lista_argumentos
+%type<nodo> argumentos
+%type<nodo> argumento
+%type<nodo> cabecalho
+%type<nodo> declaracao_funcao
+%type<nodo> declaracao
+%type<nodo> declaracoes
+%type<nodo> programa
 
 /*The relative precedence of different operators is controlled by the order in which they are declared. 
 The first precedence/associativity declaration in the file declares the operators whose precedence is lowest, 
@@ -103,11 +113,15 @@ São operadores lógicos unários e binários: aqueles que sobraram na listagem.
 */
 %%
 
-programa: declaracoes;
+programa: declaracoes { $$ = $1; arvore = $$; };
 
-declaracoes: declaracao declaracoes | ;
+declaracoes: declaracao declaracoes 
+            {
+                adiciona_filho($1, $2);
+                $$ = $1;
+            } | { $$ = NULL; };
 
-declaracao: declaracao_variavel_global | declaracao_funcao;
+declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
 declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
 
@@ -115,9 +129,14 @@ nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']';
 
 lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
 
-declaracao_funcao: cabecalho corpo;
+declaracao_funcao: cabecalho corpo 
+                {
+                    adiciona_filho($1, $2);
+                    $$ = $1;
+                };
 
-cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' | tipo TK_IDENTIFICADOR '(' parametros ')';
+cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($3); }
+            | tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($2); };
 
 parametros: lista_parametros | ;
 
@@ -127,11 +146,12 @@ parametro: tipo TK_IDENTIFICADOR | TK_PR_CONST tipo TK_IDENTIFICADOR;
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
-corpo: bloco_comandos;
+corpo: bloco_comandos { $$ = $1; } ;
 
-lista_comandos: comando_simples ';' lista_comandos | ;
+lista_comandos: comando_simples ';' lista_comandos { adiciona_filho($1, $3); $$ = $1; }
+                | { $$ = NULL; };
 
-bloco_comandos: '{' lista_comandos '}' ;
+bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
 
 comando_simples: declaracao_var_local { $$ = $1;}
                | comando_atribuicao { $$ = $1;}
@@ -195,34 +215,115 @@ comando_atribuicao: TK_IDENTIFICADOR '=' expressao
                     }
                      ;
 
-comando_entrada: TK_PR_INPUT TK_IDENTIFICADOR;
+comando_entrada: TK_PR_INPUT TK_IDENTIFICADOR
+                {
+                    nodo *novo_nodo = adiciona_nodo_label("input");
+                    adiciona_filho(novo_nodo, adiciona_nodo($2));
+                    $$ = novo_nodo;
+                };
 
 comando_saida: TK_PR_OUTPUT TK_IDENTIFICADOR 
+                {
+                    nodo *novo_nodo = adiciona_nodo_label("output");
+                    adiciona_filho(novo_nodo, adiciona_nodo($2));
+                    $$ = novo_nodo;
+                }
                | TK_PR_OUTPUT literal
+               {
+                    nodo *novo_nodo = adiciona_nodo_label("output");
+                    adiciona_filho(novo_nodo, $2);
+                    $$ = novo_nodo;
+                }
                ;
 
 comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT 
+                {
+                    nodo *novo_nodo = adiciona_nodo($2);
+                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                    adiciona_filho(novo_nodo, adiciona_nodo($3));
+                    $$ = novo_nodo;
+                }
                | TK_IDENTIFICADOR'['expressao']' TK_OC_SL TK_LIT_INT
+               {
+                    nodo *nodo_vetor = adiciona_nodo_label("[]");
+                    adiciona_filho(nodo_vetor, adiciona_nodo($1));
+                    adiciona_filho(nodo_vetor, $3);
+                    nodo *novo_nodo = adiciona_nodo($5);
+                    adiciona_filho(novo_nodo, nodo_vetor);
+                    adiciona_filho(novo_nodo, adiciona_nodo($6));
+                    $$ = novo_nodo;
+                }
                | TK_IDENTIFICADOR TK_OC_SR TK_LIT_INT 
+               {
+                    nodo *novo_nodo = adiciona_nodo($2);
+                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                    adiciona_filho(novo_nodo, adiciona_nodo($3));
+                    $$ = novo_nodo;
+                }
                | TK_IDENTIFICADOR'['expressao']' TK_OC_SR TK_LIT_INT
+               {
+                    nodo *nodo_vetor = adiciona_nodo_label("[]");
+                    adiciona_filho(nodo_vetor, adiciona_nodo($1));
+                    adiciona_filho(nodo_vetor, $3);
+                    nodo *novo_nodo = adiciona_nodo($5);
+                    adiciona_filho(novo_nodo, nodo_vetor);
+                    adiciona_filho(novo_nodo, adiciona_nodo($6));
+                    $$ = novo_nodo;
+                }
                ;
 
-comando_retorno: TK_PR_RETURN expressao;
+comando_retorno: TK_PR_RETURN expressao
+                {
+                    nodo *novo_nodo = adiciona_nodo_label("return");
+                    adiciona_filho(novo_nodo, $2);
+                    $$ = novo_nodo;
+                };
 
-comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos
+comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos 
+                        {
+                            nodo *novo_nodo = adiciona_nodo_label("if");
+                            adiciona_filho(novo_nodo, $3);
+                            adiciona_filho(novo_nodo, $5);
+                            $$ = novo_nodo;
+                        }
                      | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos
+                        {
+                            nodo *novo_nodo = adiciona_nodo_label("if");
+                            adiciona_filho(novo_nodo, $3);
+                            adiciona_filho(novo_nodo, $5);
+                            adiciona_filho(novo_nodo, $7);
+                            $$ = novo_nodo;
+                        }
                      ;
 
 comando_iterativo: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atribuicao')' bloco_comandos
+                    {
+                        nodo *novo_nodo = adiciona_nodo_label("for");
+                        adiciona_filho(novo_nodo, $3);
+                        adiciona_filho(novo_nodo, $5);
+                        adiciona_filho(novo_nodo, $7);
+                        adiciona_filho(novo_nodo, $9);
+                        $$ = novo_nodo;
+                    }
                   | TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
+                  {
+                      nodo *novo_nodo = adiciona_nodo_label("while");
+                      adiciona_filho(novo_nodo, $3);
+                      adiciona_filho(novo_nodo, $6);
+                      $$ = novo_nodo;
+                  }
                   ;
 
-argumento: expressao;
+argumento: expressao { $$ = $1; };
 
 argumentos: argumento',' argumentos 
-            | argumento ;
+            {;
+                adiciona_filho($1, $3);
+                $$ = $1;
+            }
+            | argumento { $$ = $1; };
 
-lista_argumentos: argumentos | ;
+lista_argumentos: argumentos { $$ = $1; }| { $$ = NULL; };
 
 literal: TK_LIT_CHAR { $$ = adiciona_nodo($1);}
          | TK_LIT_STRING { $$ = adiciona_nodo($1);}
@@ -296,6 +397,7 @@ operando: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
         { 
             nodo *novo_nodo = adiciona_nodo_label("call");
             adiciona_filho(novo_nodo, adiciona_nodo($1));
+            adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
         }
          | TK_LIT_TRUE { $$ = adiciona_nodo($1); }
@@ -339,22 +441,23 @@ nodo *adiciona_nodo_label(char *label)
 
 void adiciona_filho(nodo *pai, nodo *filho) 
 {
-
-   lseNodo lse_nodo;
-   lse_nodo.nodo = filho;
-   lse_nodo.proximo = NULL;
-   lse_nodo.nodo->pai = pai;
-
-   if(pai->filhos == NULL)
+   if(pai!= NULL && filho!=NULL)
    {
-      pai->filhos = &lse_nodo;
+       lseNodo lse_nodo;
+       lse_nodo.nodo = filho;
+       lse_nodo.proximo = NULL;
+       lse_nodo.nodo->pai = pai;
+       if(pai->filhos == NULL)
+       {
+           pai->filhos = &lse_nodo;
+       }
+       else
+       {
+           adiciona_irmao(acha_ultimo_filho(pai->filhos), &lse_nodo);
+       }
    }
-   else
-   {
-      adiciona_irmao(acha_ultimo_filho(pai->filhos), &lse_nodo);
-   }
-
    return;
+   
 }
 
 //TODO função de alterar nodo
