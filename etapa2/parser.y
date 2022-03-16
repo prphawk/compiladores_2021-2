@@ -4,6 +4,7 @@ int yylex(void);
 int yyerror (char const *s); //mudar pra void?
 extern int get_line_number (void);
 %}
+%define parse.error verbose
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
@@ -160,35 +161,29 @@ literal: TK_LIT_CHAR
          | TK_LIT_INT
          ;
 
-operador_binario: '*'
-                  | '/'
-                  | '^'
-                  | '+'
-                  | '-'
-                  | '%'
-                  | '|'
-                  | '&'
-                  | '<'
-                  | '>'
-                  | TK_OC_LE
-                  | TK_OC_EQ   
-                  | TK_OC_GE   
-                  | TK_OC_NE 
-                  | TK_OC_OR
-                  | TK_OC_AND
-                  ;
+operador_binario_prec1: '^';
+operador_binario_prec2: '*' | '/' | '%';
+operador_binario_prec3: '+' | '-';
+operador_binario_prec4: '&' | '|';
+operador_binario_prec5: '<' | '>' | TK_OC_LE | TK_OC_EQ | TK_OC_GE | TK_OC_NE | TK_OC_OR | TK_OC_AND;
 
 operador_unario: '-' 
                | '+' 
                | '!' 
-               | '&' 
                | '*' 
+               | '&' 
                | '?' 
                | '#'
                ;
 
 expressao: expr_binaria_ou | expressao '?' expr_binaria_ou ':' expr_binaria_ou;
-expr_binaria_ou: expr_unaria_ou | expr_binaria_ou operador_binario expr_unaria_ou;
+
+expr_binaria_ou: expr_binaria_1_ou | expr_binaria_ou operador_binario_prec5 expr_binaria_1_ou;
+expr_binaria_1_ou: expr_binaria_2_ou | expr_binaria_1_ou operador_binario_prec4 expr_binaria_2_ou;
+expr_binaria_2_ou: expr_binaria_3_ou | expr_binaria_2_ou operador_binario_prec3 expr_binaria_3_ou;
+expr_binaria_3_ou: expr_binaria_4_ou | expr_binaria_3_ou operador_binario_prec2 expr_binaria_4_ou;
+expr_binaria_4_ou: expr_unaria_ou | expr_binaria_4_ou operador_binario_prec1 expr_unaria_ou;
+
 expr_unaria_ou: expr_parenteses_ou | operador_unario expr_parenteses_ou;
 expr_parenteses_ou: operando | '(' expressao ')'; 
 
