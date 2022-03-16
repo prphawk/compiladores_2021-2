@@ -109,16 +109,17 @@ comando_simples: declaracao_var_local
                | bloco_comandos
                ;
 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local
+declaracao_var_local: tipo lista_nome_variavel_local
+                     | TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local
                      | TK_PR_CONST tipo lista_nome_variavel_local
                      | TK_PR_STATIC tipo lista_nome_variavel_local
-                     | tipo lista_nome_variavel_local
                      ;
 
-lista_nome_variavel_local: TK_IDENTIFICADOR 
+lista_nome_variavel_local: 
+                           TK_IDENTIFICADOR ',' lista_nome_variavel_local
                            | TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR 
                            | TK_IDENTIFICADOR TK_OC_LE literal 
-                           | TK_IDENTIFICADOR ',' lista_nome_variavel_local
+                           | TK_IDENTIFICADOR 
                            ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao
@@ -167,10 +168,10 @@ operador_binario_prec3: '+' | '-';
 operador_binario_prec4: '&' | '|';
 operador_binario_prec5: '<' | '>' | TK_OC_LE | TK_OC_EQ | TK_OC_GE | TK_OC_NE | TK_OC_OR | TK_OC_AND;
 
+operador_asterisco: '*'
 operador_unario: '-' 
                | '+' 
                | '!' 
-               | '*' 
                | '&' 
                | '?' 
                | '#'
@@ -184,8 +185,8 @@ expr_binaria_2_ou: expr_binaria_3_ou | expr_binaria_2_ou operador_binario_prec3 
 expr_binaria_3_ou: expr_binaria_4_ou | expr_binaria_3_ou operador_binario_prec2 expr_binaria_4_ou;
 expr_binaria_4_ou: expr_unaria_ou | expr_binaria_4_ou operador_binario_prec1 expr_unaria_ou;
 
-expr_unaria_ou: expr_parenteses_ou | operador_unario expr_parenteses_ou;
-expr_parenteses_ou: operando | '(' expressao ')'; 
+expr_unaria_ou: expr_parenteses_ou | operador_unario expr_parenteses_ou | operador_asterisco expr_unaria_ou;
+expr_parenteses_ou: operando | '(' expressao ')';
 
 operando: TK_IDENTIFICADOR 
          | TK_IDENTIFICADOR'['expressao']' 
