@@ -1,0 +1,4 @@
+//CORRECT
+static int f ()
+{
+}

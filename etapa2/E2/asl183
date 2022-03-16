@@ -1,0 +1,8 @@
+//INCORRECT
+//literal booleano não é expressão (nem aritmética, nem lógica)
+int main ()
+{
+  int a;
+  a = true;
+  return 0;
+}

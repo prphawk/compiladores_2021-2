@@ -1,0 +1,2 @@
+//CORRECT
+static int x, y, alfa[12], beta[12], omega[12], lambda, gama;

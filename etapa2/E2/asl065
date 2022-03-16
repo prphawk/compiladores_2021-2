@@ -1,0 +1,9 @@
+//CORRECT
+int f()
+{
+  int x;
+  int i;
+  int j;
+  for(i = 0 : i : i = 2) {
+  };
+}

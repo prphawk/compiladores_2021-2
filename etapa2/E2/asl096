@@ -1,0 +1,7 @@
+//INCORRECT
+class ASL_t [ public int a ];
+int f()
+{
+  AST_t xis;
+  xis$a << 2;
+}

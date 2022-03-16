@@ -1,0 +1,8 @@
+//INCORRECT
+int f()
+{
+  int x;
+  x = 3;
+  switch (x) {
+  };
+}
