@@ -6,7 +6,7 @@ executable="./etapa2"
 echo "STARTING RIGHT TESTS"
 
 for file in teste_right/*
-do
+    do
     "$executable" < "$file"
     result=$?
     if [ $result != $SUCCESS ]
@@ -26,4 +26,3 @@ do
     fi
   
 done
-
