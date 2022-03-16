@@ -118,12 +118,9 @@ programa: declaracoes { $$ = $1; arvore = $$; imprime_arvore($1, 0); };
 
 declaracoes: declaracao declaracoes 
             {
-                if($1!=NULL)
-                {
-                    adiciona_filho($1, $2);
-                    $$ = $1;
-                }
-            } | ;
+                if($2!=NULL) adiciona_filho($1, $2);
+                $$ = $1;
+            } | { $$ = NULL; };
 
 declaracao: declaracao_variavel_global | declaracao_funcao { $$ = $1; };
 
@@ -152,7 +149,7 @@ tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
 corpo: bloco_comandos { $$ = $1; } ;
 
-lista_comandos: comando_simples ';' lista_comandos { adiciona_filho($1, $3); $$ = $1; }
+lista_comandos: comando_simples ';' lista_comandos { if($3!=NULL) adiciona_filho($1, $3); $$ = $1; }
                 | { $$ = NULL; };
 
 bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
@@ -474,7 +471,7 @@ void imprime_arvore(nodo *nodo, int profundidade)
     if (nodo == NULL)
         return;
     
-    for(i = 0; i<profundidade; i++) 
+    for(i = 0; i<profundidade-1; i++) 
     {
         printf("    ");
     }
