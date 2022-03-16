@@ -5,7 +5,6 @@
 #include<string.h>
 #include "ast.h"
 #include "parser.tab.h"
-#include "main.c"
 #define YYSTYPE valorLexico
 
 void succ_num_lines();

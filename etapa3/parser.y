@@ -17,6 +17,7 @@ void libera_irmaos(void *filhos);
 void libera_nodo(nodo *nodo);
 void libera_valor_lexico(valorLexico valor_lexico);
 %}
+%define parse.error verbose
 %code requires {
    #include "valor_lexico.h"
 }
@@ -81,9 +82,18 @@ void libera_valor_lexico(valorLexico valor_lexico);
 %type<nodo> comando_iterativo
 %type<nodo> expressao
 %type<nodo> bloco_comandos
-%type<nodo> operador_binario
+%type<nodo> operador_binario_prec1
+%type<nodo> operador_binario_prec2
+%type<nodo> operador_binario_prec3
+%type<nodo> operador_binario_prec4
+%type<nodo> operador_binario_prec5
 %type<nodo> operador_unario
+%type<nodo> operador_asterisco
 %type<nodo> expr_binaria_ou
+%type<nodo> expr_binaria_1_ou
+%type<nodo> expr_binaria_2_ou
+%type<nodo> expr_binaria_3_ou
+%type<nodo> expr_binaria_4_ou
 %type<nodo> expr_unaria_ou
 %type<nodo> expr_parenteses_ou
 %type<nodo> operando
@@ -334,29 +344,26 @@ literal: TK_LIT_CHAR { $$ = adiciona_nodo($1);}
          | TK_LIT_INT { $$ = adiciona_nodo($1);}
          ;
 
-operador_binario: '*' { $$ = adiciona_nodo_label("*"); }
-                  | '/' { $$ = adiciona_nodo_label("/"); }
-                  | '^' { $$ = adiciona_nodo_label("^"); }
-                  | '+' { $$ = adiciona_nodo_label("+"); }
-                  | '-' { $$ = adiciona_nodo_label("-"); }
-                  | '%' { $$ = adiciona_nodo_label("%"); }
-                  | '|' { $$ = adiciona_nodo_label("|"); }
-                  | '&' { $$ = adiciona_nodo_label("&"); }
-                  | '<' { $$ = adiciona_nodo_label("<"); }
-                  | '>' { $$ = adiciona_nodo_label(">"); }
-                  | TK_OC_LE { $$ = adiciona_nodo($1); }
-                  | TK_OC_EQ { $$ = adiciona_nodo($1); }
-                  | TK_OC_GE { $$ = adiciona_nodo($1); }    
-                  | TK_OC_NE { $$ = adiciona_nodo($1); }  
-                  | TK_OC_OR { $$ = adiciona_nodo($1); } 
-                  | TK_OC_AND { $$ = adiciona_nodo($1); }
-                  ;
+operador_binario_prec1: '^' { $$ = adiciona_nodo_label("^"); };
+operador_binario_prec2: '*' { $$ = adiciona_nodo_label("*"); } | '/' { $$ = adiciona_nodo_label("/"); } | '%' { $$ = adiciona_nodo_label("%"); };
+operador_binario_prec3: '+' { $$ = adiciona_nodo_label("+"); } | '-' { $$ = adiciona_nodo_label("-"); };
+operador_binario_prec4: '&' { $$ = adiciona_nodo_label("&"); } | '|' { $$ = adiciona_nodo_label("|"); };
+operador_binario_prec5: '<' { $$ = adiciona_nodo_label("<"); } 
+                    | '>' { $$ = adiciona_nodo_label(">"); } 
+                    | TK_OC_LE { $$ = adiciona_nodo($1); }
+                    | TK_OC_EQ { $$ = adiciona_nodo($1); }
+                    | TK_OC_GE { $$ = adiciona_nodo($1); }
+                    | TK_OC_NE { $$ = adiciona_nodo($1); }
+                    | TK_OC_OR { $$ = adiciona_nodo($1); }
+                    | TK_OC_AND { $$ = adiciona_nodo($1); }
+                    ;
+
+operador_asterisco: '*' { $$ = adiciona_nodo_label("*"); } 
 
 operador_unario: '-' { $$ = adiciona_nodo_label("-"); }
                | '+' { $$ = adiciona_nodo_label("+"); } 
                | '!' { $$ = adiciona_nodo_label("!"); } 
                | '&' { $$ = adiciona_nodo_label("&"); } 
-               | '*' { $$ = adiciona_nodo_label("*"); } 
                | '?' { $$ = adiciona_nodo_label("?"); } 
                | '#' { $$ = adiciona_nodo_label("#"); }
                ;
@@ -370,19 +377,53 @@ expressao: expr_binaria_ou { $$ = $1; }
                 adiciona_filho(novo_nodo, $5);
                 $$ = novo_nodo;
             };
-expr_binaria_ou: expr_unaria_ou { $$ = $1; }
-                | expr_binaria_ou operador_binario expr_unaria_ou
+expr_binaria_ou: expr_binaria_1_ou { $$ = $1; }
+                | expr_binaria_ou operador_binario_prec5 expr_binaria_1_ou
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                 };
+expr_binaria_1_ou: expr_binaria_2_ou { $$ = $1; }
+                | expr_binaria_1_ou operador_binario_prec4 expr_binaria_2_ou
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                };
+expr_binaria_2_ou: expr_binaria_3_ou { $$ = $1; }
+                | expr_binaria_2_ou operador_binario_prec3 expr_binaria_3_ou
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                };
+expr_binaria_3_ou: expr_binaria_4_ou { $$ = $1; }
+                | expr_binaria_3_ou operador_binario_prec2 expr_binaria_4_ou
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                };
+expr_binaria_4_ou: expr_unaria_ou { $$ = $1; }
+                | expr_binaria_4_ou operador_binario_prec1 expr_unaria_ou
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                };            
 expr_unaria_ou: expr_parenteses_ou { $$ = $1; }
                 | operador_unario expr_parenteses_ou 
                 {
                     adiciona_filho($1, $2);
                     $$ = $1;
+                }
+                | operador_asterisco expr_unaria_ou
+                {
+                    adiciona_filho($1, $2);
+                    $$ = $1;
                 };
+
 expr_parenteses_ou: operando { $$ = $1; } 
                     | '(' expressao ')' { $$ = $2; }; 
 
