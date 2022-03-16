@@ -513,15 +513,13 @@ void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao)
     return;
 }
 
-void libera_arvore(void *pai)
+void libera(void *pai)
 {
     if(pai == NULL) return;
 
     nodo *pai_arvore = (nodo*)pai;
 
     lseNodo *filhos = pai_arvore->filhos;
-
-    free(pai);
 
     libera_nodo(pai_arvore);
     libera_irmaos(filhos);
@@ -537,9 +535,10 @@ void libera_irmaos(void *filhos)
     nodo *nodo_irmao = irmaos->nodo;
     lseNodo *proximo = irmaos->proximo;
 
+    printf("liberando irmaos\n");
     free(irmaos);
 
-    libera_nodo(nodo_irmao);
+    libera(nodo_irmao);
     libera_irmaos(proximo);
     return;
 }
@@ -547,6 +546,7 @@ void libera_irmaos(void *filhos)
 void libera_nodo(nodo *nodo)
 {
     valorLexico valor_lexico = nodo->valor_lexico;
+    printf("liberando nodo\n");
     free(nodo);
     libera_valor_lexico(valor_lexico);
     return;
@@ -554,7 +554,10 @@ void libera_nodo(nodo *nodo)
 
 void libera_valor_lexico(valorLexico valor_lexico)
 {
-    if(valor_lexico.valor.valor_string != NULL)
+    printf("liberando valor lexico: ");
+    printf(valor_lexico.label);
+    printf("\n");
+    if(valor_lexico.tipo_literal == STRING)
         free(valor_lexico.valor.valor_string);
     if(valor_lexico.label != NULL)
         free(valor_lexico.label);
