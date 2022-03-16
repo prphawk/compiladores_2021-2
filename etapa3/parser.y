@@ -8,7 +8,8 @@ int yyerror (char const *s); //mudar pra void?
 extern int get_line_number (void);
 nodo *adiciona_nodo(valorLexico valor_lexico);
 nodo *adiciona_nodo_label(char *label);
-void adiciona_filho(nodo *pai, nodo *filho) ;
+void adiciona_filho(nodo *pai, nodo *filho);
+void imprime_arvore(nodo *nodo, int profundidade);
 lseNodo *acha_ultimo_filho(lseNodo *filhos);
 void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao);
 void libera_arvore(void *pai);
@@ -113,15 +114,18 @@ São operadores lógicos unários e binários: aqueles que sobraram na listagem.
 */
 %%
 
-programa: declaracoes { $$ = $1; arvore = $$; };
+programa: declaracoes { $$ = $1; arvore = $$; imprime_arvore($1, 0); };
 
 declaracoes: declaracao declaracoes 
             {
-                adiciona_filho($1, $2);
-                $$ = $1;
-            } | { $$ = NULL; };
+                if($1!=NULL)
+                {
+                    adiciona_filho($1, $2);
+                    $$ = $1;
+                }
+            } | ;
 
-declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
+declaracao: declaracao_variavel_global | declaracao_funcao { $$ = $1; };
 
 declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
 
@@ -415,7 +419,7 @@ nodo *adiciona_nodo(valorLexico valor_lexico)
 {
     nodo *nodo;
 
-    nodo = malloc(sizeof(nodo));
+    nodo = malloc(sizeof(nodo)*8);
     nodo->valor_lexico = valor_lexico;
     nodo->filhos = NULL;
 
@@ -432,7 +436,7 @@ nodo *adiciona_nodo_label(char *label)
 
     nodo *nodo;
 
-    nodo = malloc(sizeof(nodo));
+    nodo = malloc(sizeof(nodo)*8);
     nodo->valor_lexico = valor_lexico;
     nodo->filhos = NULL;
 
@@ -443,17 +447,18 @@ void adiciona_filho(nodo *pai, nodo *filho)
 {
    if(pai!= NULL && filho!=NULL)
    {
-       lseNodo lse_nodo;
-       lse_nodo.nodo = filho;
-       lse_nodo.proximo = NULL;
-       lse_nodo.nodo->pai = pai;
+       lseNodo *lse_nodo;
+       lse_nodo = malloc(sizeof(lse_nodo)*8);
+       lse_nodo->nodo = filho;
+       lse_nodo->proximo = NULL;
+       lse_nodo->nodo->pai = pai;
        if(pai->filhos == NULL)
        {
-           pai->filhos = &lse_nodo;
+           pai->filhos = lse_nodo;
        }
        else
        {
-           adiciona_irmao(acha_ultimo_filho(pai->filhos), &lse_nodo);
+           adiciona_irmao(acha_ultimo_filho(pai->filhos), lse_nodo);
        }
    }
    return;
@@ -462,7 +467,37 @@ void adiciona_filho(nodo *pai, nodo *filho)
 
 //TODO função de alterar nodo
 //TODO função de remover nodo
-//TODO função de printar árvore
+void imprime_arvore(nodo *nodo, int profundidade)
+{
+    int i = 0;
+
+    if (nodo == NULL)
+        return;
+    
+    for(i = 0; i<profundidade; i++) 
+    {
+        printf("    ");
+    }
+
+    if (profundidade == 0)
+        printf(nodo->valor_lexico.label);
+    else 
+    {
+        printf("+---");
+        printf(nodo->valor_lexico.label);
+    }
+    printf("\n");
+
+    lseNodo *nodo_f;
+    nodo_f = nodo->filhos;
+    while(nodo_f!=NULL)
+    {
+            imprime_arvore(nodo_f->nodo, profundidade+1);
+            nodo_f = nodo_f->proximo;
+    }
+    
+    return;
+}
 
 lseNodo *acha_ultimo_filho(lseNodo *filhos)
 {
@@ -477,6 +512,7 @@ lseNodo *acha_ultimo_filho(lseNodo *filhos)
 void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao)
 {
     irmao->proximo = novo_irmao;
+    novo_irmao->proximo = NULL;
     return;
 }
 
