@@ -1,0 +1,7 @@
+//INCORRECT
+int main ()
+{
+  int a;
+  a = "Oi";
+  return 0;
+}

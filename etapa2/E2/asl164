@@ -1,0 +1,6 @@
+//INCORRECT
+int main()
+{
+  if (true) { {}; {}; };
+  if (true) { x = 2; } else { x = 3; };
+}

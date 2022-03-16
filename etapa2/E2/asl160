@@ -1,0 +1,8 @@
+//INCORRECT
+//literal booleano não faz parte de expressão aritmética
+int main ()
+{
+  int a;
+  a = true + 12;
+  return 0;
+}

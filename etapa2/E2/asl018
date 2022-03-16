@@ -1,0 +1,2 @@
+//INCORRECT
+class AST_t [ int a ];

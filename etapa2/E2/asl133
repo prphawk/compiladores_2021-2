@@ -1,0 +1,6 @@
+//INCORRECT
+int main() {
+  for (::) {
+    int x;
+  };
+}

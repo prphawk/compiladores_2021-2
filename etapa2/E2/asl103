@@ -1,0 +1,5 @@
+//CORRECT
+int func1(bool param1)
+{
+  return 0;
+}

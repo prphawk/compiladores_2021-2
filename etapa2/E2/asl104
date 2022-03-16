@@ -1,0 +1,5 @@
+//INCORRECT
+int func1(int param1[5])
+{
+    
+}

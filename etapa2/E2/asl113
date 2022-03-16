@@ -1,0 +1,5 @@
+//INCORRECT
+class
+minhaClasse [
+    const public int idade
+];
