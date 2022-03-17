@@ -167,9 +167,10 @@ operador_binario_prec1: '^';
 operador_binario_prec2: '*' | '/' | '%';
 operador_binario_prec3: '+' | '-';
 operador_binario_prec4: '&' | '|';
-operador_binario_prec5: '<' | '>' | TK_OC_LE | TK_OC_EQ | TK_OC_GE | TK_OC_NE | TK_OC_OR | TK_OC_AND;
+operador_binario_prec5: '<' | '>' | TK_OC_LE | TK_OC_EQ | TK_OC_GE | TK_OC_NE;
 
 operador_asterisco: '*'
+
 operador_unario: '-' 
                | '+' 
                | '!' 
@@ -178,7 +179,14 @@ operador_unario: '-'
                | '#'
                ;
 
-expressao: expr_binaria_ou | expressao '?' expr_binaria_ou ':' expr_binaria_ou;
+expressao: expr_ternaria 
+         | expr_binaria_ou 
+         | expr_binaria_logica_ou
+         ;
+
+expr_ternaria: expr_binaria_ou '?' expressao ':' expressao 
+               | expr_binaria_logica_ou '?' expressao ':' expressao
+               ;
 
 expr_binaria_ou: expr_binaria_1_ou | expr_binaria_ou operador_binario_prec5 expr_binaria_1_ou;
 expr_binaria_1_ou: expr_binaria_2_ou | expr_binaria_1_ou operador_binario_prec4 expr_binaria_2_ou;
@@ -187,16 +195,24 @@ expr_binaria_3_ou: expr_binaria_4_ou | expr_binaria_3_ou operador_binario_prec2 
 expr_binaria_4_ou: expr_unaria_ou | expr_binaria_4_ou operador_binario_prec1 expr_unaria_ou;
 
 expr_unaria_ou: expr_parenteses_ou | operador_unario expr_parenteses_ou | operador_asterisco expr_unaria_ou;
-expr_parenteses_ou: operando | '(' expressao ')';
+expr_parenteses_ou: operando_aritmetico | '(' expr_binaria_ou ')';
 
-operando: TK_IDENTIFICADOR 
-         | TK_IDENTIFICADOR'['expressao']' 
-         | chamada_funcao
-         | TK_LIT_TRUE
-         | TK_LIT_FALSE
-         | TK_LIT_FLOAT 
-         | TK_LIT_INT
-         ;
+operando_aritmetico: TK_IDENTIFICADOR 
+               | TK_IDENTIFICADOR'['expr_binaria_ou']' 
+               | chamada_funcao
+               | TK_LIT_FLOAT 
+               | TK_LIT_INT
+               ;
+
+operando_logico: TK_LIT_TRUE
+               | TK_LIT_FALSE
+               ;
+               
+operador_binario_logico: TK_OC_OR | TK_OC_AND;
+
+expr_binaria_logica_ou: expr_parenteses_logica_ou | expr_binaria_logica_ou operador_binario_logico expr_parenteses_logica_ou;
+expr_parenteses_logica_ou: operando_logico | '(' expr_binaria_logica_ou ')';
+
 %%
 int yyerror (char const *s) {
    printf("line %d: %s\n", get_line_number(), s);
