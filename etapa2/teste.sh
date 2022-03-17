@@ -11,12 +11,9 @@ for file in E2/*
     if [ $result != $SUCCESS ]
         then 
             echo "TEST FAILED!! FILE $file\n"
-            $ERRORS=$ERRORS+"1"
     fi
   
 done
-
-echo "ERRORS: $ERRORS\n"
 
 # echo "STARTING RIGHT TESTS"
 # for file in teste_right/*

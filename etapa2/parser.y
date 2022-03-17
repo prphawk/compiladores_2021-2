@@ -95,6 +95,8 @@ lista_comandos: comando_simples ';' lista_comandos | ;
 
 bloco_comandos: '{' lista_comandos '}' ;
 
+chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')'
+
 comando_simples: declaracao_var_local 
                | comando_atribuicao 
                | comando_entrada 
@@ -105,7 +107,7 @@ comando_simples: declaracao_var_local
                | TK_PR_CONTINUE
                | comando_condicional 
                | comando_iterativo
-               | expressao
+               | chamada_funcao
                | bloco_comandos
                ;
 
@@ -115,8 +117,7 @@ declaracao_var_local: tipo lista_nome_variavel_local
                      | TK_PR_STATIC tipo lista_nome_variavel_local
                      ;
 
-lista_nome_variavel_local: 
-                           TK_IDENTIFICADOR ',' lista_nome_variavel_local
+lista_nome_variavel_local: TK_IDENTIFICADOR ',' lista_nome_variavel_local
                            | TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR 
                            | TK_IDENTIFICADOR TK_OC_LE literal 
                            | TK_IDENTIFICADOR 
@@ -190,12 +191,12 @@ expr_parenteses_ou: operando | '(' expressao ')';
 
 operando: TK_IDENTIFICADOR 
          | TK_IDENTIFICADOR'['expressao']' 
-         | TK_IDENTIFICADOR'('lista_argumentos')'
+         | chamada_funcao
          | TK_LIT_TRUE
          | TK_LIT_FALSE
          | TK_LIT_FLOAT 
          | TK_LIT_INT
-         ; 
+         ;
 %%
 int yyerror (char const *s) {
    printf("line %d: %s\n", get_line_number(), s);
