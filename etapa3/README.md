@@ -8,6 +8,8 @@ Em etapa3, para compilar as files:
 
 Debugar:
 
+(instalar o dbg)
+
 > make debug
 > run < teste.txt
 

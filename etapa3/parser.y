@@ -109,7 +109,7 @@ declaracoes: declaracao declaracoes
                 $$ = $1;
             } | { $$ = NULL; };
 
-declaracao: declaracao_variavel_global | declaracao_funcao { $$ = $1; };
+declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
 declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
 
