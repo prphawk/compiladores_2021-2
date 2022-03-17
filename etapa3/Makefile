@@ -21,4 +21,5 @@ submit:
 debug:
 	gdb ./etapa3
 
-checkleak: valgrind --leak-check=full --show-leak-kinds=all ./etapa3 < teste.txt
+checkleak: 
+	valgrind --leak-check=full --show-leak-kinds=all ./etapa3 < teste.txt
