@@ -16,6 +16,8 @@ void libera_arvore(void *pai);
 void libera_irmaos(void *filhos);
 void libera_nodo(nodo *nodo);
 void libera_valor_lexico(valorLexico valor_lexico);
+void imprime_nodo(nodo *nodo);
+void imprime_arestas(nodo *nodo);
 %}
 %define parse.error verbose
 %code requires {
@@ -124,7 +126,7 @@ São operadores lógicos unários e binários: aqueles que sobraram na listagem.
 */
 %%
 
-programa: declaracoes { $$ = $1; arvore = $$; imprime_arvore($1, 0); };
+programa: declaracoes { $$ = $1; arvore = $$; };
 
 declaracoes: declaracao declaracoes 
             {
@@ -530,8 +532,8 @@ void imprime_arvore(nodo *nodo, int profundidade)
     nodo_f = nodo->filhos;
     while(nodo_f!=NULL)
     {
-            imprime_arvore(nodo_f->nodo, profundidade+1);
-            nodo_f = nodo_f->proximo;
+        imprime_arvore(nodo_f->nodo, profundidade+1);
+        nodo_f = nodo_f->proximo;
     }
     
     return;
@@ -597,5 +599,50 @@ void libera_valor_lexico(valorLexico valor_lexico)
         free(valor_lexico.valor.valor_string);
     if(valor_lexico.label != NULL)
         free(valor_lexico.label);
+    return;
+}
+
+void imprime_nodo(nodo *nodo)
+{
+    if (nodo == NULL)
+        return;
+    printf("%p [label=\"", nodo);
+    printf(nodo->valor_lexico.label);
+    printf("\"];\n");
+
+    lseNodo *nodo_f;
+    nodo_f = nodo->filhos;
+    while(nodo_f!=NULL)
+    {
+        imprime_nodo(nodo_f->nodo);
+        nodo_f = nodo_f->proximo;
+    }
+    
+    return;
+}
+
+void imprime_arestas(nodo *nodo)
+{
+    if (nodo == NULL)
+        return;
+
+    lseNodo *nodo_f;
+    nodo_f = nodo->filhos;
+    while(nodo_f!=NULL)
+    {
+        printf("%p, %p\n", nodo, nodo_f);
+        imprime_arestas(nodo_f->nodo);
+        nodo_f = nodo_f->proximo;
+    }
+    
+    return;
+}
+
+void exporta(void *arvore)
+{
+    nodo *nodo_arvore;
+    nodo_arvore = (nodo*) arvore;
+    imprime_nodo(nodo_arvore);
+    imprime_arestas(nodo_arvore);
     return;
 }
