@@ -11,7 +11,6 @@ for file in E2/*
     if [ $result != $SUCCESS ]
         then 
             echo "TEST FAILED!! FILE $file\n"
-            $ERRORS=$ERRORS+"1"
     fi
   
 done
