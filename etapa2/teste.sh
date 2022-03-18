@@ -2,30 +2,18 @@
 
 SUCCESS=0
 executable="./etapa2"
-ERRORS=0
+evaluation=""
 
 for file in E2/*
     do
     "$executable" < "$file"
     result=$?
-    if [ $result != $SUCCESS ]
-        then 
-            echo "TEST FAILED!! FILE $file\n"
-    fi
+    evaluation=$(head -1 "$file")
+
+    print="FROM:${file} RESULT:${evaluation}"
+    echo "\n$print"
   
 done
-
-# echo "STARTING WRONG TESTS"
-
-# for file in teste_wrong/*
-# do
-#     "$executable" < "$file" --silent
-#     result=$?
-#     if [ $result -eq $SUCCESS ]
-#         then echo "TEST FAILED!! FILE $file\n"
-#     fi
-  
-# done
 
 # echo "STARTING WRONG TESTS"
 

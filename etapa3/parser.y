@@ -6,11 +6,12 @@
 int yylex(void);
 int yyerror (char const *s);
 extern int get_line_number (void);
+extern void *arvore; //TODO ?
 %}
 %define parse.error verbose
 %code requires {
-   #include "valor_lexico.h"
-	#include "ast.h"
+    #include "valor_lexico.h"
+    #include "ast.h"
 }
 %union {
    valorLexico valor_lexico;
