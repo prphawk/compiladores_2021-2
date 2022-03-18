@@ -1,8 +1,0 @@
-int main()
-{
-   int a;
-   int b;
-   b = &a;
-   a = *****b;
-   return 0;
-}
