@@ -181,11 +181,11 @@ operador_unario: '-'
 
 expressao: expr_ternaria 
          | expr_bin_aritmetica 
-         | expr_binaria_logica
+         | expr_bin_logica
          ;
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
-               | expr_binaria_logica '?' expressao ':' expressao
+               | expr_bin_logica '?' expressao ':' expressao
                ;
             
 operando_logico: TK_LIT_TRUE
@@ -210,8 +210,10 @@ expr_bin_aritmetica_4: expr_unaria_aritmetica | expr_bin_aritmetica_4 operador_b
 expr_unaria_aritmetica: expr_parenteses_aritmetica | operador_unario expr_parenteses_aritmetica | operador_asterisco expr_unaria_aritmetica;
 expr_parenteses_aritmetica: operando_aritmetico | '(' expr_bin_aritmetica ')';
                
-expr_binaria_logica: expr_parenteses_logica | expr_binaria_logica operador_binario_logico expr_parenteses_logica;
-expr_parenteses_logica: operando_logico | '(' expr_binaria_logica ')';
+expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
+               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica;
+
+expr_parenteses_logica: operando_logico | '(' expr_bin_logica ')';
 
 %%
 int yyerror (char const *s) {
