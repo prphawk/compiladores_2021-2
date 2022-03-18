@@ -167,9 +167,10 @@ operador_binario_prec1: '^';
 operador_binario_prec2: '*' | '/' | '%';
 operador_binario_prec3: '+' | '-';
 operador_binario_prec4: '&' | '|';
-operador_binario_prec5: '<' | '>' | TK_OC_LE | TK_OC_EQ | TK_OC_GE | TK_OC_NE | TK_OC_OR | TK_OC_AND;
+operador_binario_prec5: '<' | '>' | TK_OC_LE | TK_OC_EQ | TK_OC_GE | TK_OC_NE | operador_binario_logico;
 
 operador_asterisco: '*'
+
 operador_unario: '-' 
                | '+' 
                | '!' 
@@ -178,25 +179,42 @@ operador_unario: '-'
                | '#'
                ;
 
-expressao: expr_binaria_ou | expressao '?' expr_binaria_ou ':' expr_binaria_ou;
-
-expr_binaria_ou: expr_binaria_1_ou | expr_binaria_ou operador_binario_prec5 expr_binaria_1_ou;
-expr_binaria_1_ou: expr_binaria_2_ou | expr_binaria_1_ou operador_binario_prec4 expr_binaria_2_ou;
-expr_binaria_2_ou: expr_binaria_3_ou | expr_binaria_2_ou operador_binario_prec3 expr_binaria_3_ou;
-expr_binaria_3_ou: expr_binaria_4_ou | expr_binaria_3_ou operador_binario_prec2 expr_binaria_4_ou;
-expr_binaria_4_ou: expr_unaria_ou | expr_binaria_4_ou operador_binario_prec1 expr_unaria_ou;
-
-expr_unaria_ou: expr_parenteses_ou | operador_unario expr_parenteses_ou | operador_asterisco expr_unaria_ou;
-expr_parenteses_ou: operando | '(' expressao ')';
-
-operando: TK_IDENTIFICADOR 
-         | TK_IDENTIFICADOR'['expressao']' 
-         | chamada_funcao
-         | TK_LIT_TRUE
-         | TK_LIT_FALSE
-         | TK_LIT_FLOAT 
-         | TK_LIT_INT
+expressao: expr_ternaria 
+         | expr_bin_aritmetica 
+         | expr_bin_logica
          ;
+
+expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
+               | expr_bin_logica '?' expressao ':' expressao
+               ;
+            
+operando_logico: TK_LIT_TRUE
+               | TK_LIT_FALSE
+               ;
+
+operador_binario_logico: TK_OC_OR | TK_OC_AND;
+
+operando_aritmetico: TK_IDENTIFICADOR 
+               | TK_IDENTIFICADOR'['expr_bin_aritmetica']' 
+               | chamada_funcao
+               | TK_LIT_FLOAT 
+               | TK_LIT_INT
+               ;
+
+expr_bin_aritmetica: expr_bin_aritmetica_1 | expr_bin_aritmetica operador_binario_prec5 expr_bin_aritmetica_1;
+expr_bin_aritmetica_1: expr_bin_aritmetica_2 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2;
+expr_bin_aritmetica_2: expr_bin_aritmetica_3 | expr_bin_aritmetica_2 operador_binario_prec3 expr_bin_aritmetica_3;
+expr_bin_aritmetica_3: expr_bin_aritmetica_4 | expr_bin_aritmetica_3 operador_binario_prec2 expr_bin_aritmetica_4;
+expr_bin_aritmetica_4: expr_unaria_aritmetica | expr_bin_aritmetica_4 operador_binario_prec1 expr_unaria_aritmetica;
+
+expr_unaria_aritmetica: expr_parenteses_aritmetica | operador_unario expr_parenteses_aritmetica | operador_asterisco expr_unaria_aritmetica;
+expr_parenteses_aritmetica: operando_aritmetico | '(' expr_bin_aritmetica ')';
+               
+expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
+               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica;
+
+expr_parenteses_logica: operando_logico | '(' expr_bin_logica ')';
+
 %%
 int yyerror (char const *s) {
    printf("line %d: %s\n", get_line_number(), s);
