@@ -13,7 +13,7 @@ void libera (void *arvore);
 int main (int argc, char **argv)
 {
   int ret = yyparse(); 
-  exporta (arvore);
+  //exporta (arvore); //TODO descomentar 
   libera(arvore);
   arvore = NULL;
   yylex_destroy();

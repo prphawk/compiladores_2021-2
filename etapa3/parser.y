@@ -62,6 +62,7 @@ extern void *arvore; //TODO ?
 %token TOKEN_ERRO
 
 %type<nodo> literal
+%type<nodo> cabeca_lista_nome_variavel_local
 %type<nodo> lista_nome_variavel_local
 %type<nodo> declaracao_var_local
 %type<nodo> comando_simples
@@ -93,10 +94,6 @@ extern void *arvore; //TODO ?
 %type<nodo> expr_parenteses_aritmetica
 %type<nodo> expr_bin_logica
 %type<nodo> expr_parenteses_logica
-
-
-
-
 %type<nodo> operando_aritmetico
 %type<nodo> chamada_funcao
 %type<nodo> lista_comandos
@@ -178,27 +175,28 @@ declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local { 
                      | tipo lista_nome_variavel_local { $$ = $2;}
                      ;
 
-lista_nome_variavel_local: TK_IDENTIFICADOR { $$ = adiciona_nodo($1);}
-                           | TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR 
-                            { 
-                                nodo *novo_nodo = adiciona_nodo($2);
-                                adiciona_filho(novo_nodo, adiciona_nodo($1));
-                                adiciona_filho(novo_nodo, adiciona_nodo($3));
-                                $$ = novo_nodo;
-                            }
-                           | TK_IDENTIFICADOR TK_OC_LE literal 
-                           { 
-                                nodo *novo_nodo = adiciona_nodo($2);
-                                adiciona_filho(novo_nodo, adiciona_nodo($1));
-                                adiciona_filho(novo_nodo, $3);
-                                $$ = novo_nodo;
-                            }
-                           | TK_IDENTIFICADOR ',' lista_nome_variavel_local
-                           { 
-                                adiciona_filho($$, adiciona_nodo($1));
-                                adiciona_filho($$, $3);
-                            }
-                           ;
+lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local
+                        { 
+                            adiciona_filho($$, $1);
+                            adiciona_filho($$, $3);
+                        }
+                        | cabeca_lista_nome_variavel_local { $$ = $1;} //TODO isso ta certo??
+                        ;
+
+cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR { 
+                                    nodo *novo_nodo = adiciona_nodo($2);
+                                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                                    adiciona_filho(novo_nodo, adiciona_nodo($3));
+                                    $$ = novo_nodo;
+                                }
+                                | TK_IDENTIFICADOR TK_OC_LE literal { 
+                                    nodo *novo_nodo = adiciona_nodo($2);
+                                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                                    adiciona_filho(novo_nodo, $3);
+                                    $$ = novo_nodo;
+                                }
+                                | TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
+                                ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao 
                     {
