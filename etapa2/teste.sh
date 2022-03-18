@@ -9,9 +9,9 @@ for file in E2/*
     "$executable" < "$file"
     result=$?
     evaluation=$(head -1 "$file")
-
+    
     print="FROM:${file} RESULT:${evaluation}"
-    echo "\n$print"
+    echo "$print\n"
   
 done
 
