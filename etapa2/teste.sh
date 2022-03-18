@@ -14,15 +14,3 @@ for file in E2/*
     echo "$print\n"
   
 done
-
-# echo "STARTING WRONG TESTS"
-
-# for file in teste_wrong/*
-# do
-#     "$executable" < "$file" --silent
-#     result=$?
-#     if [ $result -eq $SUCCESS ]
-#         then echo "TEST FAILED!! FILE $file\n"
-#     fi
-  
-# done

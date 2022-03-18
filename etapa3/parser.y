@@ -81,14 +81,23 @@ extern void *arvore; //TODO ?
 %type<nodo> operador_binario_prec5
 %type<nodo> operador_unario
 %type<nodo> operador_asterisco
-%type<nodo> expr_binaria_ou
-%type<nodo> expr_binaria_1_ou
-%type<nodo> expr_binaria_2_ou
-%type<nodo> expr_binaria_3_ou
-%type<nodo> expr_binaria_4_ou
-%type<nodo> expr_unaria_ou
-%type<nodo> expr_parenteses_ou
-%type<nodo> operando
+%type<nodo> operador_binario_logico
+%type<nodo> operando_logico
+%type<nodo> expr_ternaria
+%type<nodo> expr_bin_aritmetica
+%type<nodo> expr_bin_aritmetica_1
+%type<nodo> expr_bin_aritmetica_2
+%type<nodo> expr_bin_aritmetica_3
+%type<nodo> expr_bin_aritmetica_4
+%type<nodo> expr_unaria_aritmetica
+%type<nodo> expr_parenteses_aritmetica
+%type<nodo> expr_bin_logica
+%type<nodo> expr_parenteses_logica
+
+
+
+
+%type<nodo> operando_aritmetico
 %type<nodo> chamada_funcao
 %type<nodo> lista_comandos
 %type<nodo> corpo
@@ -346,8 +355,7 @@ operador_binario_prec5: '<' { $$ = adiciona_nodo_label("<"); }
 							| TK_OC_EQ { $$ = adiciona_nodo($1); }
 							| TK_OC_GE { $$ = adiciona_nodo($1); }
 							| TK_OC_NE { $$ = adiciona_nodo($1); }
-							| TK_OC_OR { $$ = adiciona_nodo($1); }
-							| TK_OC_AND { $$ = adiciona_nodo($1); }
+							| operador_binario_logico { $$ = $1; }
 							;
 
 operador_asterisco: '*' { $$ = adiciona_nodo_label("*"); } 
@@ -360,73 +368,79 @@ operador_unario: '-' { $$ = adiciona_nodo_label("-"); }
                | '#' { $$ = adiciona_nodo_label("#"); }
                ;
 
-expressao: expr_binaria_ou { $$ = $1; }
-            | expressao '?' expr_binaria_ou ':' expr_binaria_ou
-            {
-                nodo *novo_nodo = adiciona_nodo_label("?:");
-                adiciona_filho(novo_nodo, $1);
-                adiciona_filho(novo_nodo, $3);
-                adiciona_filho(novo_nodo, $5);
-                $$ = novo_nodo;
-            };
-expr_binaria_ou: expr_binaria_1_ou { $$ = $1; }
-                | expr_binaria_ou operador_binario_prec5 expr_binaria_1_ou
+operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); } | TK_OC_AND { $$ = adiciona_nodo($1); };
+
+expressao: expr_ternaria { $$ = $1; }
+        | expr_bin_aritmetica { $$ = $1; }
+        | expr_bin_logica { $$ = $1; };
+
+expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao { nodo *novo_nodo = adiciona_nodo_label("?:"); adiciona_filho(novo_nodo, $1); adiciona_filho(novo_nodo, $3); adiciona_filho(novo_nodo, $5); $$ = novo_nodo; }
+            | expr_bin_logica '?' expressao ':' expressao{
+            nodo *novo_nodo = adiciona_nodo_label("?:");
+            adiciona_filho(novo_nodo, $1);
+            adiciona_filho(novo_nodo, $3);
+            adiciona_filho(novo_nodo, $5);
+            $$ = novo_nodo;
+        };
+
+expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
+                | expr_bin_aritmetica operador_binario_prec5 expr_bin_aritmetica_1
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                 };
-expr_binaria_1_ou: expr_binaria_2_ou { $$ = $1; }
-                | expr_binaria_1_ou operador_binario_prec4 expr_binaria_2_ou
+expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
+                | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                 }
-					 ;
-expr_binaria_2_ou: expr_binaria_3_ou { $$ = $1; }
-                | expr_binaria_2_ou operador_binario_prec3 expr_binaria_3_ou
+			    ;
+expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
+                | expr_bin_aritmetica_2 operador_binario_prec3 expr_bin_aritmetica_3
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                 }
-					 ;
-expr_binaria_3_ou: expr_binaria_4_ou { $$ = $1; }
-					| expr_binaria_3_ou operador_binario_prec2 expr_binaria_4_ou
+				;
+expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
+					| expr_bin_aritmetica_3 operador_binario_prec2 expr_bin_aritmetica_4
 					{
 						adiciona_filho($2, $1);
 						adiciona_filho($2, $3);
 						$$ = $2;
 					}
 					;
-expr_binaria_4_ou: expr_unaria_ou { $$ = $1; }
-					| expr_binaria_4_ou operador_binario_prec1 expr_unaria_ou
+expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
+					| expr_bin_aritmetica_4 operador_binario_prec1 expr_unaria_aritmetica
 					{
 						adiciona_filho($2, $1);
 						adiciona_filho($2, $3);
 						$$ = $2;
 					}
 					;            
-expr_unaria_ou: expr_parenteses_ou { $$ = $1; }
-				| operador_unario expr_parenteses_ou 
+expr_unaria_aritmetica: expr_parenteses_aritmetica { $$ = $1; }
+				| operador_unario expr_parenteses_aritmetica 
 				{
 					adiciona_filho($1, $2);
 					$$ = $1;
 				}
-				| operador_asterisco expr_unaria_ou
+				| operador_asterisco expr_unaria_aritmetica
 				{
 					adiciona_filho($1, $2);
 					$$ = $1;
 				}
 				;
 
-expr_parenteses_ou: operando { $$ = $1; } 
-						| '(' expressao ')' { $$ = $2; }
+expr_parenteses_aritmetica: operando_aritmetico { $$ = $1; } 
+						| '(' expr_bin_aritmetica ')' { $$ = $2; }
 						; 
 
-operando: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
-         | TK_IDENTIFICADOR'['expressao']' 
+operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
+         | TK_IDENTIFICADOR'['expr_bin_aritmetica']' 
         { 
             nodo *novo_nodo = adiciona_nodo_label("[]");
             adiciona_filho(novo_nodo, adiciona_nodo($1));
@@ -434,11 +448,28 @@ operando: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
             $$ = novo_nodo;
         }
          | chamada_funcao //TODO algo a add aqui?
-         | TK_LIT_TRUE { $$ = adiciona_nodo($1); }
-         | TK_LIT_FALSE { $$ = adiciona_nodo($1); }
          | TK_LIT_FLOAT { $$ = adiciona_nodo($1); }
          | TK_LIT_INT { $$ = adiciona_nodo($1); }
-         ; 
+         ;
+
+operando_logico: TK_LIT_TRUE { $$ = adiciona_nodo($1); }
+                | TK_LIT_FALSE { $$ = adiciona_nodo($1); }
+
+expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica                 {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                }
+               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica
+                               {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                }
+			    ;
+
+expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
+
 %%
 int yyerror (char const *s) {
    printf("line %d: %s\n", get_line_number(), s);

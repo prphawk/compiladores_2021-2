@@ -2,15 +2,16 @@
 
 SUCCESS=0
 executable="./etapa3"
-
-echo "STARTING PROF'S TEST CASES"
+evaluation=""
+echo "STARTING OFFICIAL TEST CASES"
 
 for file in ../etapa2/E2/*
-do
+    do
     "$executable" < "$file"
     result=$?
-    if [ $result != $SUCCESS ]
-        then echo "TEST FAILED!! FILE $file\n"
-    fi
+    evaluation=$(head -1 "$file")
+    
+    print="FROM:${file} RESULT:${evaluation}"
+    echo "$print\n"
   
 done
