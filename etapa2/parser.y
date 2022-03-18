@@ -117,11 +117,12 @@ declaracao_var_local: tipo lista_nome_variavel_local
                      | TK_PR_STATIC tipo lista_nome_variavel_local
                      ;
 
-lista_nome_variavel_local: TK_IDENTIFICADOR ',' lista_nome_variavel_local
-                           | TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR 
-                           | TK_IDENTIFICADOR TK_OC_LE literal 
-                           | TK_IDENTIFICADOR 
-                           ;
+lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local | cabeca_lista_nome_variavel_local;
+                           
+cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR
+                                 | TK_IDENTIFICADOR TK_OC_LE literal
+                                 | TK_IDENTIFICADOR
+                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao
                      | TK_IDENTIFICADOR'['expressao']' '=' expressao
