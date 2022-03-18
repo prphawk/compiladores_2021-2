@@ -12,7 +12,7 @@ parser.tab.c parser.tab.h: parser.y
 	bison -d parser.y --report-file=FILE
 
 clean:
-	rm lex.yy.* parser.tab.* main.o etapa3
+	rm lex.yy.* parser.tab.* main.o ast.o etapa3
 
 submit:
 	make clean
