@@ -8,10 +8,10 @@ for file in E2/*
     do
     "$executable" < "$file"
     result=$?
-    if [ $result != $SUCCESS ]
-        then 
-            echo "TEST FAILED!! FILE $file\n"
-    fi
+    evaluation=$(head -1 "$file")
+
+    print="FROM:${file} RESULT:${evaluation}"
+    echo "$print\n"
   
 done
 
