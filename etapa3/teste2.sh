@@ -1,10 +1,11 @@
 #!/bin/bash
 
 SUCCESS=0
-executable="./etapa2"
+executable="./etapa3"
 evaluation=""
+echo "STARTING OFFICIAL TEST CASES"
 
-for file in E2/*
+for file in ../etapa2/E2/*
     do
     "$executable" < "$file"
     result=$?
