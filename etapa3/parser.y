@@ -177,8 +177,8 @@ declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local { 
 
 lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local  //TODO isso (tudo) ta certo??
                         { 
-                            adiciona_filho($$, $1); //TODO isso especificamente q mudei meio cega
-                            adiciona_filho($$, $3);
+                            adiciona_filho($1, $1); //TODO isso especificamente q mudei meio cega
+                            $$ = $1;
                         }
                         | cabeca_lista_nome_variavel_local { $$ = $1;} //TODO isso ta certo??
                         ;
