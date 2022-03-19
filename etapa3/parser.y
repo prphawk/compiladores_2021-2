@@ -445,7 +445,7 @@ operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
             adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
         }
-         | chamada_funcao //TODO algo a add aqui?
+         | chamada_funcao { $$ = $1; }//TODO algo a add aqui?
          | TK_LIT_FLOAT { $$ = adiciona_nodo($1); }
          | TK_LIT_INT { $$ = adiciona_nodo($1); }
          ;
