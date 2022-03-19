@@ -175,27 +175,27 @@ declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local { 
                      | tipo lista_nome_variavel_local { $$ = $2;}
                      ;
 
-lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local
+lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local  //TODO isso (tudo) ta certo??
                         { 
-                            adiciona_filho($$, $1);
+                            adiciona_filho($$, $1); //TODO isso especificamente q mudei meio cega
                             adiciona_filho($$, $3);
                         }
                         | cabeca_lista_nome_variavel_local { $$ = $1;} //TODO isso ta certo??
                         ;
 
-cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR { 
+cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {  //TODO isso ta certo??
                                     nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR TK_OC_LE literal { 
+                                | TK_IDENTIFICADOR TK_OC_LE literal {  //TODO isso ta certo??
                                     nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
+                                | TK_IDENTIFICADOR { $$ = adiciona_nodo($1); } //TODO isso ta certo??
                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao 
@@ -353,7 +353,7 @@ operador_binario_prec5: '<' { $$ = adiciona_nodo_label("<"); }
 							| TK_OC_EQ { $$ = adiciona_nodo($1); }
 							| TK_OC_GE { $$ = adiciona_nodo($1); }
 							| TK_OC_NE { $$ = adiciona_nodo($1); }
-							| operador_binario_logico { $$ = $1; }
+							| operador_binario_logico { $$ = $1; } //TODO isso ta certo??
 							;
 
 operador_asterisco: '*' { $$ = adiciona_nodo_label("*"); } 
@@ -366,14 +366,14 @@ operador_unario: '-' { $$ = adiciona_nodo_label("-"); }
                | '#' { $$ = adiciona_nodo_label("#"); }
                ;
 
-operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); } | TK_OC_AND { $$ = adiciona_nodo($1); };
+operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); } | TK_OC_AND { $$ = adiciona_nodo($1); }; //TODO isso ta certo??
 
 expressao: expr_ternaria { $$ = $1; }
         | expr_bin_aritmetica { $$ = $1; }
-        | expr_bin_logica { $$ = $1; };
+        | expr_bin_logica { $$ = $1; }; //TODO isso ta certo??
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao { nodo *novo_nodo = adiciona_nodo_label("?:"); adiciona_filho(novo_nodo, $1); adiciona_filho(novo_nodo, $3); adiciona_filho(novo_nodo, $5); $$ = novo_nodo; }
-            | expr_bin_logica '?' expressao ':' expressao{
+            | expr_bin_logica '?' expressao ':' expressao{ //TODO isso ta certo??
             nodo *novo_nodo = adiciona_nodo_label("?:");
             adiciona_filho(novo_nodo, $1);
             adiciona_filho(novo_nodo, $3);
@@ -450,23 +450,22 @@ operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
          | TK_LIT_INT { $$ = adiciona_nodo($1); }
          ;
 
-operando_logico: TK_LIT_TRUE { $$ = adiciona_nodo($1); }
+operando_logico: TK_LIT_TRUE { $$ = adiciona_nodo($1); } 
                 | TK_LIT_FALSE { $$ = adiciona_nodo($1); }
 
-expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica                 {
+expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica { //TODO isso ta certo??
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                 }
-               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica
-                               {
+               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                 }
 			    ;
 
-expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
+expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; }; //TODO isso ta certo??
 
 %%
 int yyerror (char const *s) {
