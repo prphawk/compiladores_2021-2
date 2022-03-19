@@ -5,7 +5,7 @@ executable="./etapa3"
 evaluation=""
 echo "STARTING OFFICIAL TEST CASES"
 
-for file in ../etapa2/E2/*
+for file in ../testes_E2/*
     do
     "$executable" < "$file"
     result=$?

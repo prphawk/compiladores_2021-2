@@ -1,0 +1,6 @@
+//CORRECT
+int func1()
+{
+  teste << 2;
+  output "oi";
+}

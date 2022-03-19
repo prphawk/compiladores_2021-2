@@ -175,15 +175,15 @@ declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local { 
                      | tipo lista_nome_variavel_local { $$ = $2;}
                      ;
 
-lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local  //TODO isso (tudo) ta certo??
+lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local
                         { 
-                            adiciona_filho($1, $1); //TODO isso especificamente q mudei meio cega
+                            adiciona_filho($1, $3);
                             $$ = $1;
                         }
-                        | cabeca_lista_nome_variavel_local { $$ = $1;} //TODO isso ta certo??
+                        | cabeca_lista_nome_variavel_local { $$ = $1;}
                         ;
 
-cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {  //TODO isso ta certo??
+cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                                     adiciona_filho(novo_nodo, adiciona_nodo($3));
@@ -195,7 +195,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {  
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR { $$ = adiciona_nodo($1); } //TODO isso ta certo??
+                                | TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao 
