@@ -14,7 +14,7 @@ Checar mem leaks com teste.txt:
 
 Debugar:
 
-(instalar o dbg)
+(instalar o gdb)
 
 > make debug
 > run < teste.txt
