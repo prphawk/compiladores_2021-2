@@ -4,7 +4,7 @@ SUCCESS=0
 executable="./etapa2"
 evaluation=""
 
-for file in E2/*
+for file in ../testes_E2/*
     do
     "$executable" < "$file"
     result=$?
@@ -14,3 +14,5 @@ for file in E2/*
     echo "$print\n"
   
 done
+
+# run < ../testes_E2/asl151
