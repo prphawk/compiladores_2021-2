@@ -7,9 +7,14 @@
 nodo *adiciona_nodo(valorLexico valor_lexico)
 {
     nodo *nodo;
+    int extra = 0;
 
-    nodo = malloc(sizeof(nodo)*8);
+    if(valor_lexico.tipo_literal == STRING)
+        extra = strlen((char*)valor_lexico.valor.valor_string)*sizeof(char);
+    nodo = malloc(extra+sizeof(nodo)*8);
     nodo->valor_lexico = valor_lexico;
+    if(valor_lexico.tipo_literal == STRING)
+        nodo->valor_lexico.valor.valor_string = strdup(valor_lexico.valor.valor_string);
     nodo->filhos = NULL;
 
     return nodo;
