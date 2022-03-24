@@ -1,7 +1,7 @@
 %{
 #include<stdio.h>
 int yylex(void);
-int yyerror (char const *s); //mudar pra void?
+int yyerror (char const *s);
 extern int get_line_number (void);
 %}
 %define parse.error verbose
