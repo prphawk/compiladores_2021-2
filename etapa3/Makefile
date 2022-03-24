@@ -15,7 +15,6 @@ clean:
 	rm lex.yy.* parser.tab.* main.o ast.o etapa3
 
 submit:
-	make clean
 	tar cvzf etapa3.tgz .
 
 debug:
