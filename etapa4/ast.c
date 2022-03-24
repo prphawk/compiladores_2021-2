@@ -58,8 +58,7 @@ void adiciona_filho(nodo *pai, nodo *filho)
    return;
    
 }
-//TODO função de alterar nodo
-//TODO função de remover nodo
+
 void imprime_arvore(nodo *nodo, int profundidade)
 {
     int i = 0;
@@ -73,11 +72,11 @@ void imprime_arvore(nodo *nodo, int profundidade)
     }
 
     if (profundidade == 0)
-        printf(nodo->valor_lexico.label);
+        printf("%s", nodo->valor_lexico.label);
     else 
     {
         printf("+---");
-        printf(nodo->valor_lexico.label);
+        printf("%s", nodo->valor_lexico.label);
     }
     printf("\n");
 
@@ -160,7 +159,7 @@ void imprime_nodo(nodo *nodo)
     if (nodo == NULL)
         return;
     printf("%p [label=\"", nodo);
-    printf(nodo->valor_lexico.label);
+    printf("%s", nodo->valor_lexico.label);
     printf("\"];\n");
 
     lseNodo *nodo_f;
