@@ -6,18 +6,18 @@
 
 Nodo *adiciona_nodo(valorLexico valor_lexico)
 {
-    Nodo *umnodo;
+    Nodo *nodo;
     int extra = 0;
 
     if(valor_lexico.tipo_literal == STRING)
         extra = strlen((char*)valor_lexico.valor.valor_string)*sizeof(char);
-    umnodo = malloc(extra+sizeof(Nodo));
-    umnodo->valor_lexico = valor_lexico;
+    nodo = malloc(extra+sizeof(Nodo));
+    nodo->valor_lexico = valor_lexico;
     if(valor_lexico.tipo_literal == STRING)
-        umnodo->valor_lexico.valor.valor_string = strdup(valor_lexico.valor.valor_string);
-    umnodo->filhos = NULL;
+        nodo->valor_lexico.valor.valor_string = strdup(valor_lexico.valor.valor_string);
+    nodo->filho = NULL;
 
-    return umnodo;
+    return nodo;
 }
 
 Nodo *adiciona_nodo_label(char *label)
@@ -28,43 +28,36 @@ Nodo *adiciona_nodo_label(char *label)
     valor_lexico.tipo_literal = NAO_LITERAL;
     valor_lexico.label = strdup(label);
 
-    Nodo *umnodo;
-    umnodo = malloc(sizeof(Nodo));
+    Nodo *nodo;
+    nodo = malloc(sizeof(Nodo));
 
-    umnodo->valor_lexico = valor_lexico;
-    umnodo->filhos = NULL;
+    nodo->valor_lexico = valor_lexico;
+    nodo->filho = NULL;
 
-    return umnodo;
+    return nodo;
 }
 
-void adiciona_filho(Nodo *pai, Nodo *filho) 
+void adiciona_filho(Nodo *nodo, Nodo *filho) 
 {
-   if(pai!= NULL && filho!=NULL)
+   if(nodo!= NULL && filho!=NULL)
    {
-       LseNodo *lse_nodo;
-       lse_nodo = malloc(sizeof(LseNodo));
-
-       lse_nodo->valor_nodo = filho;
-       lse_nodo->proximo = NULL;
-       lse_nodo->valor_nodo->pai = pai;
-       if(pai->filhos == NULL)
+       if(nodo->filho == NULL)
        {
-           pai->filhos = lse_nodo;
+           nodo->filho = filho;
        }
        else
        {
-           adiciona_irmao(acha_ultimo_filho(pai->filhos), lse_nodo);
+           adiciona_irmao(acha_ultimo_irmao(nodo->filho), filho);
        }
    }
    return;
-   
 }
 
-void imprime_arvore(Nodo *umnodo, int profundidade)
+void imprime_arvore(Nodo *nodo, int profundidade)
 {
     int i = 0;
 
-    if (umnodo == NULL)
+    if (nodo == NULL)
         return;
     
     for(i = 0; i<profundidade-1; i++) 
@@ -73,39 +66,41 @@ void imprime_arvore(Nodo *umnodo, int profundidade)
     }
 
     if (profundidade == 0)
-        printf("%s", umnodo->valor_lexico.label);
+        printf("%s", nodo->valor_lexico.label);
     else 
     {
         printf("+---");
-        printf("%s", umnodo->valor_lexico.label);
+        printf("%s", nodo->valor_lexico.label);
     }
     printf("\n");
 
-    LseNodo *nodo_f;
-    nodo_f = umnodo->filhos;
+    Nodo *nodo_f;
+    nodo_f = nodo->filho;
     while(nodo_f!=NULL)
     {
-        imprime_arvore(nodo_f->valor_nodo, profundidade+1);
-        nodo_f = nodo_f->proximo;
+        imprime_arvore(nodo_f, profundidade+1);
+        nodo_f = nodo_f->irmao;
     }
     
     return;
 }
 
-LseNodo *acha_ultimo_filho(LseNodo *filhos)
+Nodo *acha_ultimo_irmao(Nodo *nodo_irmao)
 {
-    LseNodo *aux_nodo = filhos;
-    while(aux_nodo->proximo!=NULL)
+    Nodo *aux_nodo = nodo_irmao;
+
+    while(aux_nodo->irmao!=NULL)
     {
-        aux_nodo = aux_nodo->proximo;
+        aux_nodo = aux_nodo->irmao;
     }
     return aux_nodo;
 }
 
-void adiciona_irmao(LseNodo *irmao, LseNodo *novo_irmao)
+
+void adiciona_irmao(Nodo *nodo, Nodo *novo_irmao)
 {
-    irmao->proximo = novo_irmao;
-    novo_irmao->proximo = NULL;
+    nodo->irmao = novo_irmao;
+    novo_irmao->irmao = NULL;
     return;
 }
 
@@ -115,35 +110,13 @@ void libera(void *pai)
 
     Nodo *pai_arvore = (Nodo*)pai;
 
-    LseNodo *filhos = pai_arvore->filhos;
+    libera(pai_arvore->filho);
 
-    libera_nodo(pai_arvore);
-    libera_irmaos(filhos);
-    return;
-}
+    libera(pai_arvore->irmao);
 
-void libera_irmaos(void *filhos)
-{
-    if(filhos == NULL) return;
+    libera_valor_lexico(pai_arvore->valor_lexico);
 
-    LseNodo *irmaos = (LseNodo*)filhos; 
-
-    Nodo *nodo_irmao = irmaos->valor_nodo;
-    LseNodo *proximo = irmaos->proximo;
-    
-    free(irmaos);
-
-    libera(nodo_irmao);
-    libera_irmaos(proximo);
-    return;
-}
-
-void libera_nodo(Nodo *umnodo)
-{
-    valorLexico valor_lexico = umnodo->valor_lexico;
-    free(umnodo);
-    libera_valor_lexico(valor_lexico);
-    return;
+    free(pai_arvore);
 }
 
 void libera_valor_lexico(valorLexico valor_lexico)
@@ -155,37 +128,37 @@ void libera_valor_lexico(valorLexico valor_lexico)
     return;
 }
 
-void imprime_nodo(Nodo *umnodo)
+void imprime_nodo(Nodo *nodo)
 {
-    if (umnodo == NULL)
+    if (nodo == NULL)
         return;
-    printf("%p [label=\"", umnodo);
-    printf("%s", umnodo->valor_lexico.label);
+    printf("%p [label=\"", nodo);
+    printf("%s", nodo->valor_lexico.label);
     printf("\"];\n");
 
-    LseNodo *nodo_f;
-    nodo_f = umnodo->filhos;
+    Nodo *nodo_f;
+    nodo_f = nodo->filho;
     while(nodo_f!=NULL)
     {
-        imprime_nodo(nodo_f->valor_nodo);
-        nodo_f = nodo_f->proximo;
+        imprime_nodo(nodo_f);
+        nodo_f = nodo_f->irmao;
     }
     
     return;
 }
 
-void imprime_arestas(Nodo *umnodo)
+void imprime_arestas(Nodo *nodo)
 {
-    if (umnodo == NULL)
+    if (nodo == NULL)
         return;
 
-    LseNodo *nodo_f;
-    nodo_f = umnodo->filhos;
+    Nodo *nodo_f;
+    nodo_f = nodo->filho;
     while(nodo_f!=NULL)
     {
-        printf("%p, %p\n", umnodo, nodo_f);
-        imprime_arestas(nodo_f->valor_nodo);
-        nodo_f = nodo_f->proximo;
+        printf("%p, %p\n", nodo, nodo_f);
+        imprime_arestas(nodo_f);
+        nodo_f = nodo_f->irmao;
     }
     
     return;
