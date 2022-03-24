@@ -41,12 +41,12 @@ void adiciona_filho(Nodo *pai, Nodo *filho)
 {
    if(pai!= NULL && filho!=NULL)
    {
-       lseNodo *lse_nodo;
-       lse_nodo = malloc(sizeof(lseNodo));
+       LseNodo *lse_nodo;
+       lse_nodo = malloc(sizeof(LseNodo));
 
-       lse_nodo->nodo = filho;
+       lse_nodo->valor_nodo = filho;
        lse_nodo->proximo = NULL;
-       lse_nodo->nodo->pai = pai;
+       lse_nodo->valor_nodo->pai = pai;
        if(pai->filhos == NULL)
        {
            pai->filhos = lse_nodo;
@@ -81,20 +81,20 @@ void imprime_arvore(Nodo *umnodo, int profundidade)
     }
     printf("\n");
 
-    lseNodo *nodo_f;
+    LseNodo *nodo_f;
     nodo_f = umnodo->filhos;
     while(nodo_f!=NULL)
     {
-        imprime_arvore(nodo_f->nodo, profundidade+1);
+        imprime_arvore(nodo_f->valor_nodo, profundidade+1);
         nodo_f = nodo_f->proximo;
     }
     
     return;
 }
 
-lseNodo *acha_ultimo_filho(lseNodo *filhos)
+LseNodo *acha_ultimo_filho(LseNodo *filhos)
 {
-    lseNodo *aux_nodo = filhos;
+    LseNodo *aux_nodo = filhos;
     while(aux_nodo->proximo!=NULL)
     {
         aux_nodo = aux_nodo->proximo;
@@ -102,7 +102,7 @@ lseNodo *acha_ultimo_filho(lseNodo *filhos)
     return aux_nodo;
 }
 
-void adiciona_irmao(lseNodo *irmao, lseNodo *novo_irmao)
+void adiciona_irmao(LseNodo *irmao, LseNodo *novo_irmao)
 {
     irmao->proximo = novo_irmao;
     novo_irmao->proximo = NULL;
@@ -115,7 +115,7 @@ void libera(void *pai)
 
     Nodo *pai_arvore = (Nodo*)pai;
 
-    lseNodo *filhos = pai_arvore->filhos;
+    LseNodo *filhos = pai_arvore->filhos;
 
     libera_nodo(pai_arvore);
     libera_irmaos(filhos);
@@ -126,10 +126,10 @@ void libera_irmaos(void *filhos)
 {
     if(filhos == NULL) return;
 
-    lseNodo *irmaos = (lseNodo*)filhos; 
+    LseNodo *irmaos = (LseNodo*)filhos; 
 
-    Nodo *nodo_irmao = irmaos->nodo;
-    lseNodo *proximo = irmaos->proximo;
+    Nodo *nodo_irmao = irmaos->valor_nodo;
+    LseNodo *proximo = irmaos->proximo;
     
     free(irmaos);
 
@@ -163,11 +163,11 @@ void imprime_nodo(Nodo *umnodo)
     printf("%s", umnodo->valor_lexico.label);
     printf("\"];\n");
 
-    lseNodo *nodo_f;
+    LseNodo *nodo_f;
     nodo_f = umnodo->filhos;
     while(nodo_f!=NULL)
     {
-        imprime_nodo(nodo_f->nodo);
+        imprime_nodo(nodo_f->valor_nodo);
         nodo_f = nodo_f->proximo;
     }
     
@@ -179,12 +179,12 @@ void imprime_arestas(Nodo *umnodo)
     if (umnodo == NULL)
         return;
 
-    lseNodo *nodo_f;
+    LseNodo *nodo_f;
     nodo_f = umnodo->filhos;
     while(nodo_f!=NULL)
     {
         printf("%p, %p\n", umnodo, nodo_f);
-        imprime_arestas(nodo_f->nodo);
+        imprime_arestas(nodo_f->valor_nodo);
         nodo_f = nodo_f->proximo;
     }
     
