@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SUCCESS=0
-executable="./etapa3"
+executable="./etapa4"
 evaluation=""
 echo "STARTING OFFICIAL TEST CASES"
 

@@ -6,18 +6,18 @@
 
 nodo *adiciona_nodo(valorLexico valor_lexico)
 {
-    nodo *nodo;
+    nodo *umnodo;
     int extra = 0;
 
     if(valor_lexico.tipo_literal == STRING)
         extra = strlen((char*)valor_lexico.valor.valor_string)*sizeof(char);
-    nodo = malloc(extra+sizeof(nodo)*8);
-    nodo->valor_lexico = valor_lexico;
+    umnodo = malloc(extra+sizeof(nodo));
+    umnodo->valor_lexico = valor_lexico;
     if(valor_lexico.tipo_literal == STRING)
-        nodo->valor_lexico.valor.valor_string = strdup(valor_lexico.valor.valor_string);
-    nodo->filhos = NULL;
+        umnodo->valor_lexico.valor.valor_string = strdup(valor_lexico.valor.valor_string);
+    umnodo->filhos = NULL;
 
-    return nodo;
+    return umnodo;
 }
 
 nodo *adiciona_nodo_label(char *label)
@@ -28,13 +28,13 @@ nodo *adiciona_nodo_label(char *label)
     valor_lexico.tipo_literal = NAO_LITERAL;
     valor_lexico.label = strdup(label);
 
-    nodo *nodo;
+    nodo *umnodo;
+    umnodo = malloc(sizeof(nodo));
 
-    nodo = malloc(sizeof(nodo)*8);
-    nodo->valor_lexico = valor_lexico;
-    nodo->filhos = NULL;
+    umnodo->valor_lexico = valor_lexico;
+    umnodo->filhos = NULL;
 
-    return nodo;
+    return umnodo;
 }
 
 void adiciona_filho(nodo *pai, nodo *filho) 
@@ -42,7 +42,8 @@ void adiciona_filho(nodo *pai, nodo *filho)
    if(pai!= NULL && filho!=NULL)
    {
        lseNodo *lse_nodo;
-       lse_nodo = malloc(sizeof(lse_nodo)*8);
+       lse_nodo = malloc(sizeof(lseNodo));
+
        lse_nodo->nodo = filho;
        lse_nodo->proximo = NULL;
        lse_nodo->nodo->pai = pai;
