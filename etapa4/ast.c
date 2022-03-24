@@ -60,11 +60,11 @@ void adiciona_filho(nodo *pai, nodo *filho)
    
 }
 
-void imprime_arvore(nodo *nodo, int profundidade)
+void imprime_arvore(nodo *umnodo, int profundidade)
 {
     int i = 0;
 
-    if (nodo == NULL)
+    if (umnodo == NULL)
         return;
     
     for(i = 0; i<profundidade-1; i++) 
@@ -73,16 +73,16 @@ void imprime_arvore(nodo *nodo, int profundidade)
     }
 
     if (profundidade == 0)
-        printf("%s", nodo->valor_lexico.label);
+        printf("%s", umnodo->valor_lexico.label);
     else 
     {
         printf("+---");
-        printf("%s", nodo->valor_lexico.label);
+        printf("%s", umnodo->valor_lexico.label);
     }
     printf("\n");
 
     lseNodo *nodo_f;
-    nodo_f = nodo->filhos;
+    nodo_f = umnodo->filhos;
     while(nodo_f!=NULL)
     {
         imprime_arvore(nodo_f->nodo, profundidade+1);
@@ -138,10 +138,10 @@ void libera_irmaos(void *filhos)
     return;
 }
 
-void libera_nodo(nodo *nodo)
+void libera_nodo(nodo *umnodo)
 {
-    valorLexico valor_lexico = nodo->valor_lexico;
-    free(nodo);
+    valorLexico valor_lexico = umnodo->valor_lexico;
+    free(umnodo);
     libera_valor_lexico(valor_lexico);
     return;
 }
@@ -155,16 +155,16 @@ void libera_valor_lexico(valorLexico valor_lexico)
     return;
 }
 
-void imprime_nodo(nodo *nodo)
+void imprime_nodo(nodo *umnodo)
 {
-    if (nodo == NULL)
+    if (umnodo == NULL)
         return;
-    printf("%p [label=\"", nodo);
-    printf("%s", nodo->valor_lexico.label);
+    printf("%p [label=\"", umnodo);
+    printf("%s", umnodo->valor_lexico.label);
     printf("\"];\n");
 
     lseNodo *nodo_f;
-    nodo_f = nodo->filhos;
+    nodo_f = umnodo->filhos;
     while(nodo_f!=NULL)
     {
         imprime_nodo(nodo_f->nodo);
@@ -174,16 +174,16 @@ void imprime_nodo(nodo *nodo)
     return;
 }
 
-void imprime_arestas(nodo *nodo)
+void imprime_arestas(nodo *umnodo)
 {
-    if (nodo == NULL)
+    if (umnodo == NULL)
         return;
 
     lseNodo *nodo_f;
-    nodo_f = nodo->filhos;
+    nodo_f = umnodo->filhos;
     while(nodo_f!=NULL)
     {
-        printf("%p, %p\n", nodo, nodo_f);
+        printf("%p, %p\n", umnodo, nodo_f);
         imprime_arestas(nodo_f->nodo);
         nodo_f = nodo_f->proximo;
     }
