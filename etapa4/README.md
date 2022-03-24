@@ -27,4 +27,10 @@ Limpar:
 
 Entregar:
 
+> tar cvzf etapa3.tgz .
+> OU
 > make submit
+
+Unzip:
+
+> tar -xvzf -f etapa3.tgz
