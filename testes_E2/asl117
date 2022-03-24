@@ -1,0 +1,5 @@
+//INCORRECT
+int func1(char param1) {
+    MinhaClasse a;
+    a$nome[0] = 3.5;
+}

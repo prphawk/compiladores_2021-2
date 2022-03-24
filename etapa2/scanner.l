@@ -3,9 +3,8 @@
 %{ 
 #include<stdio.h>
 #include "parser.tab.h"
-#include "main.c"
 void succ_num_lines();
-int get_ascii_value(char* yytext);
+extern int get_ascii_value(char* yytext);
 
 int num_lines = 1;
 int get_line_number(void) { return num_lines; }

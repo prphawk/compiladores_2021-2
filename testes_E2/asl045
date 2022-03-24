@@ -1,0 +1,6 @@
+//INCORRECT
+class ASL_t [ public int a ];
+int f()
+{
+  ASL_t b <= 10;
+}

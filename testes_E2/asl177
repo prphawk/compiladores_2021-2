@@ -1,0 +1,5 @@
+//CORRECT
+int main()
+{
+  static int k, w, x <= 20, y <= 30, alfa <= 40, beta, omega, lambda<="oi", gama;
+}
