@@ -58,8 +58,7 @@ void adiciona_filho(nodo *pai, nodo *filho)
    return;
    
 }
-//TODO função de alterar nodo
-//TODO função de remover nodo
+
 void imprime_arvore(nodo *nodo, int profundidade)
 {
     int i = 0;
