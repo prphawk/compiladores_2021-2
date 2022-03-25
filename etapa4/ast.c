@@ -81,8 +81,7 @@ void imprime_arvore(Nodo *umnodo, int profundidade)
     }
     printf("\n");
 
-    LseNodo *nodo_f;
-    nodo_f = umnodo->filhos;
+    Nodo *nodo_f = nodo->filho;
     while(nodo_f!=NULL)
     {
         imprime_arvore(nodo_f->valor_nodo, profundidade+1);
