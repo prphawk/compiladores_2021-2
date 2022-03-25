@@ -1,7 +1,9 @@
 //CORRECT
-int a;
+static int a, b;
 int func1()
 {
+  static int k, w, x <= 20, y <= 30, alfa <= 40, beta, omega, lambda<="oi", gama;
   output "oi";
 }
 int b[ 100 ];
+int c;

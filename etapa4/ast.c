@@ -16,6 +16,7 @@ Nodo *adiciona_nodo(valorLexico valor_lexico)
     if(valor_lexico.tipo_literal == STRING)
         nodo->valor_lexico.valor.valor_string = strdup(valor_lexico.valor.valor_string);
     nodo->filho = NULL;
+    nodo->irmao = NULL;
 
     return nodo;
 }
@@ -33,6 +34,7 @@ Nodo *adiciona_nodo_label(char *label)
 
     nodo->valor_lexico = valor_lexico;
     nodo->filho = NULL;
+    nodo->irmao = NULL;
 
     return nodo;
 }
