@@ -39,7 +39,7 @@ valorLexico atribui_yylval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, in
 
 void libera_valor_lexico(valorLexico valor_lexico)
 {
-    if(valor_lexico.tipo_literal == STRING) //TODO || valor_lexico.tipo_literal == NAO_LITERAL)
+    if(valor_lexico.tipo_literal == STRING || valor_lexico.tipo_literal == NAO_LITERAL)
         free(valor_lexico.valor.valor_string);
     if(valor_lexico.label != NULL)
         free(valor_lexico.label);

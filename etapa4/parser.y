@@ -125,8 +125,8 @@ declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | t
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
-nome_variavel_global: TK_IDENTIFICADOR //{ libera_valor_lexico($1); } 
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  //{ libera_valor_lexico($1); }
+nome_variavel_global: TK_IDENTIFICADOR { libera_valor_lexico($1); } 
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_valor_lexico($1); }
                     ;
 
 declaracao_funcao: cabecalho corpo 
@@ -142,9 +142,8 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR //{ libera_valor_lexico($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR //{ libera_valor_lexico($3); }
-        ;
+parametro: tipo TK_IDENTIFICADOR { libera_valor_lexico($2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_valor_lexico($3); };
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
@@ -216,7 +215,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR { /*libera_valor_lexico($1),*/ $$ = NULL; }
+                                | TK_IDENTIFICADOR { libera_valor_lexico($1), $$ = NULL; }
                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao 
