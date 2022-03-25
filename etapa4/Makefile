@@ -12,7 +12,7 @@ parser.tab.c parser.tab.h: parser.y
 	bison -d parser.y --report-file=FILE
 
 clean:
-	rm lex.yy.* parser.tab.* main.o ast.o etapa4
+	rm lex.yy.* parser.tab.* main.o ast.o valor_lexico.o etapa4
 
 submit:
 	tar cvzf etapa4.tgz .
@@ -21,4 +21,4 @@ debug:
 	gdb ./etapa4
 
 checkleak: 
-	valgrind --leak-check=full --show-leak-kinds=all ./etapa4 < teste.txt
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./etapa4 < teste.txt

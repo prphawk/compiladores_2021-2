@@ -123,7 +123,7 @@ declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ =
 
 declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
 
-nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']';
+nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'; //TODO caso o lit_int seja de variavel global, n tem como liberar ele dps 
 
 lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
 
@@ -203,7 +203,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR { $$ = NULL; }
+                                | TK_IDENTIFICADOR { libera_valor_lexico($1), $$ = NULL; }
                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao 
@@ -380,7 +380,12 @@ expressao: expr_ternaria { $$ = $1; }
         | expr_bin_aritmetica { $$ = $1; }
         | expr_bin_logica { $$ = $1; };
 
-expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao { Nodo *novo_nodo = adiciona_nodo_label("?:"); adiciona_filho(novo_nodo, $1); adiciona_filho(novo_nodo, $3); adiciona_filho(novo_nodo, $5); $$ = novo_nodo; }
+expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
+            { Nodo *novo_nodo = adiciona_nodo_label("?:"); 
+            adiciona_filho(novo_nodo, $1); 
+            adiciona_filho(novo_nodo, $3); 
+            adiciona_filho(novo_nodo, $5); 
+            $$ = novo_nodo; }
             | expr_bin_logica '?' expressao ':' expressao{
             Nodo *novo_nodo = adiciona_nodo_label("?:");
             adiciona_filho(novo_nodo, $1);

@@ -119,15 +119,6 @@ void libera(void *pai)
     free(pai_arvore);
 }
 
-void libera_valor_lexico(valorLexico valor_lexico)
-{
-    if(valor_lexico.tipo_literal == STRING)
-        free(valor_lexico.valor.valor_string);
-    if(valor_lexico.label != NULL)
-        free(valor_lexico.label);
-    return;
-}
-
 void imprime_nodo(Nodo *nodo)
 {
     if (nodo == NULL)

@@ -20,7 +20,6 @@ void adiciona_irmao(Nodo *irmao, Nodo *novo_irmao);
 void libera(void *pai);
 void libera_irmaos(void *filhos);
 void libera_nodo(Nodo *nodo);
-void libera_valor_lexico(valorLexico valor_lexico);
 void imprime_nodo(Nodo *nodo);
 void imprime_arestas(Nodo *nodo);
 void exporta(void *arvore);
