@@ -32,3 +32,6 @@ typedef struct valorLexico
         char *valor_string;
     } valor;
 } valorLexico;
+
+valorLexico atribui_yylval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, int num_lines);
+void libera_valor_lexico(valorLexico valor_lexico);
