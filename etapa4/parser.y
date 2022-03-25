@@ -121,11 +121,13 @@ declaracoes: declaracao declaracoes
 
 declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
-declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
+declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | tipo lista_nome_variavel_global ';';
 
-nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']';
+lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
-lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
+nome_variavel_global: TK_IDENTIFICADOR //{ libera_valor_lexico($1); } 
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  //{ libera_valor_lexico($1); }
+                    ;
 
 declaracao_funcao: cabecalho corpo 
                 {
@@ -140,7 +142,9 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR | TK_PR_CONST tipo TK_IDENTIFICADOR;
+parametro: tipo TK_IDENTIFICADOR //{ libera_valor_lexico($2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR //{ libera_valor_lexico($3); }
+        ;
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
@@ -215,7 +219,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR { $$ = NULL; }
+                                | TK_IDENTIFICADOR { /*libera_valor_lexico($1),*/ $$ = NULL; }
                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao 
@@ -392,7 +396,12 @@ expressao: expr_ternaria { $$ = $1; }
         | expr_bin_aritmetica { $$ = $1; }
         | expr_bin_logica { $$ = $1; };
 
-expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao { Nodo *novo_nodo = adiciona_nodo_label("?:"); adiciona_filho(novo_nodo, $1); adiciona_filho(novo_nodo, $3); adiciona_filho(novo_nodo, $5); $$ = novo_nodo; }
+expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
+            { Nodo *novo_nodo = adiciona_nodo_label("?:"); 
+            adiciona_filho(novo_nodo, $1); 
+            adiciona_filho(novo_nodo, $3); 
+            adiciona_filho(novo_nodo, $5); 
+            $$ = novo_nodo; }
             | expr_bin_logica '?' expressao ':' expressao{
             Nodo *novo_nodo = adiciona_nodo_label("?:");
             adiciona_filho(novo_nodo, $1);

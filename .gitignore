@@ -3,3 +3,4 @@ lex.yy.*
 parser.tab.*
 *.exe
 *.tgz
+etapa4
