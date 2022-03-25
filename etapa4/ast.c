@@ -28,6 +28,7 @@ Nodo *adiciona_nodo_label(char *label)
     valor_lexico.tipo = OUTRO;
     valor_lexico.tipo_literal = NAO_LITERAL;
     valor_lexico.label = strdup(label);
+    valor_lexico.valor.valor_string = NULL;
 
     Nodo *nodo;
     nodo = malloc(sizeof(Nodo));
