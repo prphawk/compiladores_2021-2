@@ -146,8 +146,20 @@ tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
 corpo: bloco_comandos { $$ = $1; } ;
 
-lista_comandos: comando_simples ';' lista_comandos { if($3!=NULL) adiciona_filho($1, $3); $$ = $1; }
-                | { $$ = NULL; };
+lista_comandos: comando_simples ';' lista_comandos 
+            { 
+                if($3!=NULL) adiciona_filho($1, $3); $$ = $1; 
+                }
+            | { $$ = NULL; };
+    /* { 
+        if($1==NULL) {
+            $$ = $3;
+        }
+        else 
+            if($3!=NULL) adiciona_filho($1, $3); 
+            else $$ = $1; 
+    } //caso $1 seja apenas um identificador, volta nulo e n podemos processar o $3
+    | { $$ = NULL; }; */
 
 bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
 
