@@ -121,11 +121,13 @@ declaracoes: declaracao declaracoes
 
 declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
-declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel ';' | tipo lista_nome_variavel ';';
+declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | tipo lista_nome_variavel_global ';';
 
-nome_variavel: TK_IDENTIFICADOR | TK_IDENTIFICADOR '[' TK_LIT_INT ']'; //TODO caso o lit_int seja de variavel global, n tem como liberar ele dps 
+lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
-lista_nome_variavel: nome_variavel | nome_variavel ',' lista_nome_variavel;
+nome_variavel_global: TK_IDENTIFICADOR { libera_valor_lexico($1); } 
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_valor_lexico($1); }
+                    ;
 
 declaracao_funcao: cabecalho corpo 
                 {
@@ -140,14 +142,23 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR | TK_PR_CONST tipo TK_IDENTIFICADOR;
+parametro: tipo TK_IDENTIFICADOR { libera_valor_lexico($2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_valor_lexico($3); };
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
 corpo: bloco_comandos { $$ = $1; } ;
 
-lista_comandos: comando_simples ';' lista_comandos { if($3!=NULL) adiciona_filho($1, $3); $$ = $1; }
-                | { $$ = NULL; };
+lista_comandos: comando_simples ';' lista_comandos 
+    { 
+        if($1==NULL) {
+            $$ = $3;
+        }
+        else 
+            if($3!=NULL) adiciona_filho($1, $3); 
+            else $$ = $1; 
+    } //caso $1 seja apenas um identificador, volta nulo e n podemos processar o $3
+    | { $$ = NULL; };
 
 bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
 
