@@ -1,5 +1,7 @@
 //CORRECT
+int a;
 int func1()
 {
   output "oi";
 }
+int b[ 100 ];
