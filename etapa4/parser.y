@@ -383,7 +383,7 @@ operador_unario: '-' { $$ = adiciona_nodo($1); }
                | '+' { $$ = adiciona_nodo($1); } 
                | '!' { $$ = adiciona_nodo($1); } 
                | '&' { $$ = adiciona_nodo($1); } 
-               | '?' { $$ = adiciona_nodo($1); } //deixar esse
+               | '?' { $$ = adiciona_nodo($1); }
                | '#' { $$ = adiciona_nodo($1); }
                ;
 
@@ -395,7 +395,7 @@ expressao: expr_ternaria { $$ = $1; }
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
             { 
-            libera_valor_lexico($2);
+            libera_valor_lexico($2); //não usaremos, mas foi alocado!!
             Nodo *novo_nodo = adiciona_nodo_label("?:"); 
             adiciona_filho(novo_nodo, $1); 
             adiciona_filho(novo_nodo, $3); 
