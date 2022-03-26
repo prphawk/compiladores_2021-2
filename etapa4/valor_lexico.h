@@ -24,13 +24,11 @@ typedef struct valorLexico
     TipoVLex tipo_vlex;
     TipoVLexLiteral tipo_vlex_literal;
     char *label;
-    union valor {
-        int valor_int;
-        float valor_float;
-        int valor_bool;
-        char valor_char;
-        char *valor_string;
-    } valor;
+    int valor_int;
+    float valor_float;
+    int valor_bool;
+    char valor_char;
+    char *valor_string;
 } valorLexico;
 
 valorLexico atribui_yylval(char* yytext, TipoVLex tipo_vlex, TipoVLexLiteral tipo_vlex_literal, int num_lines);

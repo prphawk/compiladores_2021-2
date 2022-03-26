@@ -33,7 +33,7 @@ Nodo *adiciona_nodo_label(char *label)
     valor_lexico.tipo_vlex = VLEX_TIPO_OUTRO;
     valor_lexico.tipo_vlex_literal = VLEX_LITERAL_NULL;
     valor_lexico.label = strdup(label);
-    valor_lexico.valor.valor_string = NULL;
+    valor_lexico.valor_string = NULL;
 
     Nodo *nodo;
     nodo = malloc(sizeof(Nodo));

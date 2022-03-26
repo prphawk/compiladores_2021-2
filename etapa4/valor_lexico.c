@@ -14,20 +14,20 @@ valorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
 
       switch(tipo_vlex_literal) {
          case VLEX_LITERAL_BOOL:
-            valor_lexico.valor.valor_bool = (strncmp (yytext,"true",4) == 0); //if Return value = 0 then it indicates str1 is equal to str2.
+            valor_lexico.valor_bool = (strncmp (yytext,"true",4) == 0); //if Return value = 0 then it indicates str1 is equal to str2.
             break;
          case VLEX_LITERAL_FLOAT:
-            valor_lexico.valor.valor_float=atof(yytext);
+            valor_lexico.valor_float=atof(yytext);
             break;
          case VLEX_LITERAL_INTEIRO:
-            valor_lexico.valor.valor_int=atoi(yytext);
+            valor_lexico.valor_int=atoi(yytext);
             break;
          case VLEX_LITERAL_CHAR:
-            valor_lexico.valor.valor_char=yytext[1];
+            valor_lexico.valor_char=yytext[1];
             break;
          case VLEX_LITERAL_STRING:
-            valor_lexico.valor.valor_string = strdup(yytext+1);
-            valor_lexico.valor.valor_string[strlen(valor_lexico.valor.valor_string)-1] = '\0';
+            valor_lexico.valor_string = strdup(yytext+1);
+            valor_lexico.valor_string[strlen(valor_lexico.valor_string)-1] = '\0';
             break;
       }
 
@@ -37,7 +37,7 @@ valorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
 void libera_valor_lexico(valorLexico valor_lexico)
 {
     if(tem_valor_string(valor_lexico))
-        free(valor_lexico.valor.valor_string);
+        free(valor_lexico.valor_string);
     if(valor_lexico.label != NULL)
         free(valor_lexico.label);
     return;

@@ -21,24 +21,27 @@ typedef enum naturezaSimbolo
     SIMBOLO_FUNCAO
 } NaturezaSimbolo;
 
-typedef struct entradaArgumento
+typedef struct argumentoFuncao
 {
-    char *nome;
-    int tamanho;
+    // char *nome;
+    // int tamanho;
     TipoSimbolo tipo_simbolo;
-    struct EntradaArgumento *proximo;
-} EntradaArgumento;
+    struct ArgumentoFuncao *proximo;
+} ArgumentoFuncao;
 
 typedef struct entradaHashSimbolo
 {
-    int linha;
-    int tamanho;
     char *chave;
-    TipoSimbolo tipo_simbolo;
-    NaturezaSimbolo natureza_simbolo;
-    EntradaArgumento argumentos;
-    valorLexico valor_lexico;
     struct EntradaHashSimbolo *proximo;
+    union conteudo {
+        int linha;
+        int coluna; //opcional, -1 quando n existe
+        int tamanho;
+        TipoSimbolo tipo_simbolo;
+        NaturezaSimbolo natureza_simbolo;
+        ArgumentoFuncao argumentos;
+        valorLexico valor_lexico;
+    } Conteudo;
 } EntradaHashSimbolo;
 
 typedef struct pilhaHash {
