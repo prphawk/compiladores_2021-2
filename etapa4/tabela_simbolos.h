@@ -40,7 +40,7 @@ typedef struct entradaHashSimbolo
         TipoSimbolo tipo_simbolo;
         NaturezaSimbolo natureza_simbolo;
         ArgumentoFuncao argumentos;
-        valorLexico valor_lexico;
+        ValorLexico valor_lexico;
     } Conteudo;
 } EntradaHashSimbolo;
 

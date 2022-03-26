@@ -4,9 +4,9 @@
 #include <stdbool.h>
 #include "valor_lexico.h"
 
-valorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vlex_literal, int num_lines) 
+ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vlex_literal, int num_lines) 
 {
-      valorLexico valor_lexico;
+      ValorLexico valor_lexico;
       valor_lexico.linha=num_lines;
       valor_lexico.tipo_vlex=tipo;
       valor_lexico.tipo_vlex_literal=tipo_vlex_literal;
@@ -34,7 +34,7 @@ valorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
       return valor_lexico;
 }
 
-void libera_valor_lexico(valorLexico valor_lexico)
+void libera_valor_lexico(ValorLexico valor_lexico)
 {
     if(tem_valor_string(valor_lexico))
         free(valor_lexico.valor_string);
@@ -43,6 +43,6 @@ void libera_valor_lexico(valorLexico valor_lexico)
     return;
 }
 
-int tem_valor_string(valorLexico valor_lexico) {
+int tem_valor_string(ValorLexico valor_lexico) {
    return (valor_lexico.tipo_vlex_literal == VLEX_LITERAL_STRING);
 }

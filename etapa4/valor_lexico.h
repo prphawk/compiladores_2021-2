@@ -29,8 +29,8 @@ typedef struct valorLexico
     int valor_bool;
     char valor_char;
     char *valor_string;
-} valorLexico;
+} ValorLexico;
 
-valorLexico atribui_yylval(char* yytext, TipoVLex tipo_vlex, TipoVLexLiteral tipo_vlex_literal, int num_lines);
-void libera_valor_lexico(valorLexico valor_lexico);
-int tem_valor_string(valorLexico valor_lexico);
+ValorLexico atribui_yylval(char* yytext, TipoVLex tipo_vlex, TipoVLexLiteral tipo_vlex_literal, int num_lines);
+void libera_valor_lexico(ValorLexico valor_lexico);
+int tem_valor_string(ValorLexico valor_lexico);

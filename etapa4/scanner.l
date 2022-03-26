@@ -6,7 +6,7 @@
 #include "ast.h"
 #include "parser.tab.h"
 #include "valor_lexico.h"
-#define YYSTYPE valorLexico
+#define YYSTYPE ValorLexico
 
 void succ_num_lines();
 int get_ascii_value(char* yytext);

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Nodo *adiciona_nodo(valorLexico valor_lexico)
+Nodo *adiciona_nodo(ValorLexico valor_lexico)
 {
     Nodo *nodo;
     nodo = malloc(sizeof(Nodo));
@@ -17,7 +17,7 @@ Nodo *adiciona_nodo(valorLexico valor_lexico)
     return nodo;
 }
 
-Nodo *adiciona_nodo_label_concat(char *label, valorLexico valor_lexico) {
+Nodo *adiciona_nodo_label_concat(char *label, ValorLexico valor_lexico) {
     char* str2 = valor_lexico.label;
     char* result = malloc((strlen(label)+strlen(str2)+1)*sizeof(char));
     strcpy(result, label); strcat(result, str2);
@@ -28,7 +28,7 @@ Nodo *adiciona_nodo_label_concat(char *label, valorLexico valor_lexico) {
 
 Nodo *adiciona_nodo_label(char *label)
 {
-    valorLexico valor_lexico;
+    ValorLexico valor_lexico;
     valor_lexico.linha = -1; //TODO deveriamos fazer algo sobre isso?
     valor_lexico.tipo_vlex = VLEX_TIPO_OUTRO;
     valor_lexico.tipo_vlex_literal = VLEX_LITERAL_NULL;

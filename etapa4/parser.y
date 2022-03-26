@@ -14,8 +14,8 @@ extern void *arvore;
     #include "ast.h"
 }
 %union {
-   valorLexico valor_lexico;
-   struct Nodo *nodo;
+   ValorLexico valor_lexico;
+   Nodo *nodo;
 }
 %token TK_PR_INT
 %token TK_PR_FLOAT

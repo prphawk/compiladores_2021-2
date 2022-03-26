@@ -15,7 +15,7 @@ int indiceHash(char *chave)
 
 // TODO função que adiciona uma entrada na hash
 // retorna a recém-adicionada entrada
-EntradaHashSimbolo *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, int tamanho, valorLexico valor_lexico)
+EntradaHashSimbolo *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
 {
     // usa o indiceHash() aqui dentro
     return NULL;
@@ -28,7 +28,7 @@ EntradaHashSimbolo *entradaHash(char *nome, NaturezaSimbolo natureza)
 }
 
 // TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-void adicionaArgumento(EntradaHashSimbolo entrada, TipoSimbolo tipo, int tamanho, valorLexico valor_lexico)
+void adicionaArgumento(EntradaHashSimbolo entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
 {
     // não precisa usar o "chave", guarda somente o >NOME< do argumento em argumento.nome
     // cria um entradaArgumento
