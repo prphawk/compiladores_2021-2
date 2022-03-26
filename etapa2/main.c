@@ -10,7 +10,7 @@ extern int yylex_destroy(void);
 
 int main (int argc, char **argv)
 {
-  //yydebug = 1; //TODO ao entregar, retirar.
+  //yydebug = 1;
   int ret = yyparse();
   yylex_destroy();
   return ret;

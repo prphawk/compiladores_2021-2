@@ -1,5 +1,8 @@
 #include "errors.h"
 
+
+/*TODO Mensagens de erro significativas devem ser fornecidas.
+Elas devem descrever em linguagem natural o erro semantico, as linhas envolvidas, os identificadores e a natureza destes.*/
 void throwUndeclaredError(int linha, char *input)
 {
   printf("ERRO linha %i", linha);

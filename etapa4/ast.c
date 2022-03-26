@@ -29,7 +29,7 @@ Nodo *adiciona_nodo_label_concat(char *label, valorLexico valor_lexico) {
 Nodo *adiciona_nodo_label(char *label)
 {
     valorLexico valor_lexico;
-    valor_lexico.linha = -1; //deveriamos fazer algo sobre isso?
+    valor_lexico.linha = -1; //TODO deveriamos fazer algo sobre isso?
     valor_lexico.tipo_vlex = VLEX_TIPO_OUTRO;
     valor_lexico.tipo_vlex_literal = VLEX_LITERAL_NULL;
     valor_lexico.label = strdup(label);

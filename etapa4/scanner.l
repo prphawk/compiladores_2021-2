@@ -12,7 +12,7 @@ void succ_num_lines();
 int get_ascii_value(char* yytext);
 
 int num_lines = 1;
-int get_line_number(void) { return num_lines; } //TODO n tem q botar isso nos nodos da arvore tbm?
+int get_line_number(void) { return num_lines; }
 
 %}
 DIGIT [0-9]
