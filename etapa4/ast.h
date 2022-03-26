@@ -3,19 +3,7 @@
 #include <string.h>
 #include "valor_lexico.h"
 
-typedef enum tipo
-{
-    INTEIRO,
-    FLOAT,
-    BOOL,
-    CHAR,
-    STRING,
-    NAO_DEFINIDO
-} Tipo;
-
-
 typedef struct Nodo {
-    Tipo tipo;
     valorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;

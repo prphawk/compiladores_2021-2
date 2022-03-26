@@ -56,23 +56,23 @@ TO_IGNORE [ \t\r]+|{COMMENT_SINGLE}
 "end" return TK_PR_END;
 "default" return TK_PR_DEFAULT;
 
-">=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_GE;}
-"<=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_LE;}
-"==" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_EQ;}
-"!=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_NE;}
-"&&" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_AND;}
-"||" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_OR;}
-">>" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_SL;}
-"<<" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_SR;}
+">=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_GE;}
+"<=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_LE;}
+"==" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_EQ;}
+"!=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_NE;}
+"&&" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_AND;}
+"||" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_OR;}
+">>" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_SL;}
+"<<" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, VLEX_NAO_LITERAL, num_lines); return TK_OC_SR;}
 
-"true" { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, BOOL, num_lines); return TK_LIT_TRUE;}
-"false" { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, BOOL, num_lines); return TK_LIT_FALSE;}
+"true" { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, VLEX_BOOL, num_lines); return TK_LIT_TRUE;}
+"false" { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, VLEX_BOOL, num_lines); return TK_LIT_FALSE;}
 
-{ID} { yylval.valor_lexico = atribui_yylval(yytext, IDENTIFICADOR, NAO_LITERAL, num_lines); return TK_IDENTIFICADOR;}
-{FLOAT} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, FLOAT, num_lines); return TK_LIT_FLOAT;}
-{INT} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, INTEIRO, num_lines);  return TK_LIT_INT;}
-{CHAR} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, CHAR, num_lines); return TK_LIT_CHAR;}
-{STRING} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, STRING, num_lines); return TK_LIT_STRING;}
+{ID} { yylval.valor_lexico = atribui_yylval(yytext, IDENTIFICADOR, VLEX_NAO_LITERAL, num_lines); return TK_IDENTIFICADOR;}
+{FLOAT} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, VLEX_FLOAT, num_lines); return TK_LIT_FLOAT;}
+{INT} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, VLEX_INTEIRO, num_lines);  return TK_LIT_INT;}
+{CHAR} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, VLEX_CHAR, num_lines); return TK_LIT_CHAR;}
+{STRING} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, VLEX_STRING, num_lines); return TK_LIT_STRING;}
 {TO_IGNORE}
 
 "/*" BEGIN(comment);
@@ -83,7 +83,7 @@ que for escrito num comentário não fechado seja consumido e não interpretado 
 <comment><<EOF>> { BEGIN(INITIAL); return TOKEN_ERRO;};
 <comment>"*"+"/" BEGIN(INITIAL);
 
-{SPECIAL} {yylval.valor_lexico = atribui_yylval(yytext, CARACTERE_ESPECIAL, CHAR, num_lines); return get_ascii_value(yytext);}
+{SPECIAL} {yylval.valor_lexico = atribui_yylval(yytext, CARACTERE_ESPECIAL, VLEX_CHAR, num_lines); return get_ascii_value(yytext);}
 {SPECIAL_NO_MALLOC} {return get_ascii_value(yytext);}
 
 . return TOKEN_ERRO;

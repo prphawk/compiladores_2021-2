@@ -10,12 +10,12 @@ typedef enum tipo_vlex
 
 typedef enum tipo_vlex_literal
 {
-    INTEIRO,
-    FLOAT,
-    BOOL,
-    CHAR,
-    STRING,
-    NAO_LITERAL
+    VLEX_INTEIRO,
+    VLEX_FLOAT,
+    VLEX_BOOL,
+    VLEX_CHAR,
+    VLEX_STRING,
+    VLEX_NAO_LITERAL
 } TipoVLexLiteral;
 
 typedef struct valorLexico
