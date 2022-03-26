@@ -3,6 +3,7 @@
 #include "valor_lexico.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 Nodo *adiciona_nodo(valorLexico valor_lexico)
 {
@@ -13,6 +14,15 @@ Nodo *adiciona_nodo(valorLexico valor_lexico)
     nodo->irmao = NULL;
     nodo->valor_lexico = valor_lexico;
 
+    return nodo;
+}
+
+Nodo *adiciona_nodo_label_concat(char *label, valorLexico valor_lexico) {
+    char* str2 = valor_lexico.label;
+    char* result = malloc((strlen(label)+strlen(str2)+1)*sizeof(char));
+    strcpy(result, label); strcat(result, str2);
+    Nodo *nodo = adiciona_nodo_label(result);
+    free(result);
     return nodo;
 }
 

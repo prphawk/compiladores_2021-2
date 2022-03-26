@@ -7,12 +7,11 @@ typedef struct Nodo {
     valorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
-    // TODO modificar função de adicionar nodo para incluir o tipo
-    // TipoSimbolo tipo;
 } Nodo;
 
 Nodo *adiciona_nodo(valorLexico valor_lexico);
 Nodo *adiciona_nodo_label(char *label);
+Nodo *adiciona_nodo_label_concat(char *label, valorLexico valor_lexico);
 void adiciona_filho(Nodo *nodo, Nodo *filho);
 void imprime_arvore(Nodo *nodo, int profundidade);
 Nodo *acha_ultimo_irmao(Nodo *nodo_irmao);
