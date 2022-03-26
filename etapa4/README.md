@@ -4,7 +4,7 @@ Em etapa3, para compilar as files:
 
 > make
 
-> ./etapa3 < teste.txt
+> ./etapa4 < teste.txt
 
 Checar mem leaks com teste.txt:
 
@@ -27,10 +27,10 @@ Limpar:
 
 Entregar:
 
-> tar cvzf etapa3.tgz .
+> tar cvzf etapa4.tgz .
 > OU
 > make submit
 
 Unzip:
 
-> tar -xvzf -f etapa3.tgz
+> tar -xvzf -f etapa4.tgz
