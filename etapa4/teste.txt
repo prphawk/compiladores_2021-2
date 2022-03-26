@@ -8,6 +8,7 @@ int func1()
   output "oi";
   x = ?x;
   x = x+1 ? 1 : 2;
+  x = a();
 
 }
 int b[ 100 ];

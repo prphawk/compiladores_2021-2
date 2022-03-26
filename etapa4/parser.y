@@ -165,8 +165,9 @@ lista_comandos: comando_simples ';' lista_comandos
 bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
 
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
-            Nodo *novo_nodo = adiciona_nodo_label("call");
-            adiciona_filho(novo_nodo, adiciona_nodo($1));
+            Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1);
+            libera_valor_lexico($1); //precisa liberar pq o identificador é substituido na arvore!!
+            //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
         };
