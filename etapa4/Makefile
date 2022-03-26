@@ -2,7 +2,7 @@
 etapa4: lex.yy.o parser.tab.o main.o ast.o valor_lexico.o tabela_simbolos.o
 	gcc -g -o etapa4 lex.yy.o parser.tab.o main.o ast.o valor_lexico.o tabela_simbolos.o -lfl
 
-lex.yy.o parser.tab.o main.o ast.o: lex.yy.c parser.tab.c ast.c main.c valor_lexico.c tabela_simbolos.c
+lex.yy.o parser.tab.o main.o ast.o tabela_simbolos.o: lex.yy.c parser.tab.c ast.c main.c valor_lexico.c tabela_simbolos.c
 	gcc -g -c lex.yy.c main.c ast.c parser.tab.c valor_lexico.c tabela_simbolos.c
 
 lex.yy.c: scanner.l
