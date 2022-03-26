@@ -3,6 +3,7 @@
 #include<string.h>
 #include "ast.h"
 #include "main.h"
+#include "tabela_simbolos.h"
 int yylex(void);
 int yyerror (char const *s);
 extern int get_line_number (void);
@@ -15,7 +16,7 @@ extern void *arvore;
 }
 %union {
    ValorLexico valor_lexico;
-   Nodo *nodo;
+   struct Nodo *nodo;
 }
 %token TK_PR_INT
 %token TK_PR_FLOAT

@@ -18,9 +18,7 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
 }
 
 Nodo *adiciona_nodo_label_concat(char *label, ValorLexico valor_lexico) {
-    char* str2 = valor_lexico.label;
-    char* result = malloc((strlen(label)+strlen(str2)+1)*sizeof(char));
-    strcpy(result, label); strcat(result, str2);
+    char* result = append_str_malloc(label, valor_lexico.label);
     Nodo *nodo = adiciona_nodo_label(result);
     free(result);
     return nodo;

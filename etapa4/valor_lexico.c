@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include "valor_lexico.h"
 
 ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vlex_literal, int num_lines) 
@@ -46,3 +45,20 @@ void libera_valor_lexico(ValorLexico valor_lexico)
 int tem_valor_string(ValorLexico valor_lexico) {
    return (valor_lexico.tipo_vlex_literal == VLEX_LITERAL_STRING);
 }
+
+char* append_str_malloc(char* str1, char* str2) {
+   char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char)); //TODO precisa add o \0 aqui ou nem?
+   strcpy(result, str1);
+   strcat(result, str2);
+   return result;
+}
+
+// char* append_str_enum_malloc(char* str1, int enum) {
+//    char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char));
+//    strcpy(result, str1);
+//    // if(space) {
+//    //   strncat(result, ' ', 1);
+//    // }
+//    strcat(result, str2);
+//    return result;
+// }

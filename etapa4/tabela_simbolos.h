@@ -1,10 +1,16 @@
+#pragma once
+
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "valor_lexico.h"
 
 #define TAMANHO_HASH 500
+#define TAMANHO_CHAR 1 
+#define TAMANHO_INT 4
+#define TAMANHO_FLOAT 8 
 
-typedef enum tipoSimbolo
+typedef enum tipo_simbolo
 {
     SIMBOLO_TIPO_INTEIRO,
     SIMBOLO_TIPO_FLOAT,
@@ -14,7 +20,7 @@ typedef enum tipoSimbolo
     SIMBOLO_TIPO_OUTRO
 } TipoSimbolo;
 
-typedef enum naturezaSimbolo
+typedef enum natureza_simbolo
 {
     SIMBOLO_LITERAL,
     SIMBOLO_VARIAVEL,
@@ -50,3 +56,12 @@ typedef struct pilhaHash {
 } PilhaHash;
 
 PilhaHash pilha_hash;
+
+char *chave(char *nome, NaturezaSimbolo natureza);
+int indiceHash(char *chave);
+EntradaHashSimbolo *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
+EntradaHashSimbolo *entradaHash(char *chave);
+void adicionaArgumento(EntradaHashSimbolo entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
+void empilhaHash();
+void desempilhaHash();
+void liberaPilhaHash();
