@@ -1,5 +1,0 @@
-//CORRECT
-int func1()
-{
-  output "oi";
-}

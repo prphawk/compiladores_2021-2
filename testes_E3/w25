@@ -1,0 +1,12 @@
+int f(){
+    int a;
+    int b;
+    int c;
+    if (a) {
+       a = b;
+     }else{
+       a = 3;
+     };
+     c = 4;
+     c = 5;
+}

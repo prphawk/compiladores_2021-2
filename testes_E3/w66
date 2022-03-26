@@ -1,0 +1,23 @@
+int f(){
+   int x;
+   int a;
+   int b;
+   int c;
+   int d;
+   int e;
+   int y;
+   int f;
+   int g;
+   int h;
+   int i;
+   int j;
+   int z;
+   int k;
+   int l;
+   int m;
+   int n;
+   int o;
+   x = a + b + c - d - e;
+   y = f * g * h / i / j;
+   z = k * l * m + n + o;
+}
