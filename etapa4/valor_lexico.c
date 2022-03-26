@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "valor_lexico.h"
 
 valorLexico atribui_yylval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, int num_lines) 
@@ -28,8 +29,8 @@ valorLexico atribui_yylval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, in
          valor_lexico.valor.valor_char=yytext[1]; // TODO [1] mesmo?
          break;
       case STRING:
+         yytext++;
          valor_lexico.valor.valor_string = strdup(yytext);
-         valor_lexico.valor.valor_string++;
          valor_lexico.valor.valor_string[strlen(valor_lexico.valor.valor_string)-1] = '\0';
          break;
     }
@@ -39,9 +40,13 @@ valorLexico atribui_yylval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, in
 
 void libera_valor_lexico(valorLexico valor_lexico)
 {
-    if(valor_lexico.tipo_literal == STRING || valor_lexico.tipo_literal == NAO_LITERAL)
+    if(tem_valor_string(valor_lexico))
         free(valor_lexico.valor.valor_string);
     if(valor_lexico.label != NULL)
         free(valor_lexico.label);
     return;
+}
+
+int tem_valor_string(valorLexico valor_lexico) {
+   return (valor_lexico.tipo_literal == STRING || valor_lexico.tipo_literal == NAO_LITERAL);
 }
