@@ -126,7 +126,7 @@ declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | t
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
 nome_variavel_global: TK_IDENTIFICADOR { libera_valor_lexico($1); } 
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_valor_lexico($1); }
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_valor_lexico($1); libera_valor_lexico($3); }
                     ;
 
 declaracao_funcao: cabecalho corpo 
