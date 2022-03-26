@@ -18,7 +18,8 @@ int get_line_number(void) { return num_lines; } //TODO n tem q botar isso nos no
 DIGIT [0-9]
 ALPHA_ [a-zA-Z_]
 ID {ALPHA_}({ALPHA_}|{DIGIT})*
-SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&?%#\^.$]
+SPECIAL [\+\-|\*\/<>=!&%#\^$?]
+SPECIAL_NO_MALLOC [:,;()\[\]{}.]
 INT {DIGIT}+ 
 FLOAT {DIGIT}+\.{DIGIT}+((E|e){INT})?
 CHAR '.'
@@ -83,6 +84,8 @@ que for escrito num comentário não fechado seja consumido e não interpretado 
 <comment>"*"+"/" BEGIN(INITIAL);
 
 {SPECIAL} {yylval.valor_lexico = atribui_yylval(yytext, CARACTERE_ESPECIAL, CHAR, num_lines); return get_ascii_value(yytext);}
+{SPECIAL_NO_MALLOC} {return get_ascii_value(yytext);}
+
 . return TOKEN_ERRO;
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
