@@ -7,16 +7,11 @@
 Nodo *adiciona_nodo(valorLexico valor_lexico)
 {
     Nodo *nodo;
-    int extra = 0;
+    nodo = malloc(sizeof(Nodo));
 
-    if(valor_lexico.tipo_literal == STRING)
-        extra = strlen((char*)valor_lexico.valor.valor_string)*sizeof(char);
-    nodo = malloc(extra+sizeof(Nodo));
-    nodo->valor_lexico = valor_lexico;
-    if(valor_lexico.tipo_literal == STRING)
-        nodo->valor_lexico.valor.valor_string = strdup(valor_lexico.valor.valor_string);
     nodo->filho = NULL;
     nodo->irmao = NULL;
+    nodo->valor_lexico = valor_lexico;
 
     return nodo;
 }
@@ -24,10 +19,11 @@ Nodo *adiciona_nodo(valorLexico valor_lexico)
 Nodo *adiciona_nodo_label(char *label)
 {
     valorLexico valor_lexico;
-    valor_lexico.linha = -1;
+    valor_lexico.linha = -1; //deveriamos fazer algo sobre isso?
     valor_lexico.tipo = OUTRO;
     valor_lexico.tipo_literal = NAO_LITERAL;
     valor_lexico.label = strdup(label);
+    valor_lexico.valor.valor_string = NULL;
 
     Nodo *nodo;
     nodo = malloc(sizeof(Nodo));
