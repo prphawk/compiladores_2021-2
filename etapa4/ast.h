@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "valor_lexico.h"
+#include "tabela_simbolos.h"
 
 typedef struct Nodo {
+    TipoSimbolo tipo_simbolo;
     valorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;

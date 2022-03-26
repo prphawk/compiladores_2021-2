@@ -1,21 +1,21 @@
 #pragma once
 typedef enum tipo_vlex
 {
-    CARACTERE_ESPECIAL,
-    OPERADOR_COMPOSTO,
-    IDENTIFICADOR,
-    LITERAL,
-    OUTRO
+    VLEX_TIPO_CARACTERE_ESPECIAL,
+    VLEX_TIPO_OPERADOR_COMPOSTO,
+    VLEX_TIPO_IDENTIFICADOR,
+    VLEX_TIPO_LITERAL,
+    VLEX_TIPO_OUTRO
 } TipoVLex;
 
 typedef enum tipo_vlex_literal
 {
-    VLEX_INTEIRO,
-    VLEX_FLOAT,
-    VLEX_BOOL,
-    VLEX_CHAR,
-    VLEX_STRING,
-    VLEX_NAO_LITERAL
+    VLEX_LITERAL_INTEIRO,
+    VLEX_LITERAL_FLOAT,
+    VLEX_LITERAL_BOOL,
+    VLEX_LITERAL_CHAR,
+    VLEX_LITERAL_STRING,
+    VLEX_LITERAL_NULL
 } TipoVLexLiteral;
 
 typedef struct valorLexico

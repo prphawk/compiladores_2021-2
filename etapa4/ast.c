@@ -30,8 +30,8 @@ Nodo *adiciona_nodo_label(char *label)
 {
     valorLexico valor_lexico;
     valor_lexico.linha = -1; //deveriamos fazer algo sobre isso?
-    valor_lexico.tipo_vlex = OUTRO;
-    valor_lexico.tipo_vlex_literal = VLEX_NAO_LITERAL;
+    valor_lexico.tipo_vlex = VLEX_TIPO_OUTRO;
+    valor_lexico.tipo_vlex_literal = VLEX_LITERAL_NULL;
     valor_lexico.label = strdup(label);
     valor_lexico.valor.valor_string = NULL;
 

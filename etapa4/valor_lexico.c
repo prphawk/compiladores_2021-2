@@ -13,19 +13,19 @@ valorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
       valor_lexico.label = strdup(yytext);
 
       switch(tipo_vlex_literal) {
-         case VLEX_BOOL:
+         case VLEX_LITERAL_BOOL:
             valor_lexico.valor.valor_bool = (strncmp (yytext,"true",4) == 0); //if Return value = 0 then it indicates str1 is equal to str2.
             break;
-         case VLEX_FLOAT:
+         case VLEX_LITERAL_FLOAT:
             valor_lexico.valor.valor_float=atof(yytext);
             break;
-         case VLEX_INTEIRO:
+         case VLEX_LITERAL_INTEIRO:
             valor_lexico.valor.valor_int=atoi(yytext);
             break;
-         case VLEX_CHAR:
+         case VLEX_LITERAL_CHAR:
             valor_lexico.valor.valor_char=yytext[1];
             break;
-         case VLEX_STRING:
+         case VLEX_LITERAL_STRING:
             valor_lexico.valor.valor_string = strdup(yytext+1);
             valor_lexico.valor.valor_string[strlen(valor_lexico.valor.valor_string)-1] = '\0';
             break;
@@ -44,5 +44,5 @@ void libera_valor_lexico(valorLexico valor_lexico)
 }
 
 int tem_valor_string(valorLexico valor_lexico) {
-   return (valor_lexico.tipo_vlex_literal == VLEX_STRING);
+   return (valor_lexico.tipo_vlex_literal == VLEX_LITERAL_STRING);
 }
