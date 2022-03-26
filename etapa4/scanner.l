@@ -82,7 +82,7 @@ que for escrito num comentário não fechado seja consumido e não interpretado 
 <comment><<EOF>> { BEGIN(INITIAL); return TOKEN_ERRO;};
 <comment>"*"+"/" BEGIN(INITIAL);
 
-{SPECIAL} {yylval.valor_lexico = atribui_yylval(yytext, CARACTERE_ESPECIAL, NAO_LITERAL, num_lines); return get_ascii_value(yytext);}
+{SPECIAL} {yylval.valor_lexico = atribui_yylval(yytext, CARACTERE_ESPECIAL, CHAR, num_lines); return get_ascii_value(yytext);}
 . return TOKEN_ERRO;
 %%
 int get_ascii_value(char* yytext) { return (int) yytext[0]; }
