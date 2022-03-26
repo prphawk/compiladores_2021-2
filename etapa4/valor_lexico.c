@@ -23,14 +23,13 @@ valorLexico atribui_yylval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, in
             valor_lexico.valor.valor_int=atoi(yytext);
             break;
          case CHAR:
-            valor_lexico.valor.valor_char=strdup(yytext[1]);
+            valor_lexico.valor.valor_char=yytext[1];
             break;
          case STRING:
             valor_lexico.valor.valor_string = strdup(yytext+1);
             valor_lexico.valor.valor_string[strlen(valor_lexico.valor.valor_string)-1] = '\0';
             break;
       }
-
 
       return valor_lexico;
 }
@@ -45,5 +44,5 @@ void libera_valor_lexico(valorLexico valor_lexico)
 }
 
 int tem_valor_string(valorLexico valor_lexico) {
-   return (valor_lexico.tipo_literal == STRING || valor_lexico.tipo_literal == CHAR);
+   return (valor_lexico.tipo_literal == STRING);
 }

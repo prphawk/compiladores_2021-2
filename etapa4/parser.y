@@ -59,6 +59,7 @@ extern void *arvore;
 %token<valor_lexico> TK_LIT_CHAR
 %token<valor_lexico> TK_LIT_STRING
 %token<valor_lexico> TK_IDENTIFICADOR
+%token<valor_lexico> '+' '-' '|' '*' '/' '<' '>' '=' '!' '&' '%' '#' '^' '$' '?' 
 %token TOKEN_ERRO
 
 %type<nodo> literal
@@ -218,9 +219,9 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                 | TK_IDENTIFICADOR { libera_valor_lexico($1), $$ = NULL; }
                                 ;
 
-comando_atribuicao: TK_IDENTIFICADOR '=' expressao 
+comando_atribuicao: TK_IDENTIFICADOR '=' expressao
                     {
-                        Nodo *novo_nodo = adiciona_nodo_label("=");
+                        Nodo *novo_nodo = adiciona_nodo($2);
                         adiciona_filho(novo_nodo, adiciona_nodo($1));
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
@@ -231,7 +232,7 @@ comando_atribuicao: TK_IDENTIFICADOR '=' expressao
                         adiciona_filho(nodo_vetor, adiciona_nodo($1));
                         adiciona_filho(nodo_vetor, $3);
 
-                        Nodo *novo_nodo = adiciona_nodo_label("=");
+                        Nodo *novo_nodo = adiciona_nodo($5);
                         adiciona_filho(novo_nodo, nodo_vetor);
                         adiciona_filho(novo_nodo, $6);
                         $$ = novo_nodo;
@@ -356,19 +357,19 @@ literal: TK_LIT_CHAR { $$ = adiciona_nodo($1);}
          | TK_LIT_INT { $$ = adiciona_nodo($1);}
          ;
 
-operador_binario_prec1: '^' { $$ = adiciona_nodo_label("^"); };
-operador_binario_prec2: '*' { $$ = adiciona_nodo_label("*"); } 
-							| '/' { $$ = adiciona_nodo_label("/"); } 
-							| '%' { $$ = adiciona_nodo_label("%"); }
+operador_binario_prec1: '^' { $$ = adiciona_nodo($1); };
+operador_binario_prec2: '*' { $$ = adiciona_nodo($1); } 
+							| '/' { $$ = adiciona_nodo($1); } 
+							| '%' { $$ = adiciona_nodo($1); }
 							;
-operador_binario_prec3: '+' { $$ = adiciona_nodo_label("+"); } 
-							| '-' { $$ = adiciona_nodo_label("-"); }
+operador_binario_prec3: '+' { $$ = adiciona_nodo($1); } 
+							| '-' { $$ = adiciona_nodo($1); }
 							;
-operador_binario_prec4: '&' { $$ = adiciona_nodo_label("&"); } 
-							| '|' { $$ = adiciona_nodo_label("|"); }
+operador_binario_prec4: '&' { $$ = adiciona_nodo($1); } 
+							| '|' { $$ = adiciona_nodo($1); }
 							;
-operador_binario_prec5: '<' { $$ = adiciona_nodo_label("<"); } 
-							| '>' { $$ = adiciona_nodo_label(">"); } 
+operador_binario_prec5: '<' { $$ = adiciona_nodo($1); } 
+							| '>' { $$ = adiciona_nodo($1); } 
 							| TK_OC_LE { $$ = adiciona_nodo($1); }
 							| TK_OC_EQ { $$ = adiciona_nodo($1); }
 							| TK_OC_GE { $$ = adiciona_nodo($1); }
@@ -376,14 +377,14 @@ operador_binario_prec5: '<' { $$ = adiciona_nodo_label("<"); }
 							| operador_binario_logico { $$ = $1; }
 							;
 
-operador_asterisco: '*' { $$ = adiciona_nodo_label("*"); } 
+operador_asterisco: '*' { $$ = adiciona_nodo($1); } 
 
-operador_unario: '-' { $$ = adiciona_nodo_label("-"); }
-               | '+' { $$ = adiciona_nodo_label("+"); } 
-               | '!' { $$ = adiciona_nodo_label("!"); } 
-               | '&' { $$ = adiciona_nodo_label("&"); } 
-               | '?' { $$ = adiciona_nodo_label("?"); } 
-               | '#' { $$ = adiciona_nodo_label("#"); }
+operador_unario: '-' { $$ = adiciona_nodo($1); }
+               | '+' { $$ = adiciona_nodo($1); } 
+               | '!' { $$ = adiciona_nodo($1); } 
+               | '&' { $$ = adiciona_nodo($1); } 
+               | '?' { $$ = adiciona_nodo($1); } //deixar esse
+               | '#' { $$ = adiciona_nodo($1); }
                ;
 
 operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); } | TK_OC_AND { $$ = adiciona_nodo($1); };
@@ -393,12 +394,15 @@ expressao: expr_ternaria { $$ = $1; }
         | expr_bin_logica { $$ = $1; };
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
-            { Nodo *novo_nodo = adiciona_nodo_label("?:"); 
+            { 
+            libera_valor_lexico($2);
+            Nodo *novo_nodo = adiciona_nodo_label("?:"); 
             adiciona_filho(novo_nodo, $1); 
             adiciona_filho(novo_nodo, $3); 
             adiciona_filho(novo_nodo, $5); 
             $$ = novo_nodo; }
             | expr_bin_logica '?' expressao ':' expressao{
+            libera_valor_lexico($2);
             Nodo *novo_nodo = adiciona_nodo_label("?:");
             adiciona_filho(novo_nodo, $1);
             adiciona_filho(novo_nodo, $3);

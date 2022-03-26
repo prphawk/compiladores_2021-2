@@ -18,8 +18,8 @@ int get_line_number(void) { return num_lines; } //TODO n tem q botar isso nos no
 DIGIT [0-9]
 ALPHA_ [a-zA-Z_]
 ID {ALPHA_}({ALPHA_}|{DIGIT})*
-SPECIAL [\+\-|\*\/<>=!&%#\^.$]
-SPECIAL_NO_MALLOC [?:,;()\[\]{}]
+SPECIAL [\+\-|\*\/<>=!&%#\^$?]
+SPECIAL_NO_MALLOC [:,;()\[\]{}.]
 INT {DIGIT}+ 
 FLOAT {DIGIT}+\.{DIGIT}+((E|e){INT})?
 CHAR '.'
