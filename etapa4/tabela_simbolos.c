@@ -1,7 +1,7 @@
 #include "tabela_simbolos.h"
 
 // TODO função que recebe um nome (label?) e uma natureza (variável, função, literal) e cria uma chave dando append nos dois
-char *chave(char *nome, Natureza natureza)
+char *chave(char *nome, NaturezaSimbolo natureza)
 {
     return "oi";
 }
@@ -15,20 +15,20 @@ int indiceHash(char *chave)
 
 // TODO função que adiciona uma entrada na hash
 // retorna a recém-adicionada entrada
-entradaHashSimbolo *adicionaHash(Natureza natureza, TipoSimbolo tipo, int tamanho, valorLexico valor_lexico)
+EntradaHashSimbolo *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, int tamanho, valorLexico valor_lexico)
 {
     // usa o indiceHash() aqui dentro
     return NULL;
 }
 
 // TODO função que retorna uma entrada específica da hash a partir de sua chave
-entradaHashSimbolo *entradaHash(char *nome, Natureza natureza)
+EntradaHashSimbolo *entradaHash(char *nome, NaturezaSimbolo natureza)
 {
     return NULL;
 }
 
 // TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-void adicionaArgumento(entradaHashSimbolo entrada, TipoSimbolo tipo, int tamanho, valorLexico valor_lexico)
+void adicionaArgumento(EntradaHashSimbolo entrada, TipoSimbolo tipo, int tamanho, valorLexico valor_lexico)
 {
     // não precisa usar o "chave", guarda somente o >NOME< do argumento em argumento.nome
     // cria um entradaArgumento

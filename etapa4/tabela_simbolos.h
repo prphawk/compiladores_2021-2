@@ -4,46 +4,46 @@
 
 #define TAMANHO_HASH 500
 
-typedef enum tipoLiteral
+typedef enum tipoSimbolo
 {
-    TIPO_INTEIRO,
-    TIPO_FLOAT,
-    TIPO_BOOL,
-    TIPO_CHAR,
-    TIPO_STRING,
-    TIPO_OUTRO
+    SIMBOLO_TIPO_INTEIRO,
+    SIMBOLO_TIPO_FLOAT,
+    SIMBOLO_TIPO_BOOL,
+    SIMBOLO_TIPO_CHAR,
+    SIMBOLO_TIPO_STRING,
+    SIMBOLO_TIPO_OUTRO
 } TipoSimbolo;
 
-typedef enum tipoLiteral
+typedef enum naturezaSimbolo
 {
-    LITERAL,
-    VARIAVEL,
-    FUNCAO
-} Natureza;
+    SIMBOLO_LITERAL,
+    SIMBOLO_VARIAVEL,
+    SIMBOLO_FUNCAO
+} NaturezaSimbolo;
 
 typedef struct entradaArgumento
 {
     char *nome;
-    TipoSimbolo tipo;
     int tamanho;
-    entradaArgumento *proximo;
-} entradaArgumento;
+    TipoSimbolo tipo_simbolo;
+    struct EntradaArgumento *proximo;
+} EntradaArgumento;
 
 typedef struct entradaHashSimbolo
 {
-    char *chave;
     int linha;
-    Natureza natureza;
-    TipoSimbolo tipo;
     int tamanho;
-    entradaArgumento argumentos;
+    char *chave;
+    TipoSimbolo tipo_simbolo;
+    NaturezaSimbolo natureza_simbolo;
+    EntradaArgumento argumentos;
     valorLexico valor_lexico;
-    entradaHashSimbolo *proximo;
-} entradaHashSimbolo;
+    struct EntradaHashSimbolo *proximo;
+} EntradaHashSimbolo;
 
 typedef struct pilhaHash {
-    entradaHashSimbolo *topo[TAMANHO_HASH];
-    pilhaHash *resto;
-} pilhaHash;
+    EntradaHashSimbolo *topo[TAMANHO_HASH];
+    struct PilhaHash *resto;
+} PilhaHash;
 
-pilhaHash pilha_hash;
+PilhaHash pilha_hash;
