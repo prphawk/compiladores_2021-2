@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "tabela_simbolos.h"
+
 #define ERR_UNDECLARED       10
 #define ERR_DECLARED         11
 #define ERR_VARIABLE         20
@@ -16,3 +20,22 @@
 #define ERR_WRONG_PAR_OUTPUT 51
 #define ERR_WRONG_PAR_RETURN 52
 #define ERR_WRONG_PAR_SHIFT  53
+
+void throwUndeclaredError(int linha, char *input);
+void throwDeclaredError(int linha, char *input, int previousDeclarationLine);
+void throwVariableError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo);
+void throwVectorError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo);
+void throwFunctionError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo);
+void throwWrongTypeError(int linha, char *input);
+void throwStringToXError(int linha, char *input);
+void throwCharToXError(int linha, char *input);
+void throwStringSizeError(int linha, char *input, int linha_declaracao_input);
+void throwStringVectorError(int linha);
+void throwExcessArgsError(int linha, char *input, int linha_declaracao_input);
+void throwMissingArgsError(int linha, char *input, int linha_declaracao_input);
+void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao_input);
+void throwFunctionStringError(int linha, char *input, int linha_declaracao_input);
+void throwWrongParInput(int linha);
+void throwWrongParOutput(int linha);
+void throwShiftError(int linha);
+void throwReturnError(int linha);
