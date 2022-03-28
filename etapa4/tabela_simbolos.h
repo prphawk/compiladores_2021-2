@@ -35,18 +35,21 @@ typedef struct argumentoFuncao
     struct ArgumentoFuncao *proximo;
 } ArgumentoFuncao;
 
+typedef struct conteudo {
+    int linha;
+    int coluna; //opcional, -1 quando n existe TODO o que ele quer dizer com coluna??
+    int tamanho;
+    TipoSimbolo tipo_simbolo;
+    NaturezaSimbolo natureza_simbolo;
+    ArgumentoFuncao* argumentos;
+    ValorLexico valor_lexico;
+} Conteudo;
+
 typedef struct entradaHash
 {
     char *chave;
-    union conteudo {
-        int linha;
-        int coluna; //opcional, -1 quando n existe TODO o que ele quer dizer com coluna??
-        int tamanho;
-        TipoSimbolo tipo_simbolo;
-        NaturezaSimbolo natureza_simbolo;
-        ArgumentoFuncao argumentos;
-        ValorLexico valor_lexico;
-    } Conteudo;
+    Conteudo conteudo;
+    
 } EntradaHash;
 
 typedef struct pilhaHash {
@@ -56,17 +59,19 @@ typedef struct pilhaHash {
     struct PilhaHash *resto;
 } PilhaHash;
 
-// PilhaHash *pilha_hash = NULL;
-
 char *chave(char *nome, NaturezaSimbolo natureza);
 unsigned long indiceHash(char *chave);
-EntradaHash *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico);
-EntradaHash *encontraNaPilha(char *chave, PilhaHash *pilha);
+EntradaHash *insereNoEscopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, PilhaHash *pilha);
+EntradaHash *encontraNoEscopo(char *chave, PilhaHash *pilha);
 EntradaHash *encontraNaTabela(char *chave, EntradaHash **arr, int capacidade_hash);
+EntradaHash *insereNaTabela(char *chave, PilhaHash *pilha, Conteudo conteudo);
 void adicionaArgumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
 void empilhaHash();
 void desempilhaHash();
 void liberaPilhaHash();
 
 int probing(int indice, int capacidade_hash);
-PilhaHash *expandeHash(PilhaHash *pilha);
+PilhaHash *expandeTabela(PilhaHash *pilha);
+int tamanho(TipoSimbolo tipo);
+void printTabela(int profundidade, int capacidade, EntradaHash **tabela);
+void printEscopos();

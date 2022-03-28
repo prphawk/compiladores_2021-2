@@ -1,5 +1,7 @@
 #include "tabela_simbolos.h"
 
+PilhaHash *pilha_hash = NULL;
+
 // função que recebe um nome (label?) e uma natureza (variável, função, literal) e cria uma chave dando append nos dois
 // exemplo out: nomevar1
 char *chave(char *nome, NaturezaSimbolo natureza)
@@ -28,14 +30,50 @@ unsigned long indiceHash(char *chave)
 
 // TODO função que adiciona uma entrada na hash
 // retorna a recém-adicionada entrada
-EntradaHash *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico)
+EntradaHash *insereNoEscopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, PilhaHash *pilha)
 {
-    // usa o indiceHash() aqui dentro
-    return NULL;
+    if(pilha == NULL) return NULL; //TODO fazer a pilha
+
+    char *chave_malloc = chave(valor_lexico.label, natureza);
+
+    Conteudo conteudo;
+    conteudo.linha = valor_lexico.linha;
+    conteudo.coluna = -1;
+    conteudo.tamanho = tamanho(tipo);
+    conteudo.tipo_simbolo = tipo;
+    conteudo.natureza_simbolo = natureza;
+    conteudo.argumentos = NULL;
+    conteudo.valor_lexico = valor_lexico;
+
+    EntradaHash *resposta = insereNaTabela(chave_malloc, pilha, conteudo);
+    free(chave_malloc);
+    return resposta;
 }
 
-// TODO função que retorna uma entrada específica da hash a partir de sua chave
-EntradaHash *encontraNaPilha(char *chave, PilhaHash *pilha)
+EntradaHash *insereNaTabela(char *chave, PilhaHash *pilha, Conteudo conteudo) {
+
+    EntradaHash **tabela = pilha->topo;
+
+    if(tabela == NULL) return NULL;
+
+    int capacidade_hash = pilha->capacidade;
+
+    int indice = indiceHash(chave) % capacidade_hash;  
+
+    while(tabela != NULL) {
+
+        if(tabela[indice] == NULL) {
+            tabela[indice]->chave = chave;
+            tabela[indice]->conteudo = conteudo;
+            pilha->quantidade_atual++; 
+            return tabela[indice]; 
+        }
+        indice = probing(indice, capacidade_hash);
+    }
+}
+
+//  função que retorna uma entrada específica da hash a partir de sua chave
+EntradaHash *encontraNoEscopo(char *chave, PilhaHash *pilha)
 {
     if(pilha == NULL) return NULL;
     
@@ -45,7 +83,7 @@ EntradaHash *encontraNaPilha(char *chave, PilhaHash *pilha)
     
     PilhaHash *resto = (PilhaHash*)pilha->resto;
 	
-    return encontraNaPilha(chave, resto);        
+    return encontraNoEscopo(chave, resto);
 }
 
 EntradaHash *encontraNaTabela(char *chave, EntradaHash **tabela, int capacidade_hash) {
@@ -73,7 +111,7 @@ int probing(int indice, int capacidade_hash) {
 }
 
 // TODO expandir tamanho da tabela quando atinge 75% da capacidade
-PilhaHash *expandeHash(PilhaHash *pilha)
+PilhaHash *expandeTabela(PilhaHash *pilha)
 {
    return NULL;        
 }
@@ -102,4 +140,43 @@ void desempilhaHash()
 void liberaPilhaHash()
 {
     return;
+}
+
+//TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!!
+int tamanho(TipoSimbolo tipo) {
+    switch(tipo) {
+        case SIMBOLO_TIPO_INTEIRO: return TAMANHO_INT; break;
+        case SIMBOLO_TIPO_FLOAT: return TAMANHO_FLOAT; break;
+        case SIMBOLO_TIPO_BOOL:
+        case SIMBOLO_TIPO_STRING:
+        case SIMBOLO_TIPO_CHAR: return TAMANHO_CHAR; break;
+        default: return -1; break;
+    }
+}
+
+//TODO printa pilha com tabela e seus valores
+void printEscopos() {
+
+    PilhaHash *aux_pilha = (PilhaHash*)pilha_hash;
+
+    int profundidade = 0;
+
+    while(aux_pilha != NULL) {
+
+        printTabela(profundidade, aux_pilha->capacidade, aux_pilha->topo);
+
+        aux_pilha = (PilhaHash*)aux_pilha->resto;
+
+        profundidade++;
+    }
+
+}
+
+void printTabela(int profundidade, int capacidade, EntradaHash **tabela) {
+    printf("\nPROFUNDIDADE %i ---------------------\n\n", profundidade);
+
+    for(int i=0; i<capacidade; i++) {
+       EntradaHash* entrada = tabela[i];
+       printf("ITEM %i | CHAVE %s | TIPO %i\n", i, entrada->chave, entrada->conteudo.tipo_simbolo);
+    }
 }
