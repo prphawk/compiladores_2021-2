@@ -124,10 +124,32 @@ void adicionaArgumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, Valor
     return;
 }
 
+//TODO aloca novo array de EntradaHash (com valores NULL pls)
+EntradaHash **novaTabela() {
+
+    EntradaHash **arr = (EntradaHash**)malloc(sizeof(EntradaHash*) * TAMANHO_INICIAL_HASH);
+
+    for (int i = 0; i < TAMANHO_INICIAL_HASH; i++) {
+        arr[i] = NULL;
+    }
+
+    return arr;
+}
+
 // TODO função que "empilha" uma nova hash em cima da atual
 void empilhaHash()
 {
-    return;
+    PilhaHash *pilha_aux;
+    pilha_aux = (PilhaHash*)malloc(sizeof(PilhaHash));
+
+    pilha_aux->capacidade = TAMANHO_INICIAL_HASH;
+    pilha_aux->quantidade_atual = 0;
+
+    EntradaHash **tabela = novaTabela();
+    pilha_aux->topo = tabela;
+    pilha_aux->resto = (struct PilhaHash*)pilha_hash;
+
+    pilha_hash = pilha_aux;
 }
 
 // TODO função que "desempilha" (elimina) a hash no topo da pilha
@@ -173,10 +195,12 @@ void printEscopos() {
 }
 
 void printTabela(int profundidade, int capacidade, EntradaHash **tabela) {
-    printf("\nPROFUNDIDADE %i ---------------------\n\n", profundidade);
+    printf("\n\nPROFUNDIDADE %i ---------------------\n\n", profundidade);
 
     for(int i=0; i<capacidade; i++) {
        EntradaHash* entrada = tabela[i];
        printf("ITEM %i | CHAVE %s | TIPO %i\n", i, entrada->chave, entrada->conteudo.tipo_simbolo);
     }
+
+    printf("\n----------------------------------------\n");
 }

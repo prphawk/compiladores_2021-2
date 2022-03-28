@@ -75,3 +75,4 @@ PilhaHash *expandeTabela(PilhaHash *pilha);
 int tamanho(TipoSimbolo tipo);
 void printTabela(int profundidade, int capacidade, EntradaHash **tabela);
 void printEscopos();
+EntradaHash **novaTabela();
