@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "valor_lexico.h"
 
-#define TAMANHO_HASH 500
+#define TAMANHO_INICIAL_HASH 500
 #define TAMANHO_CHAR 1 
 #define TAMANHO_INT 4
 #define TAMANHO_FLOAT 8 
@@ -35,33 +35,38 @@ typedef struct argumentoFuncao
     struct ArgumentoFuncao *proximo;
 } ArgumentoFuncao;
 
-typedef struct entradaHashSimbolo
+typedef struct entradaHash
 {
     char *chave;
-    struct EntradaHashSimbolo *proximo;
     union conteudo {
         int linha;
-        int coluna; //opcional, -1 quando n existe
+        int coluna; //opcional, -1 quando n existe TODO o que ele quer dizer com coluna??
         int tamanho;
         TipoSimbolo tipo_simbolo;
         NaturezaSimbolo natureza_simbolo;
         ArgumentoFuncao argumentos;
         ValorLexico valor_lexico;
     } Conteudo;
-} EntradaHashSimbolo;
+} EntradaHash;
 
 typedef struct pilhaHash {
-    EntradaHashSimbolo *topo[TAMANHO_HASH];
+    int capacidade;
+    int quantidade_atual;
+    EntradaHash **topo;
     struct PilhaHash *resto;
 } PilhaHash;
 
-PilhaHash pilha_hash;
+// PilhaHash *pilha_hash = NULL;
 
 char *chave(char *nome, NaturezaSimbolo natureza);
-int indiceHash(char *chave);
-EntradaHashSimbolo *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
-EntradaHashSimbolo *entradaHash(char *chave);
-void adicionaArgumento(EntradaHashSimbolo entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
+unsigned long indiceHash(char *chave);
+EntradaHash *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico);
+EntradaHash *encontraNaPilha(char *chave, PilhaHash *pilha);
+EntradaHash *encontraNaTabela(char *chave, EntradaHash **arr, int capacidade_hash);
+void adicionaArgumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
 void empilhaHash();
 void desempilhaHash();
 void liberaPilhaHash();
+
+int probing(int indice, int capacidade_hash);
+PilhaHash *expandeHash(PilhaHash *pilha);

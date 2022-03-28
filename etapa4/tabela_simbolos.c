@@ -10,52 +10,76 @@ char *chave(char *nome, NaturezaSimbolo natureza)
     //free dps!!!
 }
 
-// TODO função que retorna um valor hash a partir da chave
-int indiceHash(char *chave)
+// função que retorna um valor hash a partir da chave
+unsigned long indiceHash(char *chave)
 {
+    unsigned char *str = chave;
     // usa o chave() aqui dentro -> what? a entrada eh a chave já
 
-    //https://stackoverflow.com/questions/7666509/hash-function-for-string
+    // djb2 (1991) by Daniel J. Bernstein, explanation on https://theartincode.stanis.me/008-djb2/
     unsigned long hash = 5381;
     int c;
 
-    while (c = *chave++)
+    while (c = *str++)
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
-    return hash % TAMANHO_HASH;
+    return hash;
 }
 
 // TODO função que adiciona uma entrada na hash
 // retorna a recém-adicionada entrada
-EntradaHashSimbolo *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
+EntradaHash *adicionaHash(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico)
 {
     // usa o indiceHash() aqui dentro
     return NULL;
 }
 
 // TODO função que retorna uma entrada específica da hash a partir de sua chave
-EntradaHashSimbolo *entradaHash(char *chave)
+EntradaHash *encontraNaPilha(char *chave, PilhaHash *pilha)
 {
-   int indice = indiceHash(chave);  
+    if(pilha == NULL) return NULL;
+    
+    EntradaHash *resposta = encontraNaTabela(chave, pilha->topo, pilha->capacidade);
+
+    if(resposta != NULL) return resposta;
+    
+    PilhaHash *resto = (PilhaHash*)pilha->resto;
 	
-   //move in array until an empty 
-//    while(hashArray[hashIndex] != NULL) {
-	
-//       if(hashArray[hashIndex]->key == key)
-//          return hashArray[hashIndex]; 
-			
-//       //go to next cell
-//       ++hashIndex;
+    return encontraNaPilha(chave, resto);        
+}
+
+EntradaHash *encontraNaTabela(char *chave, EntradaHash **tabela, int capacidade_hash) {
+
+    int indice = indiceHash(chave) % capacidade_hash;  
+
+    while(tabela != NULL) {
+
+        if(tabela[indice]->chave == chave)
+            return tabela[indice]; 
+            
+        indice = probing(indice, capacidade_hash);
+    }
+
+    return NULL;
+}
+
+int probing(int indice, int capacidade_hash) {
+
+    indice++;
 		
-//       //wrap around the table
-//       hashIndex %= SIZE;
-//    }        
-	
+    indice %= capacidade_hash;
+
+    return indice;
+}
+
+// TODO expandir tamanho da tabela quando atinge 75% da capacidade
+PilhaHash *expandeHash(PilhaHash *pilha)
+{
    return NULL;        
 }
 
 // TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-void adicionaArgumento(EntradaHashSimbolo entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
+void adicionaArgumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
 {
     // não precisa usar o "chave", guarda somente o >NOME< do argumento em argumento.nome
     // cria um entradaArgumento
