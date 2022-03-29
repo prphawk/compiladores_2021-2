@@ -6,14 +6,14 @@ PilhaHash *pilha_hash = NULL;
 // exemplo out: nomevar1
 char *chave(char *nome, NaturezaSimbolo natureza)
 {
-    char str[2];
+    char str[8];
     sprintf(str, "%d", natureza);
     return append_str_malloc(nome, str);
     //free dps!!!
 }
 
 // função que retorna um valor hash a partir da chave
-unsigned long indiceHash(char *chave)
+unsigned long indice_hash(char *chave)
 {
     unsigned char *str = chave;
     // usa o chave() aqui dentro -> what? a entrada eh a chave já
@@ -28,28 +28,27 @@ unsigned long indiceHash(char *chave)
     return hash;
 }
 
-void insere_literal_hash(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    insereNoEscopo(SIMBOLO_LITERAL, tipo, valor_lexico);
+void insere_literal_tabela(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    insere_no_escopo(SIMBOLO_LITERAL, tipo, valor_lexico);
 }
-void insere_funcao_hash(ValorLexico valor_lexico) {
-    insereNoEscopo(SIMBOLO_FUNCAO, SIMBOLO_TIPO_STRING, valor_lexico);
+void insere_funcao_tabela(ValorLexico valor_lexico) {
+    insere_no_escopo(SIMBOLO_FUNCAO, SIMBOLO_TIPO_STRING, valor_lexico);
 }
-void insere_identificador_hash(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    insereNoEscopo(SIMBOLO_VARIAVEL, tipo, valor_lexico);
+void insere_identificador_tabela(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    insere_no_escopo(SIMBOLO_VARIAVEL, tipo, valor_lexico);
 }
 
 // TODO função que adiciona uma entrada na hash
 // retorna a recém-adicionada entrada
-EntradaHash *insereNoEscopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
+EntradaHash *insere_no_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
 
-    if(pilha_hash == NULL) empilhaHash();
+    if(pilha_hash == NULL) empilha();
 
     PilhaHash* pilha = pilha_hash;
 
     if(pilha == NULL) return NULL;
 
     char *chave_malloc = chave(valor_lexico.label, natureza);
-    printf("-> chave malloc %s\n", chave_malloc);
 
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
@@ -60,11 +59,11 @@ EntradaHash *insereNoEscopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLex
     conteudo.argumentos = NULL;
     conteudo.valor_lexico = valor_lexico;
 
-    insereNaTabela(chave_malloc, pilha, conteudo);
+    insere_na_tabela(chave_malloc, pilha, conteudo);
     free(chave_malloc);
 }
 
-EntradaHash *insereNaTabela(char *chave, PilhaHash *pilha, Conteudo conteudo) {
+EntradaHash *insere_na_tabela(char *chave, PilhaHash *pilha, Conteudo conteudo) {
 
     EntradaHash *tabela = pilha->topo;
 
@@ -72,13 +71,13 @@ EntradaHash *insereNaTabela(char *chave, PilhaHash *pilha, Conteudo conteudo) {
 
     int tamanho_tabela = pilha->capacidade_tabela;
 
-    int indice = indiceHash(chave) % tamanho_tabela;  
+    int indice = indice_hash(chave) % tamanho_tabela;  
 
     while(tabela != NULL) {
 
         if(tabela[indice].chave == NULL) {
-            printf("-> chave %s\n", chave);
             tabela[indice].chave = chave;
+            printf("-> chave %s\n", tabela[indice].chave);
             tabela[indice].conteudo = conteudo;
             pilha->quantidade_atual++; 
             return &tabela[indice]; 
@@ -88,22 +87,22 @@ EntradaHash *insereNaTabela(char *chave, PilhaHash *pilha, Conteudo conteudo) {
 }
 
 //  função que retorna uma entrada específica da hash a partir de sua chave
-EntradaHash *encontraNoEscopo(char *chave, PilhaHash *pilha)
+EntradaHash *encontra_no_escopo(char *chave, PilhaHash *pilha)
 {
     if(pilha == NULL) return NULL;
     
-    EntradaHash *resposta = encontraNaTabela(chave, pilha->topo, pilha->capacidade_tabela);
+    EntradaHash *resposta = encontra_na_tabela(chave, pilha->topo, pilha->capacidade_tabela);
 
     if(resposta != NULL) return resposta;
     
     PilhaHash *resto = (PilhaHash*)pilha->resto;
 	
-    return encontraNoEscopo(chave, resto);
+    return encontra_no_escopo(chave, resto);
 }
 
-EntradaHash *encontraNaTabela(char *chave, EntradaHash *tabela, int tamanho_tabela) {
+EntradaHash *encontra_na_tabela(char *chave, EntradaHash *tabela, int tamanho_tabela) {
 
-    int indice = indiceHash(chave) % tamanho_tabela;  
+    int indice = indice_hash(chave) % tamanho_tabela;  
 
     while(tabela != NULL) {
 
@@ -126,13 +125,13 @@ int probing(int indice, int tamanho_tabela) {
 }
 
 // TODO expandir tamanho da tabela quando atinge 75% da capacidade
-PilhaHash *expandeTabela(PilhaHash *pilha)
+PilhaHash *expande_tabela(PilhaHash *pilha)
 {
    return NULL;        
 }
 
 // TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-void adicionaArgumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
+void adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
 {
     // não precisa usar o "chave", guarda somente o >NOME< do argumento em argumento.nome
     // cria um entradaArgumento
@@ -140,7 +139,7 @@ void adicionaArgumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, Valor
 }
 
 //TODO aloca novo array de EntradaHash (com valores NULL pls)
-EntradaHash *novaTabela() {
+EntradaHash *nova_tabela() {
 
     EntradaHash *tabela = (EntradaHash*)malloc(sizeof(EntradaHash) * TAMANHO_INICIAL_HASH);
 
@@ -151,8 +150,14 @@ EntradaHash *novaTabela() {
     return tabela;
 }
 
+void libera_pilha() {
+    while(pilha_hash != NULL) {
+        desempilha();
+    }
+}
+
 // TODO função que "empilha" uma nova hash em cima da atual
-void empilhaHash()
+void empilha()
 {
     PilhaHash *pilha_aux;
     pilha_aux = (PilhaHash*)malloc(sizeof(PilhaHash));
@@ -160,7 +165,7 @@ void empilhaHash()
     pilha_aux->quantidade_atual = 0;
     pilha_aux->capacidade_tabela = TAMANHO_INICIAL_HASH;
 
-    EntradaHash *tabela = novaTabela();
+    EntradaHash *tabela = nova_tabela();
     pilha_aux->topo = tabela;
     pilha_aux->resto = (struct PilhaHash*)pilha_hash;
 
@@ -168,18 +173,53 @@ void empilhaHash()
 }
 
 // TODO função que "desempilha" (elimina) a hash no topo da pilha
-void desempilhaHash()
+void desempilha()
 {
     if(pilha_hash == NULL) return;
 
-    liberaTabela(pilha_hash->topo);
-    return;
+    PilhaHash *antiga_pilha;
+    
+    antiga_pilha = pilha_hash;
+
+    PilhaHash *nova_pilha = (PilhaHash *)antiga_pilha->resto;
+
+    if(nova_pilha != NULL) {
+        pilha_hash->topo = nova_pilha->topo;
+        pilha_hash->resto = nova_pilha->resto;
+        pilha_hash->capacidade_tabela = nova_pilha->capacidade_tabela;
+        pilha_hash->quantidade_atual = nova_pilha->quantidade_atual;
+    } else {
+        pilha_hash = NULL;
+    }
+
+    libera_tabela(antiga_pilha->topo, antiga_pilha->capacidade_tabela);
+
+    free(antiga_pilha);
 }
 
 // TODO função que libera a tabela hash e tudo que há dentro dela (i.e. libera a memória caso necessário)
-void liberaTabela()
-{
-    return;
+void libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
+
+    for (int i = 0; i < tamanho_tabela; i++) {
+
+        if(tabela[i].chave != NULL) {
+
+            //free(tabela[i].chave);
+
+            libera_argumentos(tabela[i].conteudo.argumentos);
+        }
+    }
+
+    free(tabela);
+}
+
+void libera_argumentos(ArgumentoFuncao *argumento) {
+
+    if(argumento == NULL) return;
+
+    libera_argumentos((ArgumentoFuncao *)argumento->proximo);
+
+    free(argumento);
 }
 
 //TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!!
@@ -195,7 +235,7 @@ int tamanho(TipoSimbolo tipo) {
 }
 
 //TODO printa pilha com tabela e seus valores
-void printEscopos() {
+void print_escopos() {
 
     PilhaHash *aux_pilha = (PilhaHash*)pilha_hash;
 
@@ -203,7 +243,7 @@ void printEscopos() {
 
     while(aux_pilha != NULL) {
 
-        printTabela(profundidade, aux_pilha->topo, aux_pilha->capacidade_tabela);
+        print_tabela(profundidade, aux_pilha->topo, aux_pilha->capacidade_tabela);
 
         aux_pilha = (PilhaHash*)aux_pilha->resto;
 
@@ -212,7 +252,7 @@ void printEscopos() {
 
 }
 
-void printTabela(int profundidade, EntradaHash *tabela, int tamanho) {
+void print_tabela(int profundidade, EntradaHash *tabela, int tamanho) {
     printf("\n\nPROFUNDIDADE %i ---------------------\n\n", profundidade);
 
     for(int i=0; i < tamanho; i++) {

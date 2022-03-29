@@ -16,8 +16,9 @@ int main (int argc, char **argv)
   int ret = yyparse(); 
   //exporta (arvore);
   //imprime_arvore(arvore);
-  printEscopos();
+  print_escopos();
   libera(arvore);
+  libera_pilha();
   arvore = NULL;
   yylex_destroy();
   return ret;
