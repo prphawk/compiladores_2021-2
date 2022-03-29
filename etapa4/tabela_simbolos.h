@@ -75,7 +75,7 @@ PilhaHash *expande_tabela(PilhaHash *pilha);
 int tamanho(TipoSimbolo tipo);
 void print_tabela(int profundidade, EntradaHash *tabela, int tamanho_tabela);
 void print_escopos();
-EntradaHash *nova_tabela();
+EntradaHash *adiciona_tabela();
 void insere_literal_tabela(TipoSimbolo tipo, ValorLexico valor_lexico);
 void insere_funcao_tabela(ValorLexico valor_lexico);
 void insere_identificador_tabela(TipoSimbolo tipo, ValorLexico valor_lexico);

@@ -137,8 +137,8 @@ declaracao_funcao: cabecalho corpo
                     $$ = $1;
                 };
 
-cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($3); }
-            | tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($2); };
+cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($3); insere_funcao_tabela($3); }
+            | tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($2); insere_funcao_tabela($2); };
 
 parametros: lista_parametros | ;
 
@@ -468,13 +468,14 @@ expr_parenteses_aritmetica: operando_aritmetico { $$ = $1; }
 						| '(' expr_bin_aritmetica ')' { $$ = $2; }
 						; 
 
-operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
+operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); insere_identificador_tabela(SIMBOLO_TIPO_OUTRO, $1); }
          | TK_IDENTIFICADOR'['expr_bin_aritmetica']' 
         { 
             Nodo *novo_nodo = adiciona_nodo_label("[]");
             adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
+            insere_identificador_tabela(SIMBOLO_TIPO_OUTRO, $1);
         }
          | chamada_funcao { $$ = $1; }
          | TK_LIT_FLOAT { $$ = adiciona_nodo($1); }
