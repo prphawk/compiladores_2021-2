@@ -3,8 +3,9 @@
 #include "valor_lexico.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-Nodo *adiciona_nodo(valorLexico valor_lexico)
+Nodo *adiciona_nodo(ValorLexico valor_lexico)
 {
     Nodo *nodo;
     nodo = malloc(sizeof(Nodo));
@@ -16,14 +17,21 @@ Nodo *adiciona_nodo(valorLexico valor_lexico)
     return nodo;
 }
 
+Nodo *adiciona_nodo_label_concat(char *label, ValorLexico valor_lexico) {
+    char* result = append_str_malloc(label, valor_lexico.label);
+    Nodo *nodo = adiciona_nodo_label(result);
+    free(result);
+    return nodo;
+}
+
 Nodo *adiciona_nodo_label(char *label)
 {
-    valorLexico valor_lexico;
-    valor_lexico.linha = -1; //deveriamos fazer algo sobre isso?
-    valor_lexico.tipo = OUTRO;
-    valor_lexico.tipo_literal = NAO_LITERAL;
+    ValorLexico valor_lexico;
+    valor_lexico.linha = -1; //TODO deveriamos fazer algo sobre isso?
+    valor_lexico.tipo_vlex = VLEX_TIPO_OUTRO;
+    valor_lexico.tipo_vlex_literal = VLEX_LITERAL_NULL;
     valor_lexico.label = strdup(label);
-    valor_lexico.valor.valor_string = NULL;
+    valor_lexico.valor_string = NULL;
 
     Nodo *nodo;
     nodo = malloc(sizeof(Nodo));

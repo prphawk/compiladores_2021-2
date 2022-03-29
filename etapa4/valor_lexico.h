@@ -1,38 +1,37 @@
 #pragma once
-typedef enum tipo
+typedef enum tipo_vlex
 {
-    CARACTERE_ESPECIAL,
-    OPERADOR_COMPOSTO,
-    IDENTIFICADOR,
-    LITERAL,
-    OUTRO
-} Tipo;
+    VLEX_TIPO_CARACTERE_ESPECIAL,
+    VLEX_TIPO_OPERADOR_COMPOSTO,
+    VLEX_TIPO_IDENTIFICADOR,
+    VLEX_TIPO_LITERAL,
+    VLEX_TIPO_OUTRO
+} TipoVLex;
 
-typedef enum tipoLiteral
+typedef enum tipo_vlex_literal
 {
-    INTEIRO,
-    FLOAT,
-    BOOL,
-    CHAR,
-    STRING,
-    NAO_LITERAL
-} TipoLiteral;
+    VLEX_LITERAL_INTEIRO,
+    VLEX_LITERAL_FLOAT,
+    VLEX_LITERAL_BOOL,
+    VLEX_LITERAL_CHAR,
+    VLEX_LITERAL_STRING,
+    VLEX_LITERAL_NULL
+} TipoVLexLiteral;
 
-typedef struct valorLexico
+typedef struct valor_lexico
 {
     int linha;
-    Tipo tipo;
-    TipoLiteral tipo_literal;
+    TipoVLex tipo_vlex;
+    TipoVLexLiteral tipo_vlex_literal;
     char *label;
-    union valor {
-        int valor_int;
-        float valor_float;
-        int valor_bool;
-        char valor_char;
-        char *valor_string;
-    } valor;
-} valorLexico;
+    int valor_int;
+    float valor_float;
+    int valor_bool;
+    char valor_char;
+    char *valor_string;
+} ValorLexico;
 
-valorLexico atribui_yylval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, int num_lines);
-void libera_valor_lexico(valorLexico valor_lexico);
-int tem_valor_string(valorLexico valor_lexico);
+ValorLexico atribui_yylval(char* yytext, TipoVLex tipo_vlex, TipoVLexLiteral tipo_vlex_literal, int num_lines);
+void libera_valor_lexico(ValorLexico valor_lexico);
+int tem_valor_string(ValorLexico valor_lexico);
+char* append_str_malloc(char* str1, char* str2);

@@ -1,49 +1,83 @@
+#pragma once
+
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "valor_lexico.h"
 
-#define TAMANHO_HASH 500
+#define TAMANHO_INICIAL_HASH 500
+#define TAMANHO_CHAR 1 
+#define TAMANHO_INT 4
+#define TAMANHO_FLOAT 8 
 
-typedef enum tipoLiteral
+typedef enum tipo_simbolo
 {
-    TIPO_INTEIRO,
-    TIPO_FLOAT,
-    TIPO_BOOL,
-    TIPO_CHAR,
-    TIPO_STRING,
-    TIPO_OUTRO
+    SIMBOLO_TIPO_INTEIRO,
+    SIMBOLO_TIPO_FLOAT,
+    SIMBOLO_TIPO_BOOL,
+    SIMBOLO_TIPO_CHAR,
+    SIMBOLO_TIPO_STRING,
+    SIMBOLO_TIPO_OUTRO
 } TipoSimbolo;
 
-typedef enum tipoLiteral
+typedef enum natureza_simbolo
 {
-    LITERAL,
-    VARIAVEL,
-    FUNCAO
-} Natureza;
+    SIMBOLO_LITERAL,
+    SIMBOLO_VARIAVEL,
+    SIMBOLO_FUNCAO
+} NaturezaSimbolo;
 
-typedef struct entradaArgumento
+typedef struct argumentoFuncao
 {
-    char *nome;
-    TipoSimbolo tipo;
+    // char *nome;
+    // int tamanho;
+    TipoSimbolo tipo_simbolo;
+    struct ArgumentoFuncao *proximo;
+} ArgumentoFuncao;
+
+typedef struct conteudo {
+    int linha;
+    int coluna; //opcional, -1 quando n existe TODO o que ele quer dizer com coluna??
     int tamanho;
-    entradaArgumento *proximo;
-} entradaArgumento;
+    TipoSimbolo tipo_simbolo;
+    NaturezaSimbolo natureza_simbolo;
+    ArgumentoFuncao* argumentos;
+    ValorLexico valor_lexico;
+} Conteudo;
 
-typedef struct entradaHashSimbolo
+typedef struct entradaHash
 {
     char *chave;
-    int linha;
-    Natureza natureza;
-    TipoSimbolo tipo;
-    int tamanho;
-    entradaArgumento argumentos;
-    valorLexico valor_lexico;
-    entradaHashSimbolo *proximo;
-} entradaHashSimbolo;
+    Conteudo conteudo;
+    
+} EntradaHash;
 
 typedef struct pilhaHash {
-    entradaHashSimbolo *topo[TAMANHO_HASH];
-    pilhaHash *resto;
-} pilhaHash;
+    int quantidade_atual;
+    int capacidade_tabela;
+    EntradaHash *topo;
+    struct PilhaHash *resto;
+} PilhaHash;
 
-pilhaHash pilha_hash;
+char *chave(char *nome, NaturezaSimbolo natureza);
+unsigned long indice_hash(char *chave);
+EntradaHash *insere_no_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico);
+EntradaHash *encontra_no_escopo(char *chave, PilhaHash *pilha);
+EntradaHash *encontra_na_tabela(char *chave, EntradaHash *tabela, int tamanho_tabela);
+EntradaHash *insere_na_tabela(char *chave, PilhaHash *pilha, Conteudo conteudo);
+void adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
+void empilha();
+void desempilha();
+void libera_tabela();
+
+int probing(int indice, int capacidade_hash);
+PilhaHash *expande_tabela(PilhaHash *pilha);
+int tamanho(TipoSimbolo tipo);
+void print_tabela(int profundidade, EntradaHash *tabela, int tamanho_tabela);
+void print_escopos();
+EntradaHash *nova_tabela();
+void insere_literal_tabela(TipoSimbolo tipo, ValorLexico valor_lexico);
+void insere_funcao_tabela(ValorLexico valor_lexico);
+void insere_identificador_tabela(TipoSimbolo tipo, ValorLexico valor_lexico);
+void libera_argumentos(ArgumentoFuncao *argumento);
+void libera_pilha();

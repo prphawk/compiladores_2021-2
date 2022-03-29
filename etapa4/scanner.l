@@ -6,13 +6,13 @@
 #include "ast.h"
 #include "parser.tab.h"
 #include "valor_lexico.h"
-#define YYSTYPE valorLexico
+#define YYSTYPE ValorLexico
 
 void succ_num_lines();
 int get_ascii_value(char* yytext);
 
 int num_lines = 1;
-int get_line_number(void) { return num_lines; } //TODO n tem q botar isso nos nodos da arvore tbm?
+int get_line_number(void) { return num_lines; }
 
 %}
 DIGIT [0-9]
@@ -56,23 +56,23 @@ TO_IGNORE [ \t\r]+|{COMMENT_SINGLE}
 "end" return TK_PR_END;
 "default" return TK_PR_DEFAULT;
 
-">=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_GE;}
-"<=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_LE;}
-"==" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_EQ;}
-"!=" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_NE;}
-"&&" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_AND;}
-"||" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_OR;}
-">>" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_SL;}
-"<<" { yylval.valor_lexico = atribui_yylval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, num_lines); return TK_OC_SR;}
+">=" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_GE;}
+"<=" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_LE;}
+"==" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_EQ;}
+"!=" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_NE;}
+"&&" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_AND;}
+"||" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_OR;}
+">>" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_SL;}
+"<<" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_OPERADOR_COMPOSTO, VLEX_LITERAL_NULL, num_lines); return TK_OC_SR;}
 
-"true" { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, BOOL, num_lines); return TK_LIT_TRUE;}
-"false" { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, BOOL, num_lines); return TK_LIT_FALSE;}
+"true" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_BOOL, num_lines); return TK_LIT_TRUE;}
+"false" { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_BOOL, num_lines); return TK_LIT_FALSE;}
 
-{ID} { yylval.valor_lexico = atribui_yylval(yytext, IDENTIFICADOR, NAO_LITERAL, num_lines); return TK_IDENTIFICADOR;}
-{FLOAT} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, FLOAT, num_lines); return TK_LIT_FLOAT;}
-{INT} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, INTEIRO, num_lines);  return TK_LIT_INT;}
-{CHAR} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, CHAR, num_lines); return TK_LIT_CHAR;}
-{STRING} { yylval.valor_lexico = atribui_yylval(yytext, LITERAL, STRING, num_lines); return TK_LIT_STRING;}
+{ID} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_IDENTIFICADOR, VLEX_LITERAL_NULL, num_lines); return TK_IDENTIFICADOR;}
+{FLOAT} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_FLOAT, num_lines); return TK_LIT_FLOAT;}
+{INT} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_INTEIRO, num_lines);  return TK_LIT_INT;}
+{CHAR} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_CHAR, num_lines); return TK_LIT_CHAR;}
+{STRING} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_STRING, num_lines); return TK_LIT_STRING;}
 {TO_IGNORE}
 
 "/*" BEGIN(comment);
@@ -83,7 +83,7 @@ que for escrito num comentário não fechado seja consumido e não interpretado 
 <comment><<EOF>> { BEGIN(INITIAL); return TOKEN_ERRO;};
 <comment>"*"+"/" BEGIN(INITIAL);
 
-{SPECIAL} {yylval.valor_lexico = atribui_yylval(yytext, CARACTERE_ESPECIAL, CHAR, num_lines); return get_ascii_value(yytext);}
+{SPECIAL} {yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_CARACTERE_ESPECIAL, VLEX_LITERAL_CHAR, num_lines); return get_ascii_value(yytext);}
 {SPECIAL_NO_MALLOC} {return get_ascii_value(yytext);}
 
 . return TOKEN_ERRO;
