@@ -351,12 +351,12 @@ argumentos: argumento',' argumentos
 
 lista_argumentos: argumentos { $$ = $1; }| { $$ = NULL; };
 
-literal: TK_LIT_CHAR { $$ = adiciona_nodo($1);}
-         | TK_LIT_STRING { $$ = adiciona_nodo($1);}
-         | TK_LIT_TRUE { $$ = adiciona_nodo($1);}
-         | TK_LIT_FALSE { $$ = adiciona_nodo($1);}
-         | TK_LIT_FLOAT { $$ = adiciona_nodo($1);}
-         | TK_LIT_INT { $$ = adiciona_nodo($1);}
+literal: TK_LIT_CHAR { $$ = adiciona_nodo($1); insere_literal_hash(SIMBOLO_TIPO_CHAR, $1);       }
+         | TK_LIT_STRING { $$ = adiciona_nodo($1); insere_literal_hash(SIMBOLO_TIPO_STRING, $1); }
+         | TK_LIT_TRUE { $$ = adiciona_nodo($1); insere_literal_hash(SIMBOLO_TIPO_BOOL, $1);     }
+         | TK_LIT_FALSE { $$ = adiciona_nodo($1); insere_literal_hash(SIMBOLO_TIPO_BOOL, $1);    }
+         | TK_LIT_FLOAT { $$ = adiciona_nodo($1); insere_literal_hash(SIMBOLO_TIPO_FLOAT, $1);   }
+         | TK_LIT_INT { $$ = adiciona_nodo($1); insere_literal_hash(SIMBOLO_TIPO_INTEIRO, $1);   }
          ;
 
 operador_binario_prec1: '^' { $$ = adiciona_nodo($1); };

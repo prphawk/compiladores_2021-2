@@ -28,13 +28,28 @@ unsigned long indiceHash(char *chave)
     return hash;
 }
 
+void insere_literal_hash(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    insereNoEscopo(SIMBOLO_LITERAL, tipo, valor_lexico);
+}
+void insere_funcao_hash(ValorLexico valor_lexico) {
+    insereNoEscopo(SIMBOLO_FUNCAO, SIMBOLO_TIPO_STRING, valor_lexico);
+}
+void insere_identificador_hash(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    insereNoEscopo(SIMBOLO_VARIAVEL, tipo, valor_lexico);
+}
+
 // TODO função que adiciona uma entrada na hash
 // retorna a recém-adicionada entrada
-EntradaHash *insereNoEscopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, PilhaHash *pilha)
-{
-    if(pilha == NULL) return NULL; //TODO fazer a pilha
+EntradaHash *insereNoEscopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
+
+    if(pilha_hash == NULL) empilhaHash();
+
+    PilhaHash* pilha = pilha_hash;
+
+    if(pilha == NULL) return NULL;
 
     char *chave_malloc = chave(valor_lexico.label, natureza);
+    printf("-> chave malloc %s\n", chave_malloc);
 
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
@@ -45,30 +60,30 @@ EntradaHash *insereNoEscopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLex
     conteudo.argumentos = NULL;
     conteudo.valor_lexico = valor_lexico;
 
-    EntradaHash *resposta = insereNaTabela(chave_malloc, pilha, conteudo);
+    insereNaTabela(chave_malloc, pilha, conteudo);
     free(chave_malloc);
-    return resposta;
 }
 
 EntradaHash *insereNaTabela(char *chave, PilhaHash *pilha, Conteudo conteudo) {
 
-    EntradaHash **tabela = pilha->topo;
+    EntradaHash *tabela = pilha->topo;
 
     if(tabela == NULL) return NULL;
 
-    int capacidade_hash = pilha->capacidade;
+    int tamanho_tabela = pilha->capacidade_tabela;
 
-    int indice = indiceHash(chave) % capacidade_hash;  
+    int indice = indiceHash(chave) % tamanho_tabela;  
 
     while(tabela != NULL) {
 
-        if(tabela[indice] == NULL) {
-            tabela[indice]->chave = chave;
-            tabela[indice]->conteudo = conteudo;
+        if(tabela[indice].chave == NULL) {
+            printf("-> chave %s\n", chave);
+            tabela[indice].chave = chave;
+            tabela[indice].conteudo = conteudo;
             pilha->quantidade_atual++; 
-            return tabela[indice]; 
+            return &tabela[indice]; 
         }
-        indice = probing(indice, capacidade_hash);
+        indice = probing(indice, tamanho_tabela);
     }
 }
 
@@ -77,7 +92,7 @@ EntradaHash *encontraNoEscopo(char *chave, PilhaHash *pilha)
 {
     if(pilha == NULL) return NULL;
     
-    EntradaHash *resposta = encontraNaTabela(chave, pilha->topo, pilha->capacidade);
+    EntradaHash *resposta = encontraNaTabela(chave, pilha->topo, pilha->capacidade_tabela);
 
     if(resposta != NULL) return resposta;
     
@@ -86,26 +101,26 @@ EntradaHash *encontraNoEscopo(char *chave, PilhaHash *pilha)
     return encontraNoEscopo(chave, resto);
 }
 
-EntradaHash *encontraNaTabela(char *chave, EntradaHash **tabela, int capacidade_hash) {
+EntradaHash *encontraNaTabela(char *chave, EntradaHash *tabela, int tamanho_tabela) {
 
-    int indice = indiceHash(chave) % capacidade_hash;  
+    int indice = indiceHash(chave) % tamanho_tabela;  
 
     while(tabela != NULL) {
 
-        if(tabela[indice]->chave == chave)
-            return tabela[indice]; 
+        if(tabela[indice].chave == chave)
+            return &tabela[indice]; 
             
-        indice = probing(indice, capacidade_hash);
+        indice = probing(indice, tamanho_tabela);
     }
 
     return NULL;
 }
 
-int probing(int indice, int capacidade_hash) {
+int probing(int indice, int tamanho_tabela) {
 
     indice++;
 		
-    indice %= capacidade_hash;
+    indice %= tamanho_tabela;
 
     return indice;
 }
@@ -125,15 +140,15 @@ void adicionaArgumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, Valor
 }
 
 //TODO aloca novo array de EntradaHash (com valores NULL pls)
-EntradaHash **novaTabela() {
+EntradaHash *novaTabela() {
 
-    EntradaHash **arr = (EntradaHash**)malloc(sizeof(EntradaHash*) * TAMANHO_INICIAL_HASH);
+    EntradaHash *tabela = (EntradaHash*)malloc(sizeof(EntradaHash) * TAMANHO_INICIAL_HASH);
 
     for (int i = 0; i < TAMANHO_INICIAL_HASH; i++) {
-        arr[i] = NULL;
+        tabela[i].chave = NULL;
     }
 
-    return arr;
+    return tabela;
 }
 
 // TODO função que "empilha" uma nova hash em cima da atual
@@ -142,10 +157,10 @@ void empilhaHash()
     PilhaHash *pilha_aux;
     pilha_aux = (PilhaHash*)malloc(sizeof(PilhaHash));
 
-    pilha_aux->capacidade = TAMANHO_INICIAL_HASH;
     pilha_aux->quantidade_atual = 0;
+    pilha_aux->capacidade_tabela = TAMANHO_INICIAL_HASH;
 
-    EntradaHash **tabela = novaTabela();
+    EntradaHash *tabela = novaTabela();
     pilha_aux->topo = tabela;
     pilha_aux->resto = (struct PilhaHash*)pilha_hash;
 
@@ -155,11 +170,14 @@ void empilhaHash()
 // TODO função que "desempilha" (elimina) a hash no topo da pilha
 void desempilhaHash()
 {
+    if(pilha_hash == NULL) return;
+
+    liberaTabela(pilha_hash->topo);
     return;
 }
 
-// TODO função que libera a pilha de hash e tudo que há dentro dela (i.e. libera a memória caso necessário)
-void liberaPilhaHash()
+// TODO função que libera a tabela hash e tudo que há dentro dela (i.e. libera a memória caso necessário)
+void liberaTabela()
 {
     return;
 }
@@ -185,7 +203,7 @@ void printEscopos() {
 
     while(aux_pilha != NULL) {
 
-        printTabela(profundidade, aux_pilha->capacidade, aux_pilha->topo);
+        printTabela(profundidade, aux_pilha->topo, aux_pilha->capacidade_tabela);
 
         aux_pilha = (PilhaHash*)aux_pilha->resto;
 
@@ -194,12 +212,12 @@ void printEscopos() {
 
 }
 
-void printTabela(int profundidade, int capacidade, EntradaHash **tabela) {
+void printTabela(int profundidade, EntradaHash *tabela, int tamanho) {
     printf("\n\nPROFUNDIDADE %i ---------------------\n\n", profundidade);
 
-    for(int i=0; i<capacidade; i++) {
-       EntradaHash* entrada = tabela[i];
-       printf("ITEM %i | CHAVE %s | TIPO %i\n", i, entrada->chave, entrada->conteudo.tipo_simbolo);
+    for(int i=0; i < tamanho; i++) {
+       EntradaHash entrada = tabela[i];
+       printf("ITEM %i | CHAVE %s | TIPO %i\n", i, entrada.chave, entrada.conteudo.tipo_simbolo);
     }
 
     printf("\n----------------------------------------\n");
