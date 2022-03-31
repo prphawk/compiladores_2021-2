@@ -163,7 +163,7 @@ void imprime_nodo(nodo *nodo)
     printf("\"];\n");
 
     lseNodo *nodo_f;
-    nodo_f = nodo->filhos;
+    nodo_f = nodo->filhos->nodo;
     while(nodo_f!=NULL)
     {
         imprime_nodo(nodo_f->nodo);
@@ -179,7 +179,7 @@ void imprime_arestas(nodo *nodo)
         return;
 
     lseNodo *nodo_f;
-    nodo_f = nodo->filhos;
+    nodo_f = nodo->filhos->nodo;
     while(nodo_f!=NULL)
     {
         printf("%p, %p\n", nodo, nodo_f);

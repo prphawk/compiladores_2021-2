@@ -19,7 +19,7 @@ int get_line_number(void) { return num_lines; }
 DIGIT [0-9]
 ALPHA_ [a-zA-Z_]
 ID {ALPHA_}({ALPHA_}|{DIGIT})*
-SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&?%#\^.$]
+SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&?%#\^.$] /*TODO pegar correção da etapa4*/
 INT {DIGIT}+ 
 FLOAT {DIGIT}+\.{DIGIT}+((E|e){INT})?
 CHAR '.'

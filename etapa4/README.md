@@ -1,6 +1,6 @@
 Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
 
-Em etapa3, para compilar as files:
+Em etapa4, para compilar as files:
 
 > make
 
