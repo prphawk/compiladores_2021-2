@@ -1,10 +1,12 @@
 %{
 #include<stdio.h>
+/* NÃO inclua o main.c aqui (não inclua nenhuma importação de files .c, nunca). 
+Caso dê erro e o bison não encontre a main, corrija a presença e ordem de compilação das files no seu makefile */
 int yylex(void);
 int yyerror (char const *s);
 extern int get_line_number (void);
 %}
-%define parse.error verbose
+%define parse.error verbose //erros detalhados ao sinalizar yyerror()
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
@@ -164,6 +166,7 @@ literal: TK_LIT_CHAR
          | TK_LIT_INT
          ;
 
+//precedência de operadores binários, os do topo tem mais.
 operador_binario_prec1: '^';
 operador_binario_prec2: '*' | '/' | '%';
 operador_binario_prec3: '+' | '-';
@@ -202,15 +205,18 @@ operando_aritmetico: TK_IDENTIFICADOR
                | TK_LIT_INT
                ;
 
+/* (assim para definir precedências de operações) expr_bin_aritmetica_4 é sempre reconhecida antes da expr_bin_aritmetica_3 e por aí vai. */
 expr_bin_aritmetica: expr_bin_aritmetica_1 | expr_bin_aritmetica operador_binario_prec5 expr_bin_aritmetica_1;
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2;
 expr_bin_aritmetica_2: expr_bin_aritmetica_3 | expr_bin_aritmetica_2 operador_binario_prec3 expr_bin_aritmetica_3;
 expr_bin_aritmetica_3: expr_bin_aritmetica_4 | expr_bin_aritmetica_3 operador_binario_prec2 expr_bin_aritmetica_4;
 expr_bin_aritmetica_4: expr_unaria_aritmetica | expr_bin_aritmetica_4 operador_binario_prec1 expr_unaria_aritmetica;
 
-expr_unaria_aritmetica: expr_parenteses_aritmetica | operador_unario expr_parenteses_aritmetica | operador_asterisco expr_unaria_aritmetica;
+expr_unaria_aritmetica: expr_parenteses_aritmetica | operador_unario expr_parenteses_aritmetica | operador_asterisco expr_unaria_aritmetica; // asterisco é um operador especial, aceita *****a
 expr_parenteses_aritmetica: operando_aritmetico | '(' expr_bin_aritmetica ')';
                
+/* note que operandos lógicos (booleans), diferentemente de expr aritmeticas, 
+não são expressões por si só e apenas são reconhecidos como tal quando estão entre operações */
 expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                | expr_parenteses_logica operador_binario_logico expr_parenteses_logica;
 

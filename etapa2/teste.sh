@@ -4,6 +4,8 @@ SUCCESS=0
 executable="./etapa2"
 evaluation=""
 
+# para checagem de erros de sintaxe. os casos de testes tem comentários na primeira linha dizendo o resultado correto de sua avaliação.
+# nesse script um caso de teste executado deve printar "//CORRECT" e nada mais, ou então "//INCORRECT" e o erro de sintaxe que seu programa identificou.
 for file in ../testes_E2/*
     do
     "$executable" < "$file"
@@ -14,5 +16,3 @@ for file in ../testes_E2/*
     echo "$print\n"
   
 done
-
-# run < ../testes_E2/asl151
