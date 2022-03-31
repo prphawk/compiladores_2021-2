@@ -2,6 +2,8 @@
 %x comment
 %{ 
 #include<stdio.h>
+/* NÃO inclua o main.c aqui (não inclua nenhuma importação de files .c, nunca). 
+Caso dê erro e o bison não encontre a main, corrija a presença e ordem de compilação das files no seu makefile */
 #include "parser.tab.h"
 void succ_num_lines();
 extern int get_ascii_value(char* yytext);
