@@ -157,6 +157,7 @@ void insere_identificador_tabela(TipoSimbolo tipo, ValorLexico valor_lexico) {
 
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
 // chamar ao declarar
+//TODO gente como diferenciamos redeclaração e redefinição aqui
 EntradaHash *insere_na_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     if(pilha_hash == NULL) empilha();
@@ -171,7 +172,8 @@ EntradaHash *insere_na_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLe
 
     if(resposta != NULL) {
         //TODO ve redlecaração ou apenas atribuição??
-        // throwDeclaredError(valor_lexico.linha, valor_lexico.label, resposta->conteudo.linha);
+        //throwDeclaredError(valor_lexico.linha, valor_lexico.label, resposta->conteudo.linha);
+        free(chave_malloc);
         return NULL;
     }
 

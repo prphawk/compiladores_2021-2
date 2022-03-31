@@ -33,7 +33,7 @@ ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
       return valor_lexico;
 }
 
-void libera_valor_lexico(ValorLexico valor_lexico)
+void libera_vlex(ValorLexico valor_lexico)
 {
     if(tem_valor_string(valor_lexico))
         free(valor_lexico.valor_string);

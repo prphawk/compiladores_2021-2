@@ -11,7 +11,7 @@ void throwUndeclaredError(int linha, char *input)
 
 void throwDeclaredError(int linha, char *input, int linha_declaracao)
 {
-  printf("ERRO linha %i: Variável já declarada na linha %i.", linha, linha_declaracao);
+  printf("ERRO linha %i: Variável já declarada na linha %i.\n", linha, linha_declaracao);
   exit(ERR_DECLARED);
 }
 

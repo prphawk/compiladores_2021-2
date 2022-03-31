@@ -119,7 +119,7 @@ void libera(void *pai)
 
     libera(pai_arvore->irmao);
 
-    libera_valor_lexico(pai_arvore->valor_lexico);
+    libera_vlex(pai_arvore->valor_lexico);
 
     free(pai_arvore);
 }

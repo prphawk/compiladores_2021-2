@@ -127,8 +127,8 @@ declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | t
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
-nome_variavel_global: TK_IDENTIFICADOR { libera_valor_lexico($1); } 
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_valor_lexico($1); libera_valor_lexico($3); }
+nome_variavel_global: TK_IDENTIFICADOR { libera_vlex($1); } 
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_vlex($1); libera_vlex($3); }
                     ;
 
 declaracao_funcao: cabecalho corpo 
@@ -144,8 +144,8 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR { libera_valor_lexico($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_valor_lexico($3); };
+parametro: tipo TK_IDENTIFICADOR { libera_vlex($2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_vlex($3); };
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
@@ -169,7 +169,7 @@ bloco_comandos_fim: '}';// { desempilha(); } ;
 
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
             Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
-            libera_valor_lexico($1); //precisa liberar pq o identificador é substituido na arvore!!
+            libera_vlex($1); //precisa liberar pq o identificador é substituido na arvore!!
             //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
@@ -206,8 +206,6 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
                         | cabeca_lista_nome_variavel_local { $$ = $1;}
                         ;
 
-
-
 cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     Nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
@@ -220,7 +218,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR { libera_valor_lexico($1), $$ = NULL; }
+                                | TK_IDENTIFICADOR { libera_vlex($1), $$ = NULL; }
                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao
@@ -399,14 +397,14 @@ expressao: expr_ternaria { $$ = $1; }
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
             { 
-            libera_valor_lexico($2); //não usaremos, mas foi alocado!!
+            libera_vlex($2); //não usaremos, mas foi alocado!!
             Nodo *novo_nodo = adiciona_nodo_label("?:"); 
             adiciona_filho(novo_nodo, $1); 
             adiciona_filho(novo_nodo, $3); 
             adiciona_filho(novo_nodo, $5); 
             $$ = novo_nodo; }
             | expr_bin_logica '?' expressao ':' expressao{
-            libera_valor_lexico($2);
+            libera_vlex($2);
             Nodo *novo_nodo = adiciona_nodo_label("?:");
             adiciona_filho(novo_nodo, $1);
             adiciona_filho(novo_nodo, $3);
