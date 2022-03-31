@@ -11,8 +11,8 @@ E não se esqueça de entregar o trabalho com um README com os nomes e matrícul
 
 Beijinhos,
 
-— Mayra.
+\- Mayra.
 
 # Arquivo testes.sh
 
-Em várias etapas tem um script testes.sh para rodar todos os casos de testes em uma pasta específica. se vc estiver rodando o trabalho no windows com o WSL e ficar tendo o problema "do 'do' n deveria estar aqui" ISSO É PROBLEMA DE CONVERSÃO do caracter de fim de linha entre linux e windows. qnd isso acontece cmg eu abro arquivo no notepad++, uso a conversão de acabamento de linha para sistema linux e salvo.
+Em várias etapas tem um script `teste.sh` para rodar todos os casos de testes em uma pasta específica. se vc estiver rodando o trabalho no windows com o WSL e ficar tendo o problema `word unexpected (expecting "do")` ISSO É PROBLEMA DE CONVERSÃO do character de fim de linha entre linux e windows. qnd isso acontece cmg eu abro arquivo no notepad++, uso a conversão de acabamento de linha para sistema linux e salvo.
