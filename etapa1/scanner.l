@@ -14,7 +14,8 @@ DIGIT [0-9]
 ALPHA_ [a-zA-Z_]
 ID {ALPHA_}({ALPHA_}|{DIGIT})*
 SPECIAL [,;:()\[\]{}\+\-|\*\/<>=!&?%#\^.$]
-INT {DIGIT}+ 
+INT {DIGIT}+
+/* nããão bote nos números aquele RegEx de "sinal opcional" vai cagar o parser depois*/
 FLOAT {DIGIT}+\.{DIGIT}+((E|e){INT})?
 CHAR '.'
 STRING \"([^\n"])*\"

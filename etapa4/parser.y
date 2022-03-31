@@ -1,8 +1,8 @@
 %{
 #include<stdio.h>
 #include<string.h>
-#include "ast.h"
 #include "main.h"
+#include "ast.h"
 #include "tabela_simbolos.h"
 int yylex(void);
 int yyerror (char const *s);
@@ -127,8 +127,8 @@ declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | t
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
-nome_variavel_global: TK_IDENTIFICADOR { libera_valor_lexico($1); } 
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_valor_lexico($1); libera_valor_lexico($3); }
+nome_variavel_global: TK_IDENTIFICADOR { libera_vlex($1); } 
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_vlex($1); libera_vlex($3); }
                     ;
 
 declaracao_funcao: cabecalho corpo 
@@ -137,15 +137,15 @@ declaracao_funcao: cabecalho corpo
                     $$ = $1;
                 };
 
-cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($3); }
-            | tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($2); };
+cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($3); insere_funcao_tabela($3); }
+            | tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($2); insere_funcao_tabela($2); };
 
 parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR { libera_valor_lexico($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_valor_lexico($3); };
+parametro: tipo TK_IDENTIFICADOR { libera_vlex($2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_vlex($3); };
 
 tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
@@ -163,11 +163,13 @@ lista_comandos: comando_simples ';' lista_comandos
     //TODO checar correção.
     | { $$ = NULL; };
 
-bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
+bloco_comandos: bloco_comandos_inicio lista_comandos bloco_comandos_fim { $$ = $2; } ;
+bloco_comandos_inicio: '{';// { empilha(); } ;
+bloco_comandos_fim: '}';// { desempilha(); } ;
 
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
-            Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1);
-            libera_valor_lexico($1); //precisa liberar pq o identificador é substituido na arvore!!
+            Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
+            libera_vlex($1); //precisa liberar pq o identificador é substituido na arvore!!
             //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
@@ -204,8 +206,6 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
                         | cabeca_lista_nome_variavel_local { $$ = $1;}
                         ;
 
-
-
 cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     Nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
@@ -218,7 +218,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                 }
-                                | TK_IDENTIFICADOR { libera_valor_lexico($1), $$ = NULL; }
+                                | TK_IDENTIFICADOR { libera_vlex($1), $$ = NULL; }
                                 ;
 
 comando_atribuicao: TK_IDENTIFICADOR '=' expressao
@@ -397,14 +397,14 @@ expressao: expr_ternaria { $$ = $1; }
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
             { 
-            libera_valor_lexico($2); //não usaremos, mas foi alocado!!
+            libera_vlex($2); //não usaremos, mas foi alocado!!
             Nodo *novo_nodo = adiciona_nodo_label("?:"); 
             adiciona_filho(novo_nodo, $1); 
             adiciona_filho(novo_nodo, $3); 
             adiciona_filho(novo_nodo, $5); 
             $$ = novo_nodo; }
             | expr_bin_logica '?' expressao ':' expressao{
-            libera_valor_lexico($2);
+            libera_vlex($2);
             Nodo *novo_nodo = adiciona_nodo_label("?:");
             adiciona_filho(novo_nodo, $1);
             adiciona_filho(novo_nodo, $3);
@@ -468,13 +468,14 @@ expr_parenteses_aritmetica: operando_aritmetico { $$ = $1; }
 						| '(' expr_bin_aritmetica ')' { $$ = $2; }
 						; 
 
-operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
+operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); insere_identificador_tabela(TIPO_OUTRO, $1); }
          | TK_IDENTIFICADOR'['expr_bin_aritmetica']' 
         { 
             Nodo *novo_nodo = adiciona_nodo_label("[]");
             adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
+            insere_identificador_tabela(TIPO_OUTRO, $1);
         }
          | chamada_funcao { $$ = $1; }
          | TK_LIT_FLOAT { $$ = adiciona_nodo($1); }

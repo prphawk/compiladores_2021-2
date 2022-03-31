@@ -10,7 +10,7 @@ extern int yylex_destroy(void);
 
 int main (int argc, char **argv)
 {
-  //yydebug = 1;
+  //yydebug = 1; //ferramenta para debugar a gramática caso tenha algum conflito (veja o manual do Bison sobre o uso).
   int ret = yyparse();
   yylex_destroy();
   return ret;

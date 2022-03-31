@@ -32,6 +32,7 @@ typedef struct valor_lexico
 } ValorLexico;
 
 ValorLexico atribui_yylval(char* yytext, TipoVLex tipo_vlex, TipoVLexLiteral tipo_vlex_literal, int num_lines);
-void libera_valor_lexico(ValorLexico valor_lexico);
+void libera_vlex(ValorLexico valor_lexico);
 int tem_valor_string(ValorLexico valor_lexico);
 char* append_str_malloc(char* str1, char* str2);
+int compare_eq_str(char* str1, char* str2);

@@ -17,8 +17,8 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     return nodo;
 }
 
-Nodo *adiciona_nodo_label_concat(char *label, ValorLexico valor_lexico) {
-    char* result = append_str_malloc(label, valor_lexico.label);
+Nodo *adiciona_nodo_label_concat(char *label, char *label2) {
+    char* result = append_str_malloc(label, label2);
     Nodo *nodo = adiciona_nodo_label(result);
     free(result);
     return nodo;
@@ -119,7 +119,7 @@ void libera(void *pai)
 
     libera(pai_arvore->irmao);
 
-    libera_valor_lexico(pai_arvore->valor_lexico);
+    libera_vlex(pai_arvore->valor_lexico);
 
     free(pai_arvore);
 }

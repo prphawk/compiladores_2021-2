@@ -13,7 +13,7 @@ typedef struct Nodo {
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico);
 Nodo *adiciona_nodo_label(char *label);
-Nodo *adiciona_nodo_label_concat(char *label, ValorLexico valor_lexico);
+Nodo *adiciona_nodo_label_concat(char *label, char *label2);
 void adiciona_filho(Nodo *nodo, Nodo *filho);
 void imprime_arvore(Nodo *nodo, int profundidade);
 Nodo *acha_ultimo_irmao(Nodo *nodo_irmao);

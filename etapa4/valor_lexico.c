@@ -33,7 +33,7 @@ ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
       return valor_lexico;
 }
 
-void libera_valor_lexico(ValorLexico valor_lexico)
+void libera_vlex(ValorLexico valor_lexico)
 {
     if(tem_valor_string(valor_lexico))
         free(valor_lexico.valor_string);
@@ -53,12 +53,6 @@ char* append_str_malloc(char* str1, char* str2) {
    return result;
 }
 
-// char* append_str_enum_malloc(char* str1, int enum) {
-//    char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char));
-//    strcpy(result, str1);
-//    // if(space) {
-//    //   strncat(result, ' ', 1);
-//    // }
-//    strcat(result, str2);
-//    return result;
-// }
+int compare_eq_str(char* str1, char* str2) {
+   return !strcmp(str1, str2);
+}
