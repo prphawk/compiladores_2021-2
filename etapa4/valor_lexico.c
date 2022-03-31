@@ -35,7 +35,7 @@ ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
 
 void libera_vlex(ValorLexico valor_lexico)
 {
-    if(tem_valor_string(valor_lexico))
+    if(tem_valor_string(valor_lexico) && valor_lexico.valor_string != NULL) //TODO mudar na E3
         free(valor_lexico.valor_string);
     if(valor_lexico.label != NULL)
         free(valor_lexico.label);

@@ -114,12 +114,11 @@ programa: declaracoes { $$ = $1; arvore = $$; };
 
 declaracoes: declaracao declaracoes 
             {
-                if ($1!=NULL) {
-                    adiciona_filho($1, $2);
-                    $$ = $1;
-                }
+                if ($1!=NULL) { adiciona_filho($1, $2); $$ = $1; }
                 else $$ = $2;       
-            } | { $$ = NULL;};
+            } 
+            | { $$ = NULL;}
+            ;
 
 declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
@@ -127,8 +126,9 @@ declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | t
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
-nome_variavel_global: TK_IDENTIFICADOR { libera_vlex($1); } 
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'  { libera_vlex($1); libera_vlex($3); }
+// TODO checar se pode declarar vetores de string. parece que não
+nome_variavel_global: TK_IDENTIFICADOR                      { insere_identificador_sem_tipo_pilha($1); }; // TODO BOTAR ISSO NA ETAPA 3 -> { libera_vlex($1); } 
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'   { insere_identificador_vetor_sem_tipo_pilha($1, $3.valor_int); libera_vlex($3); }; // TODO BOTAR ISSO NA ETAPA 3 -> { libera_vlex($1); libera_vlex($3); }
                     ;
 
 declaracao_funcao: cabecalho corpo 
@@ -137,8 +137,8 @@ declaracao_funcao: cabecalho corpo
                     $$ = $1;
                 };
 
-cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($3); insere_funcao_tabela($3); }
-            | tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($2); insere_funcao_tabela($2); };
+cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($3); insere_funcao_pilha($3); }
+            | tipo TK_IDENTIFICADOR '(' parametros ')' { $$ = adiciona_nodo($2); insere_funcao_pilha($2); };
 
 parametros: lista_parametros | ;
 
@@ -351,33 +351,33 @@ argumentos: argumento',' argumentos
 
 lista_argumentos: argumentos { $$ = $1; }| { $$ = NULL; };
 
-literal: TK_LIT_CHAR { $$ = adiciona_nodo($1);    }
-         | TK_LIT_STRING { $$ = adiciona_nodo($1);}
-         | TK_LIT_TRUE { $$ = adiciona_nodo($1);  }
-         | TK_LIT_FALSE { $$ = adiciona_nodo($1); }
-         | TK_LIT_FLOAT { $$ = adiciona_nodo($1); }
-         | TK_LIT_INT { $$ = adiciona_nodo($1);   }
+literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_CHAR,   $1);}
+         | TK_LIT_STRING    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_STRING, $1);}
+         | TK_LIT_TRUE      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL,   $1);}
+         | TK_LIT_FALSE     { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL,   $1);}
+         | TK_LIT_FLOAT     { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT,  $1);}
+         | TK_LIT_INT       { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT,    $1);}
          ;
 
-operador_binario_prec1: '^' { $$ = adiciona_nodo($1); };
-operador_binario_prec2: '*' { $$ = adiciona_nodo($1); } 
-							| '/' { $$ = adiciona_nodo($1); } 
-							| '%' { $$ = adiciona_nodo($1); }
-							;
-operador_binario_prec3: '+' { $$ = adiciona_nodo($1); } 
-							| '-' { $$ = adiciona_nodo($1); }
-							;
-operador_binario_prec4: '&' { $$ = adiciona_nodo($1); } 
-							| '|' { $$ = adiciona_nodo($1); }
-							;
-operador_binario_prec5: '<' { $$ = adiciona_nodo($1); } 
-							| '>' { $$ = adiciona_nodo($1); } 
-							| TK_OC_LE { $$ = adiciona_nodo($1); }
-							| TK_OC_EQ { $$ = adiciona_nodo($1); }
-							| TK_OC_GE { $$ = adiciona_nodo($1); }
-							| TK_OC_NE { $$ = adiciona_nodo($1); }
-							| operador_binario_logico { $$ = $1; }
-							;
+operador_binario_prec1: '^'     { $$ = adiciona_nodo($1); };
+operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); } 
+                        | '/'   { $$ = adiciona_nodo($1); } 
+                        | '%'   { $$ = adiciona_nodo($1); }
+                        ;
+operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); } 
+                        | '-'   { $$ = adiciona_nodo($1); }
+                        ;
+operador_binario_prec4: '&'     { $$ = adiciona_nodo($1); } 
+                        | '|'   { $$ = adiciona_nodo($1); }
+                        ;
+operador_binario_prec5: '<'         { $$ = adiciona_nodo($1); } 
+                        | '>'       { $$ = adiciona_nodo($1); } 
+                        | TK_OC_LE  { $$ = adiciona_nodo($1); }
+                        | TK_OC_EQ  { $$ = adiciona_nodo($1); }
+                        | TK_OC_GE  { $$ = adiciona_nodo($1); }
+                        | TK_OC_NE  { $$ = adiciona_nodo($1); }
+                        | operador_binario_logico { $$ = $1; }
+                        ;
 
 operador_asterisco: '*' { $$ = adiciona_nodo($1); } 
 
@@ -391,9 +391,10 @@ operador_unario: '-' { $$ = adiciona_nodo($1); }
 
 operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); } | TK_OC_AND { $$ = adiciona_nodo($1); };
 
-expressao: expr_ternaria { $$ = $1; }
-        | expr_bin_aritmetica { $$ = $1; }
-        | expr_bin_logica { $$ = $1; };
+expressao: expr_ternaria        { $$ = $1; }
+        | expr_bin_aritmetica   { $$ = $1; }
+        | expr_bin_logica       { $$ = $1; }
+        ;
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
             { 
@@ -464,38 +465,39 @@ expr_unaria_aritmetica: expr_parenteses_aritmetica { $$ = $1; }
 				}
 				;
 
-expr_parenteses_aritmetica: operando_aritmetico { $$ = $1; } 
-						| '(' expr_bin_aritmetica ')' { $$ = $2; }
-						; 
+expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; } 
+                        | '(' expr_bin_aritmetica ')'   { $$ = $2; }
+                        ; 
 
-operando_aritmetico: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); insere_identificador_tabela(TIPO_OUTRO, $1); }
-         | TK_IDENTIFICADOR'['expr_bin_aritmetica']' 
-        { 
-            Nodo *novo_nodo = adiciona_nodo_label("[]");
-            adiciona_filho(novo_nodo, adiciona_nodo($1));
-            adiciona_filho(novo_nodo, $3);
-            $$ = novo_nodo;
-            insere_identificador_tabela(TIPO_OUTRO, $1);
-        }
-         | chamada_funcao { $$ = $1; }
-         | TK_LIT_FLOAT { $$ = adiciona_nodo($1); }
-         | TK_LIT_INT { $$ = adiciona_nodo($1); }
-         ;
+operando_aritmetico: TK_IDENTIFICADOR   { $$ = adiciona_nodo($1); insere_identificador_pilha(TIPO_OUTRO, $1); }
+                    | TK_IDENTIFICADOR'['expr_bin_aritmetica']' 
+                    { 
+                        Nodo *novo_nodo = adiciona_nodo_label("[]");
+                        adiciona_filho(novo_nodo, adiciona_nodo($1));
+                        adiciona_filho(novo_nodo, $3);
+                        $$ = novo_nodo;
+                        insere_identificador_pilha(TIPO_OUTRO, $1);
+                    }
+                    | chamada_funcao    { $$ = $1; }
+                    | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); }
+                    | TK_LIT_INT        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT, $1); }
+                    ;
 
-operando_logico: TK_LIT_TRUE { $$ = adiciona_nodo($1); } 
-                | TK_LIT_FALSE { $$ = adiciona_nodo($1); }
+operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); } 
+                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); }
 
-expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica {
+expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica 
+                {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                 }
-               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica {
+                | expr_parenteses_logica operador_binario_logico expr_parenteses_logica 
+                {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                }
-			    ;
+                };
 
 expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
 

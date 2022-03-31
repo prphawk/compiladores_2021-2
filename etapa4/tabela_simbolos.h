@@ -12,12 +12,13 @@
 
 typedef enum tipo_simbolo
 {
-    TIPO_INTEIRO,
+    TIPO_INT,
     TIPO_FLOAT,
     TIPO_BOOL,
     TIPO_CHAR,
     TIPO_STRING,
-    TIPO_OUTRO
+    TIPO_OUTRO,
+    TIPO_PENDENTE,
 } TipoSimbolo;
 
 typedef enum natureza_simbolo
@@ -27,21 +28,29 @@ typedef enum natureza_simbolo
     NATUREZA_FUNCAO
 } NaturezaSimbolo;
 
-typedef struct argumentoFuncao
+typedef struct argumentoFuncaoLst
 {
     // char *nome;
     // int tamanho;
     TipoSimbolo tipo;
-    struct ArgumentoFuncao *proximo;
-} ArgumentoFuncao;
+    struct ArgumentoFuncaoLst *proximo;
+} ArgumentoFuncaoLst;
+
+typedef struct variavelSemTipoLst
+{
+    char *nome;
+    int tamanho_vetor;
+    struct VariavelSemTipoLst *proximo;
+} VariavelSemTipoLst;
 
 typedef struct conteudo {
     int linha;
-    int coluna; //opcional, -1 quando n existe TODO o que ele quer dizer com coluna??
+    int coluna; //opcional, -1 quando n existe 
+    //TODO o que ele quer dizer com coluna??
     int tamanho;
     TipoSimbolo tipo;
     NaturezaSimbolo natureza;
-    ArgumentoFuncao* argumentos;
+    ArgumentoFuncaoLst* argumentos;
     ValorLexico valor_lexico;
 } Conteudo;
 
@@ -53,10 +62,11 @@ typedef struct entradaHash
 } EntradaHash;
 
 typedef struct pilhaHash {
-    int quantidade_atual;
-    int capacidade_tabela;
     EntradaHash *topo;
+    int tamanho_tabela;
+    int quantidade_atual;
     struct PilhaHash *resto;
+    VariavelSemTipoLst *variaveis_sem_tipo;
 } PilhaHash;
 
 EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico);
@@ -69,9 +79,10 @@ char *_chave(char *nome, NaturezaSimbolo natureza, TipoSimbolo tipo);
 unsigned long _indice_hash(char *chave);
 void _adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
 int _probing(int indice, int capacidade_hash);
-int _tamanho(TipoSimbolo tipo);
+int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo);
 void _libera_tabela();
-void _libera_argumentos(ArgumentoFuncao *argumento);
+void _libera_argumentos(ArgumentoFuncaoLst *argumento);
+void _libera_variaveis_sem_tipo(VariavelSemTipoLst *vst);
 void libera_pilha();
 char* _tipo_str(TipoSimbolo tipo);
 char* _natureza_str(NaturezaSimbolo natureza);
@@ -84,3 +95,7 @@ void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
 
 void empilha();
 void desempilha();
+
+void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico);
+void insere_identificador_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
+void _adiciona_variavel_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
