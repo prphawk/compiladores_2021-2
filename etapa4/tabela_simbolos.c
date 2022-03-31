@@ -12,8 +12,9 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 */
 
 //#region Auxiliares
-//TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!!
-int tamanho(TipoSimbolo tipo) {
+
+//TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!! tem q calcular com o tamanho da string tbm
+int _tamanho(TipoSimbolo tipo) {
     switch(tipo) {
         case TIPO_INTEIRO: return TAMANHO_INT; break;
         case TIPO_FLOAT: return TAMANHO_FLOAT; break;
@@ -27,7 +28,7 @@ int tamanho(TipoSimbolo tipo) {
 // função que recebe um nome (label?) e uma natureza (variável, função, literal) e cria uma chave dando append nos dois
 // exemplo out: func1_nat_3_tipo_1
 // TODO botar mais info nesse nome viu. quem sabe o tipo tbm. e concatenar mais q numeros só
-char *chave(char *nome, NaturezaSimbolo natureza, TipoSimbolo tipo)
+char *_chave(char *nome, NaturezaSimbolo natureza, TipoSimbolo tipo)
 {
     char str[48];
     sprintf(str, "_nat_%d_t_%d", natureza, tipo);
@@ -35,10 +36,10 @@ char *chave(char *nome, NaturezaSimbolo natureza, TipoSimbolo tipo)
 }
 
 // função que retorna um valor hash a partir da chave
-unsigned long indice_hash(char *chave)
+unsigned long _indice_hash(char *chave)
 {
     unsigned char *str = chave;
-    // usa o chave() aqui dentro -> what? a entrada eh a chave já
+    // usa o _chave() aqui dentro -> what? a entrada eh a chave já
 
     // djb2 (1991) por Daniel J. Bernstein, explicação em https://theartincode.stanis.me/008-djb2/
     unsigned long hash = 5381;
@@ -50,7 +51,7 @@ unsigned long indice_hash(char *chave)
     return hash;
 }
 
-int probing(int indice, int tamanho_tabela) {
+int _probing(int indice, int tamanho_tabela) {
 
     indice++;
 		
@@ -60,13 +61,13 @@ int probing(int indice, int tamanho_tabela) {
 }
 
 // TODO expandir tamanho da tabela quando atinge 75% da capacidade
-PilhaHash *expande_tabela(PilhaHash *pilha)
+PilhaHash *_malloc_expande_tabela(PilhaHash *pilha)
 {
    return NULL;        
 }
 
 // TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-void adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
+void _adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
 {
     // não precisa usar o "chave", guarda somente o >NOME< do argumento em argumento.nome
     // cria um entradaArgumento
@@ -75,34 +76,35 @@ void adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, Valo
 //#endregion Auxiliares
 
 //#region Busca
+
 //  função que retorna uma entrada específica da hash a partir de sua chave
-EntradaHash *busca_pilha(char *chave, PilhaHash *pilha)
+EntradaHash *_busca_pilha(char *chave, PilhaHash *pilha)
 {
     if(pilha == NULL) return NULL;
     
-    EntradaHash *resposta = busca_no_topo_pilha(chave, pilha);
+    EntradaHash *resposta = _busca_topo_pilha(chave, pilha);
 
     if(resposta != NULL) return resposta;
     
     PilhaHash *resto = (PilhaHash*)pilha->resto;
 	
-    return busca_pilha(chave, resto);
+    return _busca_pilha(chave, resto);
 }
 
-EntradaHash *busca_no_topo_pilha(char *chave, PilhaHash *pilha) {
+EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha) {
 
     EntradaHash *tabela = pilha->topo;
 
     int tamanho_tabela = pilha->capacidade_tabela;
 
-    int indice = indice_hash(chave) % tamanho_tabela;  
+    int indice = _indice_hash(chave) % tamanho_tabela;  
 
     while(tabela[indice].chave != NULL) {
 
         if(compare_eq_str(tabela[indice].chave, chave))
             return &tabela[indice]; 
             
-        indice = probing(indice, tamanho_tabela);
+        indice = _probing(indice, tamanho_tabela);
     }
 
     return NULL;
@@ -110,6 +112,7 @@ EntradaHash *busca_no_topo_pilha(char *chave, PilhaHash *pilha) {
 //#endregion Busca
 
 //#region Insere
+
 // função que "empilha" uma nova hash em cima da atual
 void empilha()
 {
@@ -119,7 +122,7 @@ void empilha()
     pilha_aux->quantidade_atual = 0;
     pilha_aux->capacidade_tabela = TAMANHO_INICIAL_HASH;
 
-    EntradaHash *tabela = nova_tabela();
+    EntradaHash *tabela = _malloc_tabela();
     pilha_aux->topo = tabela;
     pilha_aux->resto = (struct PilhaHash*)pilha_hash;
 
@@ -127,7 +130,7 @@ void empilha()
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
-EntradaHash *nova_tabela() {
+EntradaHash *_malloc_tabela() {
 
     EntradaHash *tabela = (EntradaHash*)malloc(sizeof(EntradaHash) * TAMANHO_INICIAL_HASH);
 
@@ -145,20 +148,20 @@ EntradaHash *nova_tabela() {
     return tabela;
 }
 
-void insere_literal_tabela(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    insere_na_pilha(NATUREZA_LITERAL, tipo, valor_lexico);
+void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    _insere_em_pilha(NATUREZA_LITERAL, tipo, valor_lexico);
 }
-void insere_funcao_tabela(ValorLexico valor_lexico) {
-    insere_na_pilha(NATUREZA_FUNCAO, TIPO_STRING, valor_lexico);
+void insere_funcao_pilha(ValorLexico valor_lexico) {
+    _insere_em_pilha(NATUREZA_FUNCAO, TIPO_STRING, valor_lexico);
 }
-void insere_identificador_tabela(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    insere_na_pilha(NATUREZA_VARIAVEL, tipo, valor_lexico);
+void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    _insere_em_pilha(NATUREZA_VARIAVEL, tipo, valor_lexico);
 }
 
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
 // chamar ao declarar
 //TODO gente como diferenciamos redeclaração e redefinição aqui
-EntradaHash *insere_na_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
+EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     if(pilha_hash == NULL) empilha();
 
@@ -166,9 +169,9 @@ EntradaHash *insere_na_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLe
 
     if(pilha == NULL) return NULL;
 
-    char *chave_malloc = chave(valor_lexico.label, natureza, tipo);
+    char *chave_malloc = _chave(valor_lexico.label, natureza, tipo);
 
-    EntradaHash *resposta = busca_no_topo_pilha(chave_malloc, pilha);
+    EntradaHash *resposta = _busca_topo_pilha(chave_malloc, pilha);
 
     if(resposta != NULL) {
         //TODO ve redlecaração ou apenas atribuição??
@@ -180,20 +183,20 @@ EntradaHash *insere_na_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLe
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
     conteudo.coluna = -1;
-    conteudo.tamanho = tamanho(tipo);
+    conteudo.tamanho = _tamanho(tipo);
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
     conteudo.argumentos = NULL;
     conteudo.valor_lexico = valor_lexico;
 
-    insere_na_pilha_probing(chave_malloc, pilha, conteudo);
+    _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
 
-    print_escopos();
+    print_pilha();
     printf("(OUTRA INTERAÇÃO) ____________________________________________________________________\n");
 }
 
 //TODO checar se já existe
-EntradaHash *insere_na_pilha_probing(char *chave, PilhaHash *pilha, Conteudo conteudo) {
+EntradaHash *_insere_em_pilha_probing(char *chave, PilhaHash *pilha, Conteudo conteudo) {
 
     EntradaHash *tabela = pilha->topo;
 
@@ -201,7 +204,7 @@ EntradaHash *insere_na_pilha_probing(char *chave, PilhaHash *pilha, Conteudo con
 
     int tamanho_tabela = pilha->capacidade_tabela;
 
-    int indice = indice_hash(chave) % tamanho_tabela;  
+    int indice = _indice_hash(chave) % tamanho_tabela;  
 
     while(tabela != NULL) {
 
@@ -215,7 +218,7 @@ EntradaHash *insere_na_pilha_probing(char *chave, PilhaHash *pilha, Conteudo con
             return &tabela[indice]; 
         }
 
-        indice = probing(indice, tamanho_tabela);
+        indice = _probing(indice, tamanho_tabela);
     }
 }
 //#endregion Insere
@@ -248,13 +251,13 @@ void desempilha()
         pilha_hash = NULL;
     }
 
-    libera_tabela(antiga_pilha->topo, antiga_pilha->capacidade_tabela);
+    _libera_tabela(antiga_pilha->topo, antiga_pilha->capacidade_tabela);
 
     free(antiga_pilha);
 }
 
 // função que libera a tabela hash e tudo que há dentro dela (i.e. libera a memória caso necessário)
-void libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
+void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
 
     if(tabela == NULL) return;
 
@@ -264,25 +267,25 @@ void libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
 
             free(tabela[i].chave);
 
-            libera_argumentos(tabela[i].conteudo.argumentos);
+            _libera_argumentos(tabela[i].conteudo.argumentos);
         }
     }
 
     free(tabela);
 }
 
-void libera_argumentos(ArgumentoFuncao *argumento) {
+void _libera_argumentos(ArgumentoFuncao *argumento) {
 
     if(argumento == NULL) return;
 
-    libera_argumentos((ArgumentoFuncao *)argumento->proximo);
+    _libera_argumentos((ArgumentoFuncao *)argumento->proximo);
 
     free(argumento);
 }
 //#endregion Libera 
 
 //#region Prints
-void print_escopos() {
+void print_pilha() {
 
     PilhaHash *aux_pilha = pilha_hash;
 
@@ -294,7 +297,7 @@ void print_escopos() {
 
         printf("\n\n - ESCOPO Nº%02i DA PILHA - | CAPACIDADE: %i | OCUPAÇÃO: %03i\n", profundidade, capacidade, aux_pilha->quantidade_atual);
         printf("--------------------------------------------------------------------\n");
-        print_tabela(aux_pilha->topo, capacidade);
+        _print_tabela(aux_pilha->topo, capacidade);
         printf("--------------------------------------------------------------------\n\n");
 
         profundidade++;
@@ -304,17 +307,17 @@ void print_escopos() {
 }
 
 //printa pilha com tabela e seus valores
-void print_tabela(EntradaHash *tabela, int tamanho) {
+void _print_tabela(EntradaHash *tabela, int tamanho) {
     for(int i=0; i < tamanho; i++) {
        EntradaHash entrada = tabela[i];
         
         if(entrada.chave == NULL) continue;
 
-       printf(" ITEM %03i | TIPO %s | NATUREZA %s | CHAVE %s\n", i+1, print_natureza(entrada.conteudo.natureza), print_tipo(entrada.conteudo.tipo), entrada.chave);
+       printf(" ITEM %03i | TIPO %s | NATUREZA %s | CHAVE %s\n", i+1, _natureza_str(entrada.conteudo.natureza), _tipo_str(entrada.conteudo.tipo), entrada.chave);
     }
 }
 
-char* print_tipo(TipoSimbolo tipo) {
+char* _tipo_str(TipoSimbolo tipo) {
     switch(tipo) {
         case TIPO_INTEIRO: return "INT   "; break;
         case TIPO_FLOAT: return   "FLOAT "; break;
@@ -326,7 +329,7 @@ char* print_tipo(TipoSimbolo tipo) {
     }
 }
 
-char* print_natureza(NaturezaSimbolo natureza) {
+char* _natureza_str(NaturezaSimbolo natureza) {
     switch(natureza) {
         case NATUREZA_FUNCAO: return   "FUNCAO  "; break;
         case NATUREZA_LITERAL: return  "LITERAL "; break;
