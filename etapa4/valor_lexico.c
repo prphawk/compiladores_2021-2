@@ -53,12 +53,6 @@ char* append_str_malloc(char* str1, char* str2) {
    return result;
 }
 
-// char* append_str_enum_malloc(char* str1, int enum) {
-//    char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char));
-//    strcpy(result, str1);
-//    // if(space) {
-//    //   strncat(result, ' ', 1);
-//    // }
-//    strcat(result, str2);
-//    return result;
-// }
+int compare_eq_str(char* str1, char* str2) {
+   return !strcmp(str1, str2);
+}

@@ -35,3 +35,4 @@ ValorLexico atribui_yylval(char* yytext, TipoVLex tipo_vlex, TipoVLexLiteral tip
 void libera_valor_lexico(ValorLexico valor_lexico);
 int tem_valor_string(ValorLexico valor_lexico);
 char* append_str_malloc(char* str1, char* str2);
+int compare_eq_str(char* str1, char* str2);

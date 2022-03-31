@@ -61,10 +61,10 @@ typedef struct pilhaHash {
 
 char *chave(char *nome, NaturezaSimbolo natureza, TipoSimbolo tipo);
 unsigned long indice_hash(char *chave);
-EntradaHash *insere_no_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico);
-EntradaHash *encontra_no_escopo(char *chave, PilhaHash *pilha);
-EntradaHash *encontra_na_tabela(char *chave, EntradaHash *tabela, int tamanho_tabela);
-EntradaHash *insere_na_tabela(char *chave, PilhaHash *pilha, Conteudo conteudo);
+EntradaHash *insere_na_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico);
+EntradaHash *busca_pilha(char *chave, PilhaHash *pilha);
+EntradaHash *busca_no_topo_pilha(char *chave, PilhaHash *pilha);
+EntradaHash *insere_na_pilha_probing(char *chave, PilhaHash *pilha, Conteudo conteudo);
 void adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
 void empilha();
 void desempilha();
@@ -75,7 +75,7 @@ PilhaHash *expande_tabela(PilhaHash *pilha);
 int tamanho(TipoSimbolo tipo);
 void print_tabela(EntradaHash *tabela, int tamanho_tabela);
 void print_escopos();
-EntradaHash *adiciona_tabela();
+EntradaHash *nova_tabela();
 void insere_literal_tabela(TipoSimbolo tipo, ValorLexico valor_lexico);
 void insere_funcao_tabela(ValorLexico valor_lexico);
 void insere_identificador_tabela(TipoSimbolo tipo, ValorLexico valor_lexico);

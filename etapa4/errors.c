@@ -9,24 +9,24 @@ void throwUndeclaredError(int linha, char *input)
   exit(ERR_UNDECLARED);
 }
 
-void throwDeclaredError(int linha, char *input, int previousDeclarationLine)
+void throwDeclaredError(int linha, char *input, int linha_declaracao)
 {
-  printf("ERRO linha %i", linha);
+  printf("ERRO linha %i: Variável já declarada na linha %i.", linha, linha_declaracao);
   exit(ERR_DECLARED);
 }
 
-void throwVariableError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo)
+void throwVariableError(int linha, char *input, int linha_declaracao, NaturezaSimbolo natureza_simbolo)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_VARIABLE);
 }
 
-void throwVectorError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo)
+void throwVectorError(int linha, char *input, int linha_declaracao, NaturezaSimbolo natureza_simbolo)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_VECTOR);
 }
-void throwFunctionError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo)
+void throwFunctionError(int linha, char *input, int linha_declaracao, NaturezaSimbolo natureza_simbolo)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_FUNCTION);
@@ -50,7 +50,7 @@ void throwCharToXError(int linha, char *input)
   exit(ERR_CHAR_TO_X);
 }
 
-void throwStringSizeError(int linha, char *input, int linha_declaracao_input)
+void throwStringSizeError(int linha, char *input, int linha_declaracao)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_STRING_MAX);
@@ -62,25 +62,25 @@ void throwStringVectorError(int linha)
   exit(ERR_STRING_VECTOR);
 }
 
-void throwExcessArgsError(int linha, char *input, int linha_declaracao_input)
+void throwExcessArgsError(int linha, char *input, int linha_declaracao)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_EXCESS_ARGS);
 }
 
-void throwMissingArgsError(int linha, char *input, int linha_declaracao_input)
+void throwMissingArgsError(int linha, char *input, int linha_declaracao)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_MISSING_ARGS);
 }
 
-void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao_input)
+void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_WRONG_TYPE_ARGS);
 }
 
-void throwFunctionStringError(int linha, char *input, int linha_declaracao_input)
+void throwFunctionStringError(int linha, char *input, int linha_declaracao)
 {
   printf("ERRO linha %i", linha);
   exit(ERR_WRONG_TYPE_ARGS);

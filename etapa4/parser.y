@@ -1,8 +1,8 @@
 %{
 #include<stdio.h>
 #include<string.h>
-#include "ast.h"
 #include "main.h"
+#include "ast.h"
 #include "tabela_simbolos.h"
 int yylex(void);
 int yyerror (char const *s);
@@ -163,10 +163,12 @@ lista_comandos: comando_simples ';' lista_comandos
     //TODO checar correção.
     | { $$ = NULL; };
 
-bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
+bloco_comandos: bloco_comandos_inicio lista_comandos bloco_comandos_fim { $$ = $2; } ;
+bloco_comandos_inicio: '{';// { empilha(); } ;
+bloco_comandos_fim: '}';// { desempilha(); } ;
 
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
-            Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1);
+            Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
             libera_valor_lexico($1); //precisa liberar pq o identificador é substituido na arvore!!
             //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
