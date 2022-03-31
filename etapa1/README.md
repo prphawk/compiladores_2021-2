@@ -8,6 +8,10 @@ Executar com a entrada de um arquivo qualquer "teste.txt"
 
 > ./etapa1 < teste.txt
 
+Executar script de testes
+
+> sh teste.sh
+
 Entregar:
 
 > make clean

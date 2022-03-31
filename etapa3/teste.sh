@@ -1,14 +1,13 @@
 #!/bin/bash
 
 SUCCESS=0
-executable="./etapa3"
+executable="./etapa4"
 evaluation=""
 echo "STARTING OFFICIAL TEST CASES"
 
-#checa pra ver se não quebrou a gramatica
-for file in ../testes_E2/*
+for file in ../testes_E3_format/*
     do
-    "$executable" < "$file"
+    valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"
     result=$?
     evaluation=$(head -1 "$file")
     
