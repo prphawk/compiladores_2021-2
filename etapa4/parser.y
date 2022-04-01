@@ -126,14 +126,20 @@ declaracoes: declaracao declaracoes
 
 declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
-declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' { insere_tipo_variavel_pilha($2); }
-| tipo lista_nome_variavel_global ';' { insere_tipo_variavel_pilha($1); };
+declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';'    { insere_tipo_variavel_pilha($2); }
+                            | tipo lista_nome_variavel_global ';'               { insere_tipo_variavel_pilha($1); };
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
 // TODO checar se pode declarar vetores de string. parece que não
-nome_variavel_global: TK_IDENTIFICADOR                      { insere_identificador_sem_tipo_pilha($1); }; // TODO BOTAR ISSO NA ETAPA 3 -> { libera_vlex($1); } 
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'   { insere_identificador_vetor_sem_tipo_pilha($1, $3.valor_int); libera_vlex($3); }; // TODO BOTAR ISSO NA ETAPA 3 -> { libera_vlex($1); libera_vlex($3); }
+nome_variavel_global: TK_IDENTIFICADOR                      
+                    { 
+                        insere_identificador_global_sem_tipo_pilha($1, 0); 
+                        libera_vlex($1); }; // TODO BOTAR ISSO NA ETAPA 3 -> { libera_vlex($1); } 
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'   
+                    { 
+                        insere_identificador_global_sem_tipo_pilha($1, $3.valor_int); 
+                        libera_vlex($1); libera_vlex($3); }; // TODO BOTAR ISSO NA ETAPA 3 -> { libera_vlex($1); libera_vlex($3); }
                     ;
 
 declaracao_funcao: cabecalho corpo 

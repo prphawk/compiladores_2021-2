@@ -126,20 +126,20 @@ void insere_funcao_pilha(ValorLexico valor_lexico) {
 void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
     _insere_em_pilha(NATUREZA_VARIAVEL, tipo, valor_lexico);
 }
-void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico) {
-    _adiciona_variavel_sem_tipo_pilha(valor_lexico, 0);
-    _insere_em_pilha(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico);
-}
-void insere_identificador_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
-    _adiciona_variavel_sem_tipo_pilha(valor_lexico, tamanho_vetor);
+
+void insere_identificador_global_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
+
+    char* chave = _chave(valor_lexico.label, NATUREZA_VARIAVEL);
+
+    _adiciona_variavel_sem_tipo_pilha(chave, tamanho_vetor);
     _insere_em_pilha(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico);
 }
 
-void _adiciona_variavel_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
+void _adiciona_variavel_sem_tipo_pilha(char* chave, int tamanho_vetor) {
 
     VariavelSemTipoLst *nova_vst;
     nova_vst = malloc(sizeof(VariavelSemTipoLst));
-    nova_vst->chave = _chave(valor_lexico.label, NATUREZA_VARIAVEL);
+    nova_vst->chave = chave;
     nova_vst->tamanho_vetor = tamanho_vetor;
 
     if(pilha_hash == NULL) empilha();
@@ -212,6 +212,18 @@ void _atribuicao_simbolo_literal(EntradaHash *sim1, EntradaHash *sim2) {
 
 }
 
+ValorLexico copia_vlex(ValorLexico valor_lexico) {
+
+    ValorLexico new_vlex = valor_lexico;
+    new_vlex.label = strdup(valor_lexico.label);
+
+    if(tem_valor_string(valor_lexico)) {
+        new_vlex.valor_string = strdup(valor_lexico.valor_string);
+    }
+
+    return new_vlex;
+}
+
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
 // chamar ao declarar
 // TODO gente como diferenciamos redeclaração e redefinição aqui
@@ -246,7 +258,7 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
     conteudo.argumentos = NULL;
-    conteudo.valor_lexico = valor_lexico;
+    conteudo.valor_lexico = copia_vlex(valor_lexico);
 
     resposta = _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
 
@@ -367,7 +379,13 @@ void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
 
             free(tabela[i].chave);
 
-            //libera_vlex(tabela[i].conteudo.valor_lexico);
+            // if(tabela[i].conteudo.valor_lexico.label != NULL) {
+            //     printf("\nAIAI LABEL %s\n", tabela[i].conteudo.valor_lexico.label);
+            // } else {
+            //     printf("liberado?");
+            // }
+
+            libera_vlex(tabela[i].conteudo.valor_lexico);
 
             _libera_argumentos(tabela[i].conteudo.argumentos);
         }
@@ -420,9 +438,10 @@ void print_pilha() {
         int capacidade = aux_pilha->tamanho_tabela;
 
         printf("\n\n - ESCOPO Nº%02i DA PILHA - | CAPACIDADE: %i | OCUPAÇÃO: %03i\n", profundidade, capacidade, aux_pilha->quantidade_atual);
-        printf("---------------------------------------------------------------------------------------------\n");
+        char* str = "-----------------------------------------------------------------------------------------------------------------";
+        printf("%s\n", str);
         _print_tabela(aux_pilha->topo, capacidade);
-        printf("---------------------------------------------------------------------------------------------\n\n");
+        printf("%s\n\n", str);
 
         profundidade++;
 
@@ -437,26 +456,26 @@ void _print_tabela(EntradaHash *tabela, int tamanho) {
         
         if(entrada.chave == NULL) continue;
 
-       printf(" ITEM %03i | NATUREZA %s | TIPO %s | TAMANHO %03i | CHAVE %s\n", i+1, _natureza_str(entrada.conteudo.natureza), _tipo_str(entrada.conteudo.tipo), entrada.conteudo.tamanho, entrada.chave);
+       printf(" ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | RÓTULO: %12s | CHAVE %16s |\n", i+1, _natureza_str(entrada.conteudo.natureza), _tipo_str(entrada.conteudo.tipo), entrada.conteudo.tamanho, entrada.conteudo.valor_lexico.label, entrada.chave);
     }
 }
 
 char* _tipo_str(TipoSimbolo tipo) {
     switch(tipo) {
-        case TIPO_INT: return "INT   "; break;
-        case TIPO_FLOAT: return   "FLOAT "; break;
-        case TIPO_BOOL: return    "BOOL  "; break;
+        case TIPO_INT: return "INT"; break;
+        case TIPO_FLOAT: return   "FLOAT"; break;
+        case TIPO_BOOL: return    "BOOL"; break;
         case TIPO_STRING: return  "STRING"; break;
-        case TIPO_CHAR: return    "CHAR  "; break;
-        case TIPO_OUTRO: return   "OUTRO "; break;
+        case TIPO_CHAR: return    "CHAR"; break;
+        case TIPO_OUTRO: return   "OUTRO"; break;
         default: return           "------"; break;
     }
 }
 
 char* _natureza_str(NaturezaSimbolo natureza) {
     switch(natureza) {
-        case NATUREZA_FUNCAO: return   "FUNCAO  "; break;
-        case NATUREZA_LITERAL: return  "LITERAL "; break;
+        case NATUREZA_FUNCAO: return   "FUNCAO"; break;
+        case NATUREZA_LITERAL: return  "LITERAL"; break;
         case NATUREZA_VARIAVEL: return "VARIAVEL"; break;
         default: return                "--------"; break;
     }

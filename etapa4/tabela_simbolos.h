@@ -42,6 +42,12 @@ typedef struct variavelSemTipoLst
     struct VariavelSemTipoLst *proximo;
 } VariavelSemTipoLst;
 
+typedef struct strIndependenteDaArvoreLst
+{
+    char *str;
+    struct StrIndependenteDaArvoreLst *proximo;
+} StrIndependenteDaArvoreLst;
+
 typedef struct conteudo {
     int linha;
     int coluna; //opcional, -1 quando n existe 
@@ -96,8 +102,7 @@ void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
 void empilha();
 void desempilha();
 
-void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico);
-void insere_identificador_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
-void _adiciona_variavel_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
+void insere_identificador_global_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
+void _adiciona_variavel_sem_tipo_pilha(char *chave, int tamanho_vetor);
 void insere_tipo_variavel_pilha(TipoSimbolo tipo);
 void atribuicao_simbolo(EntradaHash *entrada1, EntradaHash *entrada2);
