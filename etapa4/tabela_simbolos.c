@@ -212,7 +212,7 @@ void _atribuicao_simbolo_literal(EntradaHash *sim1, EntradaHash *sim2) {
 
 }
 
-ValorLexico copia_vlex(ValorLexico valor_lexico) {
+ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
 
     ValorLexico new_vlex = valor_lexico;
     new_vlex.label = strdup(valor_lexico.label);
@@ -258,7 +258,7 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
     conteudo.argumentos = NULL;
-    conteudo.valor_lexico = copia_vlex(valor_lexico);
+    conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
 
     resposta = _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
 
@@ -456,7 +456,7 @@ void _print_tabela(EntradaHash *tabela, int tamanho) {
         
         if(entrada.chave == NULL) continue;
 
-       printf(" ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | RÓTULO: %12s | CHAVE %16s |\n", i+1, _natureza_str(entrada.conteudo.natureza), _tipo_str(entrada.conteudo.tipo), entrada.conteudo.tamanho, entrada.conteudo.valor_lexico.label, entrada.chave);
+       printf(" ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | RÓTULO: %12s | CHAVE: %16s |\n", i+1, _natureza_str(entrada.conteudo.natureza), _tipo_str(entrada.conteudo.tipo), entrada.conteudo.tamanho, entrada.conteudo.valor_lexico.label, entrada.chave);
     }
 }
 
