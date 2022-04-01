@@ -18,7 +18,6 @@ int main (int argc, char **argv)
   int ret = yyparse(); 
   //exporta (arvore);
   //imprime_arvore(arvore);
-  //print_pilha();
   libera(arvore);
   libera_pilha();
   arvore = NULL;

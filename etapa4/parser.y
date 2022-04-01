@@ -13,10 +13,12 @@ extern void *arvore;
 %code requires {
     #include "valor_lexico.h"
     #include "ast.h"
+    #include "tabela_simbolos.h"
 }
 %union {
    ValorLexico valor_lexico;
    struct Nodo *nodo;
+   TipoSimbolo tipo_simbolo;
 }
 %token TK_PR_INT
 %token TK_PR_FLOAT
@@ -108,6 +110,8 @@ extern void *arvore;
 %type<nodo> declaracao
 %type<nodo> declaracoes
 %type<nodo> programa
+
+%type<tipo_simbolo> tipo //TODO ver se n da merda na ast...
 %%
 
 programa: declaracoes { $$ = $1; arvore = $$; };
@@ -122,7 +126,8 @@ declaracoes: declaracao declaracoes
 
 declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
-declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' | tipo lista_nome_variavel_global ';';
+declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';' { insere_tipo_variavel_pilha($2); }
+| tipo lista_nome_variavel_global ';' { insere_tipo_variavel_pilha($1); };
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
@@ -147,7 +152,14 @@ lista_parametros: parametro | parametro ',' lista_parametros;
 parametro: tipo TK_IDENTIFICADOR { libera_vlex($2); } 
         | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_vlex($3); };
 
-tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
+//TODO precisa botar os tipos na arvore? bom, agora precisa.
+
+tipo: TK_PR_INT { $$ = TIPO_INT; }
+    | TK_PR_FLOAT { $$ = TIPO_FLOAT; }
+    | TK_PR_CHAR { $$ = TIPO_CHAR; }
+    | TK_PR_BOOL { $$ = TIPO_BOOL; }
+    | TK_PR_STRING { $$ = TIPO_STRING; }
+    ;
 
 corpo: bloco_comandos { $$ = $1; } ;
 

@@ -26,12 +26,12 @@ int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo) {
 }
 
 // função que recebe um nome (label?) e uma natureza (variável, função, literal) e cria uma chave dando append nos dois
-// exemplo out: func1_nat_3_tipo_1
-// TODO botar mais info nesse nome viu. quem sabe o tipo tbm. e concatenar mais q numeros só
-char *_chave(char *nome, NaturezaSimbolo natureza, TipoSimbolo tipo)
+// exemplo out: func1_n_3
+// TODO ver se esse projeto é pra aceitar a declaração do mesmo nome com naturezas diferentes. tipo nome (variavel) != nome(){} (função)
+char *_chave(char *nome, NaturezaSimbolo natureza)
 {
     char str[10];
-    sprintf(str, "_n_%d_t_%d", natureza, tipo);
+    sprintf(str, "_n_%d", natureza);
 
     return append_str_malloc(nome, str);
 }
@@ -40,7 +40,6 @@ char *_chave(char *nome, NaturezaSimbolo natureza, TipoSimbolo tipo)
 unsigned long _indice_hash(char *chave)
 {
     unsigned char *str = chave;
-    // usa o _chave() aqui dentro -> what? a entrada eh a chave já
 
     // djb2 (1991) por Daniel J. Bernstein, explicação em https://theartincode.stanis.me/008-djb2/
     unsigned long hash = 5381;
@@ -68,7 +67,7 @@ PilhaHash *_malloc_expande_tabela(PilhaHash *pilha)
 }
 
 // TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-// cara como isso bate com a declaração dos parametros? como se bota uma função na tabela what
+// TODO cara como isso bate com a declaração dos parametros? como se bota uma função na tabela what
 // vai ter q ficar com os argumentos pendentes tbm
 void _adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
 {
@@ -140,7 +139,7 @@ void _adiciona_variavel_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vet
 
     VariavelSemTipoLst *nova_vst;
     nova_vst = malloc(sizeof(VariavelSemTipoLst));
-    nova_vst->nome = valor_lexico.label;
+    nova_vst->chave = _chave(valor_lexico.label, NATUREZA_VARIAVEL);
     nova_vst->tamanho_vetor = tamanho_vetor;
 
     if(pilha_hash == NULL) empilha();
@@ -150,10 +149,77 @@ void _adiciona_variavel_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vet
     pilha_hash->variaveis_sem_tipo = nova_vst;
 }
 
+void insere_tipo_variavel_pilha(TipoSimbolo tipo) {
+    
+    PilhaHash* pilha = pilha_hash;
+
+    if(pilha == NULL) return;
+
+    VariavelSemTipoLst *vst = pilha->variaveis_sem_tipo;
+
+    while(vst != NULL) {
+       EntradaHash *resposta = _busca_topo_pilha(vst->chave, pilha);
+
+       if(resposta != NULL) {
+           resposta->conteudo.tipo = tipo;
+           resposta->conteudo.tamanho = _tamanho(resposta->conteudo.valor_lexico, tipo);
+           print_pilha();
+       } else {
+           //TODO help???
+           printf("nao encontrado?? %s\n", vst->chave);
+       }
+        VariavelSemTipoLst *antigo_vst = vst;
+        vst = (VariavelSemTipoLst *)vst->proximo;
+        _libera_head_vst(antigo_vst);
+    }
+
+    pilha->variaveis_sem_tipo = vst;
+    
+    return;
+}
+
+//TODO fazer as checagens de erros aqui!!!!
+void atribuicao_simbolo(EntradaHash *sim1, EntradaHash *sim2) {
+    // if(sim1->conteudo.natureza == NATUREZA_VARIAVEL) {
+    //     if(sim2->conteudo.natureza == NATUREZA_LITERAL) {
+
+    //     }
+    // }
+    return;
+}
+
+void _atribuicao_simbolo_literal(EntradaHash *sim1, EntradaHash *sim2) {
+
+// TODO mudar tipos dos que pode, erro dos que não pode
+//     switch(sim2->conteudo.valor_lexico.tipo_vlex_literal) {
+//          case VLEX_LITERAL_BOOL:
+//             sim1->conteudo. valor_lexico.valor_bool
+//             break;
+//          case VLEX_LITERAL_FLOAT:
+//             valor_lexico.valor_float=atof(yytext);
+//             break;
+//          case VLEX_LITERAL_INTEIRO:
+//             valor_lexico.valor_int=atoi(yytext);
+//             break;
+//          case VLEX_LITERAL_CHAR:
+//             valor_lexico.valor_char=yytext[1];
+//             break;
+//          case VLEX_LITERAL_STRING:
+//             valor_lexico.valor_string = strdup(yytext+1);
+//             valor_lexico.valor_string[strlen(valor_lexico.valor_string)-1] = '\0';
+//             break;
+//       }
+
+}
 
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
 // chamar ao declarar
-//TODO gente como diferenciamos redeclaração e redefinição aqui
+// TODO gente como diferenciamos redeclaração e redefinição aqui
+/* TODO só procura no topo da pilha, tem que mudar!!!
+ -> wait n precisa pq pode declarar algo com msm nome em escopos diferentes 
+ -> ta mas e se fizer reatribuição de algo declarado fora do escopo? como achar?
+ -> dai tu faz a função de ATRIBUIÇÃO, pq essa aqui tu usa pra DECLARAR.
+*/
 EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     if(pilha_hash == NULL) empilha();
@@ -162,7 +228,7 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
 
     if(pilha == NULL) return NULL;
 
-    char *chave_malloc = _chave(valor_lexico.label, natureza, tipo);
+    char *chave_malloc = _chave(valor_lexico.label, natureza);
 
     EntradaHash *resposta = _busca_topo_pilha(chave_malloc, pilha);
 
@@ -182,10 +248,12 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
     conteudo.argumentos = NULL;
     conteudo.valor_lexico = valor_lexico;
 
-    _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
+    resposta = _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
 
     print_pilha();
     printf("(OUTRA INTERAÇÃO) ____________________________________________________________________________\n");
+
+    return resposta;
 }
 
 //TODO checar se já existe
@@ -283,7 +351,7 @@ void desempilha()
 
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
 
-    _libera_variaveis_sem_tipo(antiga_pilha->variaveis_sem_tipo);
+    _libera_vsts(antiga_pilha->variaveis_sem_tipo);
 
     free(antiga_pilha);
 }
@@ -318,15 +386,26 @@ void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
 }
 
 //TODO lembrar de chamar pf <3
-void _libera_variaveis_sem_tipo(VariavelSemTipoLst *vst) {
+void _libera_head_vst(VariavelSemTipoLst *vst) {
 
     if(vst == NULL) return;
 
-    _libera_variaveis_sem_tipo((VariavelSemTipoLst *)vst->proximo);
+    if(vst->chave != NULL)
+        free(vst->chave);
 
-    free(vst->nome);
     free(vst);
 }
+
+//TODO lembrar de chamar pf <3
+void _libera_vsts(VariavelSemTipoLst *vst) {
+
+    if(vst == NULL) return;
+
+    _libera_vsts((VariavelSemTipoLst *)vst->proximo);
+
+    _libera_head_vst(vst);
+}
+
 //#endregion Libera 
 
 //#region Prints
