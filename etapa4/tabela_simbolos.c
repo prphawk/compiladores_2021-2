@@ -127,7 +127,7 @@ void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
     _insere_em_pilha(NATUREZA_VARIAVEL, tipo, valor_lexico);
 }
 
-void insere_identificador_global_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
+void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
 
     char* chave = _chave(valor_lexico.label, NATUREZA_VARIAVEL);
 
@@ -209,7 +209,6 @@ void _atribuicao_simbolo_literal(EntradaHash *sim1, EntradaHash *sim2) {
 //             valor_lexico.valor_string[strlen(valor_lexico.valor_string)-1] = '\0';
 //             break;
 //       }
-
 }
 
 ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
@@ -263,7 +262,7 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
     resposta = _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
 
     print_pilha();
-    printf("(OUTRA INTERAÇÃO) ____________________________________________________________________________\n");
+    printf("->> OUTRA INTERAÇÃO______________________________________________________________________________________________________\n");
 
     return resposta;
 }
@@ -310,6 +309,9 @@ void empilha()
     pilha_aux->resto = (struct PilhaHash*)pilha_hash;
 
     pilha_hash = pilha_aux;
+
+    printf("\n->>> empilhando\n");
+    print_pilha();
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
@@ -345,11 +347,15 @@ void desempilha()
 {
     if(pilha_hash == NULL) return;
 
-    PilhaHash *antiga_pilha;
-    
-    antiga_pilha = pilha_hash;
+    PilhaHash *antiga_pilha = pilha_hash;
 
     PilhaHash *nova_pilha = (PilhaHash *)antiga_pilha->resto;
+
+    _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
+
+    _libera_vsts(antiga_pilha->variaveis_sem_tipo);
+
+    free(antiga_pilha);
 
     if(nova_pilha != NULL) {
         pilha_hash->topo = nova_pilha->topo;
@@ -357,15 +363,13 @@ void desempilha()
         pilha_hash->tamanho_tabela = nova_pilha->tamanho_tabela;
         pilha_hash->quantidade_atual = nova_pilha->quantidade_atual;
         pilha_hash->variaveis_sem_tipo = nova_pilha->variaveis_sem_tipo;
+        pilha_hash = nova_pilha;
     } else {
         pilha_hash = NULL;
     }
 
-    _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
-
-    _libera_vsts(antiga_pilha->variaveis_sem_tipo);
-
-    free(antiga_pilha);
+    printf("\n->>> desempilhando\n");
+    print_pilha();
 }
 
 // função que libera a tabela hash e tudo que há dentro dela (i.e. libera a memória caso necessário)
@@ -378,12 +382,6 @@ void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
         if(tabela[i].chave != NULL) {
 
             free(tabela[i].chave);
-
-            // if(tabela[i].conteudo.valor_lexico.label != NULL) {
-            //     printf("\nAIAI LABEL %s\n", tabela[i].conteudo.valor_lexico.label);
-            // } else {
-            //     printf("liberado?");
-            // }
 
             libera_vlex(tabela[i].conteudo.valor_lexico);
 
@@ -403,7 +401,6 @@ void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
     free(argumento);
 }
 
-//TODO lembrar de chamar pf <3
 void _libera_head_vst(VariavelSemTipoLst *vst) {
 
     if(vst == NULL) return;
@@ -414,7 +411,6 @@ void _libera_head_vst(VariavelSemTipoLst *vst) {
     free(vst);
 }
 
-//TODO lembrar de chamar pf <3
 void _libera_vsts(VariavelSemTipoLst *vst) {
 
     if(vst == NULL) return;
@@ -433,12 +429,14 @@ void print_pilha() {
 
     int profundidade = 1;
 
+    int total = _conta_tabelas(aux_pilha, 0);
+
     while(aux_pilha != NULL) {
 
         int capacidade = aux_pilha->tamanho_tabela;
 
-        printf("\n\n - ESCOPO Nº%02i DA PILHA - | CAPACIDADE: %i | OCUPAÇÃO: %03i\n", profundidade, capacidade, aux_pilha->quantidade_atual);
-        char* str = "-----------------------------------------------------------------------------------------------------------------";
+        printf("\n\n - ESCOPO Nº%02i DA PILHA - | CAPACIDADE: %i | OCUPAÇÃO: %03i\n", (total-profundidade), capacidade, aux_pilha->quantidade_atual);
+        char* str = " -------------------------------------------------------------------------------------------------------------------";
         printf("%s\n", str);
         _print_tabela(aux_pilha->topo, capacidade);
         printf("%s\n\n", str);
@@ -449,35 +447,50 @@ void print_pilha() {
     }
 }
 
+int _conta_tabelas(PilhaHash *pilha, int count) {
+    
+    PilhaHash *aux_pilha = pilha;
+
+    if(aux_pilha == NULL) return count;
+
+    return _conta_tabelas((PilhaHash*)pilha->resto, ++count);
+}
+
 //printa pilha com tabela e seus valores
 void _print_tabela(EntradaHash *tabela, int tamanho) {
-    for(int i=0; i < tamanho; i++) {
-       EntradaHash entrada = tabela[i];
-        
-        if(entrada.chave == NULL) continue;
 
-       printf(" ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | RÓTULO: %12s | CHAVE: %16s |\n", i+1, _natureza_str(entrada.conteudo.natureza), _tipo_str(entrada.conteudo.tipo), entrada.conteudo.tamanho, entrada.conteudo.valor_lexico.label, entrada.chave);
+    for(int i=0; i < tamanho; i++) {
+
+        char* chave = tabela[i].chave;
+
+        if(chave == NULL) continue;
+
+        Conteudo conteudo = tabela[i].conteudo;
+
+        printf(" | ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | RÓTULO: %12s | CHAVE: %16s |\n", 
+                i+1, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, conteudo.valor_lexico.label, chave
+        );
     }
 }
 
 char* _tipo_str(TipoSimbolo tipo) {
     switch(tipo) {
-        case TIPO_INT: return "INT"; break;
-        case TIPO_FLOAT: return   "FLOAT"; break;
-        case TIPO_BOOL: return    "BOOL"; break;
-        case TIPO_STRING: return  "STRING"; break;
-        case TIPO_CHAR: return    "CHAR"; break;
-        case TIPO_OUTRO: return   "OUTRO"; break;
-        default: return           "------"; break;
+        case TIPO_INT:      return     "INT"; break;
+        case TIPO_FLOAT:    return   "FLOAT"; break;
+        case TIPO_BOOL:     return    "BOOL"; break;
+        case TIPO_STRING:   return  "STRING"; break;
+        case TIPO_CHAR:     return    "CHAR"; break;
+        case TIPO_OUTRO:    return   "OUTRO"; break;
+        default:            return  "------"; break;
     }
 }
 
 char* _natureza_str(NaturezaSimbolo natureza) {
     switch(natureza) {
-        case NATUREZA_FUNCAO: return   "FUNCAO"; break;
-        case NATUREZA_LITERAL: return  "LITERAL"; break;
+        case NATUREZA_FUNCAO:   return   "FUNCAO"; break;
+        case NATUREZA_LITERAL:  return  "LITERAL"; break;
         case NATUREZA_VARIAVEL: return "VARIAVEL"; break;
-        default: return                "--------"; break;
+        default:                return "--------"; break;
     }
 }
 //#endregion Prints

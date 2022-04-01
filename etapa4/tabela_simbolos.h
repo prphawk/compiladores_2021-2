@@ -102,8 +102,9 @@ void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
 void empilha();
 void desempilha();
 
-void insere_identificador_global_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
+void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
 void _adiciona_variavel_sem_tipo_pilha(char *chave, int tamanho_vetor);
 void insere_tipo_variavel_pilha(TipoSimbolo tipo);
 void atribuicao_simbolo(EntradaHash *entrada1, EntradaHash *entrada2);
 ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico);
+int _conta_tabelas(PilhaHash *pilha, int count);
