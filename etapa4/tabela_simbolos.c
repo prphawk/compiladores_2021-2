@@ -2,6 +2,7 @@
 #include "errors.h"
 
 PilhaHash *pilha_hash = NULL;
+int print_stuff = 0;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -14,13 +15,18 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 //#region Auxiliares
 
 //TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!! tem q calcular com o tamanho da string tbm
-int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo) {
+int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
+    int mult = 1;
+    if(tamanho_vetor) mult = tamanho_vetor;
     switch(tipo) {
-        case TIPO_INT: return TAMANHO_INT; break;
-        case TIPO_FLOAT: return TAMANHO_FLOAT; break;
-        case TIPO_STRING: return strlen(valor_lexico.valor_string)*TAMANHO_CHAR; break;
-        case TIPO_BOOL:
-        case TIPO_CHAR: return TAMANHO_CHAR; break;
+        case TIPO_INT: return TAMANHO_INT*mult; break;
+        case TIPO_FLOAT: return TAMANHO_FLOAT*mult; break;
+        case TIPO_STRING: 
+            if(tem_valor_string(valor_lexico)) return strlen(valor_lexico.valor_string)*TAMANHO_CHAR; 
+            else return 0;
+            break;
+        case TIPO_BOOL: return TAMANHO_CHAR; break;
+        case TIPO_CHAR: return TAMANHO_CHAR*mult; break;
         default: return -1; break;
     }
 }
@@ -118,13 +124,13 @@ EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha) {
 //#region Insere
 
 void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    _insere_em_pilha(NATUREZA_LITERAL, tipo, valor_lexico);
+    _insere_em_pilha(NATUREZA_LITERAL, tipo, valor_lexico, 0);
 }
 void insere_funcao_pilha(ValorLexico valor_lexico) {
-    _insere_em_pilha(NATUREZA_FUNCAO, TIPO_OUTRO, valor_lexico);
+    _insere_em_pilha(NATUREZA_FUNCAO, TIPO_OUTRO, valor_lexico, 0);
 }
-void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    _insere_em_pilha(NATUREZA_VARIAVEL, tipo, valor_lexico);
+void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
+    _insere_em_pilha(NATUREZA_VARIAVEL, tipo, valor_lexico, tamanho_vetor);
 }
 
 void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
@@ -132,7 +138,7 @@ void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_v
     char* chave = _chave(valor_lexico.label, NATUREZA_VARIAVEL);
 
     _adiciona_variavel_sem_tipo_pilha(chave, tamanho_vetor);
-    _insere_em_pilha(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico);
+    _insere_em_pilha(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
 }
 
 void _adiciona_variavel_sem_tipo_pilha(char* chave, int tamanho_vetor) {
@@ -162,11 +168,11 @@ void insere_tipo_variavel_pilha(TipoSimbolo tipo) {
 
        if(resposta != NULL) {
            resposta->conteudo.tipo = tipo;
-           resposta->conteudo.tamanho = _tamanho(resposta->conteudo.valor_lexico, tipo);
-           print_pilha();
+           resposta->conteudo.tamanho = _tamanho(resposta->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
+           if(print_stuff) print_pilha();
        } else {
            //TODO help???
-           printf("nao encontrado?? %s\n", vst->chave);
+            if(print_stuff) printf("nao encontrado?? %s\n", vst->chave);
        }
         VariavelSemTipoLst *antigo_vst = vst;
         vst = (VariavelSemTipoLst *)vst->proximo;
@@ -231,7 +237,7 @@ ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
  -> ta mas e se fizer reatribuição de algo declarado fora do escopo? como achar?
  -> dai tu faz a função de ATRIBUIÇÃO, pq essa aqui tu usa pra DECLARAR.
 */
-EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico) {
+EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
 
     if(pilha_hash == NULL) empilha();
 
@@ -253,7 +259,7 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
     conteudo.coluna = -1;
-    conteudo.tamanho = _tamanho(valor_lexico, tipo);
+    conteudo.tamanho = _tamanho(valor_lexico, tipo, tamanho_vetor);
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
     conteudo.argumentos = NULL;
@@ -261,8 +267,10 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
 
     resposta = _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
 
-    print_pilha();
-    printf("->> OUTRA INTERAÇÃO______________________________________________________________________________________________________\n");
+    if(print_stuff) {
+        printf("->> OP: INSERÇÃO ____________________________________________________________________________________________________\n");
+        print_pilha();
+    }
 
     return resposta;
 }
@@ -310,8 +318,7 @@ void empilha()
 
     pilha_hash = pilha_aux;
 
-    printf("\n->>> empilhando\n");
-    print_pilha();
+    if(print_stuff) printf("\n->>> empilhando\n");
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
@@ -347,9 +354,9 @@ void desempilha()
 {
     if(pilha_hash == NULL) return;
 
-    PilhaHash *antiga_pilha = pilha_hash;
+    PilhaHash *nova_pilha = (PilhaHash *)pilha_hash->resto;
 
-    PilhaHash *nova_pilha = (PilhaHash *)antiga_pilha->resto;
+    PilhaHash *antiga_pilha = pilha_hash;
 
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
 
@@ -357,19 +364,9 @@ void desempilha()
 
     free(antiga_pilha);
 
-    if(nova_pilha != NULL) {
-        pilha_hash->topo = nova_pilha->topo;
-        pilha_hash->resto = nova_pilha->resto;
-        pilha_hash->tamanho_tabela = nova_pilha->tamanho_tabela;
-        pilha_hash->quantidade_atual = nova_pilha->quantidade_atual;
-        pilha_hash->variaveis_sem_tipo = nova_pilha->variaveis_sem_tipo;
-        pilha_hash = nova_pilha;
-    } else {
-        pilha_hash = NULL;
-    }
+    pilha_hash = nova_pilha;
 
-    printf("\n->>> desempilhando\n");
-    print_pilha();
+    if(print_stuff) printf("\n->>> desempilhando\n");
 }
 
 // função que libera a tabela hash e tudo que há dentro dela (i.e. libera a memória caso necessário)

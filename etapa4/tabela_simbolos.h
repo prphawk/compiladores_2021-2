@@ -74,7 +74,7 @@ typedef struct pilhaHash {
     VariavelSemTipoLst *variaveis_sem_tipo;
 } PilhaHash;
 
-EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico);
+EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 EntradaHash *_busca_pilha(char *chave, PilhaHash *pilha);
 EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha);
 EntradaHash *_insere_em_pilha_probing(char *chave, PilhaHash *pilha, Conteudo conteudo);
@@ -84,7 +84,7 @@ char *_chave(char *nome, NaturezaSimbolo natureza);
 unsigned long _indice_hash(char *chave);
 void _adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
 int _probing(int indice, int capacidade_hash);
-int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo);
+int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor);
 void _libera_tabela();
 void _libera_argumentos(ArgumentoFuncaoLst *argumento);
 void _libera_vsts(VariavelSemTipoLst *vst);
@@ -97,7 +97,7 @@ void _print_tabela(EntradaHash *tabela, int tamanho_tabela);
 void print_pilha();
 void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
 void insere_funcao_pilha(ValorLexico valor_lexico);
-void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
+void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 
 void empilha();
 void desempilha();

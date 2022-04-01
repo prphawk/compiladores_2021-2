@@ -138,7 +138,7 @@ nome_variavel_global: TK_IDENTIFICADOR
                         insere_identificador_sem_tipo_pilha($1, 0); 
                         libera_vlex($1); 
                     }
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'   
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'   //TODO mudar indexador para expr aritmetica quando souber como pegar o valor
                     { 
                         insere_identificador_sem_tipo_pilha($1, $3.valor_int); 
                         libera_vlex($1); libera_vlex($3); 
@@ -254,7 +254,7 @@ comando_atribuicao: TK_IDENTIFICADOR '=' expressao
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
                     }
-                     | TK_IDENTIFICADOR'['expressao']' '=' expressao
+                     | TK_IDENTIFICADOR'['expr_bin_aritmetica']' '=' expressao //TODO E3 mudando vetores indexers para expr_aritmeticas apenas
                     {
                         Nodo *nodo_vetor = adiciona_nodo_label("[]");
                         adiciona_filho(nodo_vetor, adiciona_nodo($1));
@@ -294,10 +294,10 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO,$1); //TODO checar tipo ; TODO atribuir simbolos
+                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
                     insere_literal_pilha(TIPO_INT,$3);
                 }
-               | TK_IDENTIFICADOR'['expressao']' TK_OC_SL TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
+               | TK_IDENTIFICADOR'['expr_bin_aritmetica']' TK_OC_SL TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
                {
                     Nodo *nodo_vetor = adiciona_nodo_label("[]");
                     adiciona_filho(nodo_vetor, adiciona_nodo($1));
@@ -306,7 +306,8 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, nodo_vetor);
                     adiciona_filho(novo_nodo, adiciona_nodo($6));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO,$1); //TODO checar tipo ; TODO atribuir simbolos ; TODO Checar vetor
+                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); /*TODO checar tipo ; TODO atribuir simbolos ; 
+                    TODO Checar vetor ; TODO como pegar o valor do indexador? */
                     insere_literal_pilha(TIPO_INT,$6);
                 }
                | TK_IDENTIFICADOR TK_OC_SR TK_LIT_INT 
@@ -315,10 +316,10 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO,$1); //TODO checar tipo ; TODO atribuir simbolos
+                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
                     insere_literal_pilha(TIPO_INT,$3);
                 }
-               | TK_IDENTIFICADOR'['expressao']' TK_OC_SR TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
+               | TK_IDENTIFICADOR'['expr_bin_aritmetica']' TK_OC_SR TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
                {
                     Nodo *nodo_vetor = adiciona_nodo_label("[]");
                     adiciona_filho(nodo_vetor, adiciona_nodo($1));
@@ -327,7 +328,7 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, nodo_vetor);
                     adiciona_filho(novo_nodo, adiciona_nodo($6));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO,$1); //TODO checar tipo ; TODO atribuir simbolos ; TODO Checar vetor
+                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos ; TODO Checar vetor
                     insere_literal_pilha(TIPO_INT,$6);
                 }
                ;
@@ -505,14 +506,14 @@ expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; }
                         | '(' expr_bin_aritmetica ')'   { $$ = $2; }
                         ; 
 
-operando_aritmetico: TK_IDENTIFICADOR   { $$ = adiciona_nodo($1); insere_identificador_pilha(TIPO_OUTRO, $1); } //TODO checar tipo
+operando_aritmetico: TK_IDENTIFICADOR   { $$ = adiciona_nodo($1); insere_identificador_pilha(TIPO_OUTRO, $1, 0); } //TODO checar tipo
                     | TK_IDENTIFICADOR'['expr_bin_aritmetica']'
                     { 
                         Nodo *novo_nodo = adiciona_nodo_label("[]");
                         adiciona_filho(novo_nodo, adiciona_nodo($1));
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
-                        insere_identificador_pilha(TIPO_OUTRO, $1);  //TODO checar vetor e tipo do identificador
+                        insere_identificador_pilha(TIPO_OUTRO, $1, 0);  //TODO checar vetor e tipo do identificador
                     }
                     | chamada_funcao    { $$ = $1; }
                     | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); }
