@@ -106,6 +106,8 @@ extern void *arvore;
 %type<nodo> argumentos
 %type<nodo> argumento
 %type<nodo> cabecalho
+%type<nodo> cabecalho_1
+%type<nodo> cabecalho_2
 %type<nodo> declaracao_funcao
 %type<nodo> declaracao
 %type<nodo> declaracoes
@@ -146,21 +148,36 @@ nome_variavel_global: TK_IDENTIFICADOR
                         libera_vlex($1); libera_vlex($3); 
                     };
 
+corpo: '{' lista_comandos corpo_1 { $$ = $2; }
+corpo_1: '}' { desempilha(); }
+
 declaracao_funcao: cabecalho corpo //TODO como botar os parametros do cabeçalho no escopo do corpo?? 
                 {
                     adiciona_filho($1, $2);
                     $$ = $1;
                 };
 
-cabecalho: TK_PR_STATIC tipo TK_IDENTIFICADOR '(' parametros ')'    { $$ = adiciona_nodo($3); insere_funcao_pilha($3); }
-            | tipo TK_IDENTIFICADOR '(' parametros ')'              { $$ = adiciona_nodo($2); insere_funcao_pilha($2); };
+cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };
+cabecalho_1: cabecalho_2 cabecalho_3 parametros ')' 
+            { 
+                adiciona_argumentos_escopo_anterior($1); 
+                $$ = $1; 
+            }
+cabecalho_2: tipo TK_IDENTIFICADOR
+            { 
+                insere_funcao_pilha($2);
+                $$ = adiciona_nodo($2); 
+            };
+cabecalho_3:  '(' { empilha(); };
+
+
 
 parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR            { libera_vlex($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_vlex($3); };
+parametro: tipo TK_IDENTIFICADOR            { insere_argumento_sem_funcao($1, $2); libera_vlex($2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_argumento_sem_funcao($2, $3); libera_vlex($3); };
 
 //TODO checar se eles aparecem na arvore (nao deveriam)
 
@@ -170,8 +187,6 @@ tipo: TK_PR_INT     { $$ = TIPO_INT;    }
     | TK_PR_BOOL    { $$ = TIPO_BOOL;   }
     | TK_PR_STRING  { $$ = TIPO_STRING; }
     ;
-
-corpo: bloco_comandos { $$ = $1; };
 
 lista_comandos: comando_simples ';' lista_comandos 
     { 
@@ -185,15 +200,15 @@ lista_comandos: comando_simples ';' lista_comandos
     //TODO checar correção.
     | { $$ = NULL; };
 
-bloco_comandos: bloco_comandos_inicio lista_comandos bloco_comandos_fim { $$ = $2; } ;
-bloco_comandos_inicio: '{'  { empilha();    } ;
-bloco_comandos_fim: '}'     { desempilha(); } ;
+bloco_comandos: bloco_comandos_inicio_escopo lista_comandos bloco_comandos_fim_escopo { $$ = $2; } ;
+bloco_comandos_inicio_escopo: '{'  { empilha();    } ;
+bloco_comandos_fim_escopo: '}'     { desempilha(); } ;
 
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
             Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
             //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
-            verifica_funcao_no_escopo($1);
+            verifica_funcao_no_escopo($1, $3);
             $$ = novo_nodo;
             libera_vlex($1); //precisa liberar pq o identificador é substituido na arvore!!
         };
@@ -365,16 +380,14 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                   }
                   ;
 
-argumento: expressao { $$ = $1; };
-
-argumentos: argumento',' argumentos 
+argumentos: expressao',' argumentos 
             {;
                 adiciona_filho($1, $3);
                 $$ = $1;
             }
-            | argumento { $$ = $1; };
+            | expressao { $$ = $1; };
 
-lista_argumentos: argumentos { $$ = $1; }| { $$ = NULL; };
+lista_argumentos: argumentos { $$ = $1; } | { $$ = NULL; };
 
 literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_CHAR,   $1);}
          | TK_LIT_STRING    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_STRING, $1);}
@@ -508,9 +521,9 @@ variavel: TK_IDENTIFICADOR
             Nodo *novo_nodo = adiciona_nodo($1); 
             verifica_variavel_no_escopo(novo_nodo); 
             $$ = novo_nodo;
-        }; //TODO checar se foi declarado
+        };
 
-vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']' //TODO checar se foi declarado
+vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'
                 { 
                     verifica_vetor_no_escopo($1);
                     Nodo *novo_nodo = adiciona_nodo_label("[]");

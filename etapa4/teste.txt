@@ -16,7 +16,7 @@ int func1()
     b = ?b;
   };
   b = b+1 ? 1 : 2;
-  b = func1();
+  b = func1(k, b);
 }
 
 char c;

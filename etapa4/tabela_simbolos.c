@@ -2,7 +2,7 @@
 #include "ast.h"
 
 PilhaHash *pilha_hash = NULL;
-int print_stuff = 1;
+int print_stuff = 0;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -82,18 +82,6 @@ int _probing(int indice, int tamanho_tabela) {
 PilhaHash *_malloc_expande_tabela(PilhaHash *pilha)
 {
    return NULL;        
-}
-
-// TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-// TODO cara como isso bate com a declaração dos parametros? como se bota uma função na tabela what
-// vai ter q ficar com os argumentos pendentes tbm
-void _adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico)
-{
-    //ArgumentoFuncaoLst *argumentoFuncaoLst;
-    //argumentoFuncaoLst = malloc(sizeof(ArgumentoFuncaoLst));
-    // não precisa usar o "chave", guarda somente o >NOME< do argumento em argumento.nome
-    // cria um entradaArgumento
-    return;
 }
 
 Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor) {
@@ -240,6 +228,51 @@ void insere_tipo_variavel_pilha(TipoSimbolo tipo) {
     return;
 }
 
+void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    
+    _declara_em_escopo(NATUREZA_VARIAVEL, tipo, valor_lexico, 0);
+
+    ArgumentoFuncaoLst *novo_arg_lst;
+    novo_arg_lst = malloc(sizeof(ArgumentoFuncaoLst));
+    novo_arg_lst->tipo = tipo;
+
+    if(pilha_hash == NULL) {
+        printf(">> n ta empilhando antes dos parametros");
+        return;
+    }
+
+    ArgumentoFuncaoLst *antigo_arg_lst = pilha_hash->argumentos_sem_funcao;
+    novo_arg_lst->proximo = (struct ArgumentoFuncaoLst *)antigo_arg_lst;
+    pilha_hash->argumentos_sem_funcao = novo_arg_lst;
+}
+
+// TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
+// TODO cara como isso bate com a declaração dos parametros? como se bota uma função na tabela what
+// vai ter q ficar com os argumentos pendentes tbm
+void adiciona_argumentos_escopo_anterior(Nodo *nodo) {
+
+    PilhaHash *pilha = pilha_hash;
+
+    if(pilha == NULL) {
+        printf(">> sem pilha? impossive.");
+        return;
+    }
+
+    if(pilha->argumentos_sem_funcao == NULL) return;
+
+    char *chave_malloc = _chave(nodo->valor_lexico);
+
+    EntradaHash *busca = _busca_topo_pilha(chave_malloc, (PilhaHash*)pilha->resto);
+
+    if(busca != NULL) {
+        busca->conteudo.argumentos = pilha->argumentos_sem_funcao;
+        pilha->argumentos_sem_funcao = NULL;
+    }
+    
+    free(chave_malloc);
+    return;
+}
+
 //TODO fazer as checagens de erros aqui!!!!
 void atribuicao_simbolo(EntradaHash *sim1, EntradaHash *sim2) {
     // if(sim1->conteudo.natureza == NATUREZA_VARIAVEL) {
@@ -381,6 +414,7 @@ void empilha()
     pilha_aux->quantidade_atual = 0;
     pilha_aux->tamanho_tabela = TAMANHO_INICIAL_HASH;
     pilha_aux->variaveis_sem_tipo = NULL;
+    pilha_aux->argumentos_sem_funcao = NULL;
 
     EntradaHash *tabela = _malloc_tabela();
     pilha_aux->topo = tabela;
@@ -431,6 +465,8 @@ void desempilha()
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
 
     _libera_vsts(antiga_pilha->variaveis_sem_tipo);
+
+    _libera_argumentos(antiga_pilha->argumentos_sem_funcao);
 
     free(antiga_pilha);
 
@@ -487,6 +523,15 @@ void _libera_vsts(VariavelSemTipoLst *vst) {
     _libera_head_vst(vst);
 }
 
+void _libera_args(ArgumentoFuncaoLst *args) {
+
+    if(args == NULL) return;
+
+    _libera_args((ArgumentoFuncaoLst *)args->proximo);
+
+    free(args);
+}
+
 //#endregion Libera 
 
 //#region Verificação
@@ -535,7 +580,7 @@ void verifica_vetor_no_escopo(ValorLexico valor_lexico) {
     }
 }
 
-void verifica_funcao_no_escopo(ValorLexico valor_lexico) {
+void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos) {
 
     char* busca_chave = _chave_label(valor_lexico.label);
 
@@ -554,6 +599,23 @@ void verifica_funcao_no_escopo(ValorLexico valor_lexico) {
     if(busca->conteudo.natureza == NATUREZA_VETOR) {
         throwVectorError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
     }
+
+    int count_args_declarados = _conta_argumentos(busca->conteudo.argumentos);
+    int count_args_chamados = _conta_argumentos_nodo(nodo_argumentos);
+
+    printf("\ndecl %i , chamados %i\n", count_args_declarados, count_args_chamados);
+    if(count_args_declarados < count_args_chamados) {
+        throwExcessArgsError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+
+    } else if(count_args_declarados > count_args_chamados) {
+        throwMissingArgsError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+
+    } else {
+        //TODO checagem dos tipos de nodos etc.
+
+    }
+
+
 }
 
 //#endregion Verificação
@@ -592,6 +654,32 @@ int _conta_tabelas(PilhaHash *pilha, int count) {
     return _conta_tabelas((PilhaHash*)pilha->resto, ++count);
 }
 
+int _conta_argumentos(ArgumentoFuncaoLst *args) {
+
+    int count = 0;
+
+    ArgumentoFuncaoLst *arg_aux = args;
+
+    while (arg_aux != NULL) {
+        arg_aux = (ArgumentoFuncaoLst *)arg_aux->proximo;
+        count++;
+    }
+    return count;
+}
+
+int _conta_argumentos_nodo(Nodo *nodo) {
+
+    int count = 0;
+
+    Nodo *nodo_aux = nodo;
+
+    while (nodo_aux != NULL) {
+        nodo_aux = (Nodo *)nodo_aux->filho;
+        count++;
+    }
+    return count;
+}
+
 //printa pilha com tabela e seus valores
 void _print_tabela(EntradaHash *tabela, int tamanho) {
 
@@ -603,9 +691,11 @@ void _print_tabela(EntradaHash *tabela, int tamanho) {
 
         Conteudo conteudo = tabela[i].conteudo;
 
-        printf(" | ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | CHAVE: %20s |\n", 
+        printf(" | ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | CHAVE: %20s |", 
                 i+1, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, chave
         );
+
+        _print_argumentos(conteudo.argumentos);
     }
 }
 
@@ -629,5 +719,22 @@ char* _natureza_str(NaturezaSimbolo natureza) {
         case NATUREZA_VETOR: return "VETOR"; break;
         default:                return "--------"; break;
     }
+}
+
+void _print_argumentos(ArgumentoFuncaoLst *argLst) {
+
+    if(argLst != NULL) {
+        printf(" ARGS: ");
+
+        ArgumentoFuncaoLst *aux = argLst;
+
+        while(aux != NULL) {
+            printf("%s ", _tipo_str(aux->tipo));
+            aux = (ArgumentoFuncaoLst *)aux->proximo;
+        }
+
+        printf("|");
+    }
+    printf("\n");
 }
 //#endregion Prints

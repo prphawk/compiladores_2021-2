@@ -49,12 +49,6 @@ typedef struct variavelSemTipoLst
     struct VariavelSemTipoLst *proximo;
 } VariavelSemTipoLst;
 
-typedef struct strIndependenteDaArvoreLst
-{
-    char *str;
-    struct StrIndependenteDaArvoreLst *proximo;
-} StrIndependenteDaArvoreLst;
-
 typedef struct conteudo {
     int linha;
     int coluna; //opcional, -1 quando n existe 
@@ -79,6 +73,7 @@ typedef struct pilhaHash {
     int quantidade_atual;
     struct PilhaHash *resto;
     VariavelSemTipoLst *variaveis_sem_tipo;
+    ArgumentoFuncaoLst *argumentos_sem_funcao;
 } PilhaHash;
 
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
@@ -90,7 +85,6 @@ PilhaHash *_malloc_expande_tabela(PilhaHash *pilha);
 char *_chave(ValorLexico valor_lexico);
 char *_chave_label(char *label);
 unsigned long _indice_hash(char *chave);
-void _adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, ValorLexico valor_lexico);
 int _probing(int indice, int capacidade_hash);
 int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor);
 void _libera_tabela();
@@ -120,3 +114,5 @@ int _conta_tabelas(PilhaHash *pilha, int count);
 Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor);
 Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo);
 EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexico);
+void _print_argumentos(ArgumentoFuncaoLst *argLst);
+void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico);
