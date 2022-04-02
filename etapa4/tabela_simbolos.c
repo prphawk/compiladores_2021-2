@@ -1,5 +1,5 @@
 #include "tabela_simbolos.h"
-#include "errors.h"
+#include "ast.h"
 
 PilhaHash *pilha_hash = NULL;
 int print_stuff = 1;
@@ -34,12 +34,24 @@ int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
 // função que recebe um nome (label?) e uma natureza (variável, função, literal) e cria uma chave dando append nos dois
 // exemplo out: func1_n_3
 // TODO ver se esse projeto é pra aceitar a declaração do mesmo nome com naturezas diferentes. tipo nome (variavel) != nome(){} (função)
-char *_chave(char *nome, NaturezaSimbolo natureza)
+char *_chave(ValorLexico valor_lexico)
 {
-    char str[10];
-    sprintf(str, "_n_%d", natureza);
+    // char str[10];
+    // sprintf(str, "_n_%d", natureza);
 
-    return append_str_malloc(nome, str);
+    //return append_str_malloc(nome, str);
+
+    return strdup(valor_lexico.label);
+}
+
+char *_chave_label(char *label)
+{
+    // char str[10];
+    // sprintf(str, "_n_%d", natureza);
+
+    //return append_str_malloc(nome, str);
+
+    return strdup(label);
 }
 
 // função que retorna um valor hash a partir da chave
@@ -113,17 +125,22 @@ Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
 //#region Busca
 
 //  função que retorna uma entrada específica da hash a partir de sua chave
-EntradaHash *_busca_pilha(char *chave, PilhaHash *pilha)
-{
-    if(pilha == NULL) return NULL;
-    
-    EntradaHash *resposta = _busca_topo_pilha(chave, pilha);
+EntradaHash *_busca_pilha(char *chave) {
 
-    if(resposta != NULL) return resposta;
-    
-    PilhaHash *resto = (PilhaHash*)pilha->resto;
+    PilhaHash *pilha = pilha_hash; 
+
+    EntradaHash *busca = NULL;
+
+    while(pilha != NULL) {
+
+        busca = _busca_topo_pilha(chave, pilha);
+
+        if(busca != NULL) return busca;
+        
+        pilha = (PilhaHash*)pilha->resto;
+    }
 	
-    return _busca_pilha(chave, resto);
+    return busca;
 }
 
 EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha) {
@@ -151,19 +168,33 @@ EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha) {
 void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
     _declara_literal_em_escopo(tipo, valor_lexico);
 }
+
 void insere_funcao_pilha(ValorLexico valor_lexico) {
     _declara_em_escopo(NATUREZA_FUNCAO, TIPO_OUTRO, valor_lexico, 0);
 }
-void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
-    _declara_em_escopo(NATUREZA_VARIAVEL, tipo, valor_lexico, tamanho_vetor);
+
+void insere_vetor_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
+    _declara_em_escopo(NATUREZA_VETOR, tipo, valor_lexico, tamanho_vetor);
 }
 
-void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
+void insere_variavel_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
+    _declara_em_escopo(NATUREZA_VARIAVEL, tipo, valor_lexico, 0);
+}
 
-    char* chave = _chave(valor_lexico.label, NATUREZA_VARIAVEL);
+void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
+
+    char* chave = _chave(valor_lexico);
+
+    _adiciona_variavel_sem_tipo_pilha(chave, 0);
+    _declara_em_escopo(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
+}
+
+void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
+
+    char* chave = _chave(valor_lexico);
 
     _adiciona_variavel_sem_tipo_pilha(chave, tamanho_vetor);
-    _declara_em_escopo(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
+    _declara_em_escopo(NATUREZA_VETOR, TIPO_PENDENTE, valor_lexico, 0);
 }
 
 void _adiciona_variavel_sem_tipo_pilha(char* chave, int tamanho_vetor) {
@@ -270,20 +301,20 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
 
     if(pilha == NULL) return NULL;
 
-    char *chave_malloc = _chave(valor_lexico.label, natureza);
+    char *chave_malloc = _chave(valor_lexico);
 
-    EntradaHash *resposta = _busca_topo_pilha(chave_malloc, pilha);
+    EntradaHash *busca = _busca_topo_pilha(chave_malloc, pilha);
 
-    if(resposta != NULL) {
+    if(busca != NULL) {
         //TODO ve redlecaração ou apenas atribuição??
-        //throwDeclaredError(valor_lexico.linha, valor_lexico.label, resposta->conteudo.linha);
+        throwDeclaredError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
         free(chave_malloc);
         return NULL;
     }
 
     Conteudo conteudo = _novo_conteudo(valor_lexico, tipo, natureza, tamanho_vetor);
 
-    resposta = _insere_topo_pilha(chave_malloc, pilha, conteudo);
+    EntradaHash *resposta = _insere_topo_pilha(chave_malloc, pilha, conteudo);
 
     if(print_stuff) {
         printf("->> OP: DECLARAÇÃO ____________________________________________________________________________________________________\n");
@@ -293,6 +324,7 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
     return resposta;
 }
 
+// se já existir não insere dnv, mas tbm n dá erro
 EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     if(pilha_hash == NULL) empilha();
@@ -301,7 +333,7 @@ EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexi
 
     if(pilha == NULL) return NULL;
 
-    char *chave_malloc = _chave(valor_lexico.label, NATUREZA_LITERAL);
+    char *chave_malloc = _chave(valor_lexico);
 
     EntradaHash *busca = _busca_topo_pilha(chave_malloc, pilha);
 
@@ -314,7 +346,6 @@ EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexi
     return busca;
 }
 
-//TODO checar se já existe
 EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo) {
 
     EntradaHash *tabela = pilha->topo;
@@ -458,6 +489,75 @@ void _libera_vsts(VariavelSemTipoLst *vst) {
 
 //#endregion Libera 
 
+//#region Verificação
+
+void verifica_variavel_no_escopo(Nodo *nodo) {
+
+    ValorLexico valor_lexico = nodo->valor_lexico;
+
+    char* busca_chave = _chave(valor_lexico);
+
+    EntradaHash *busca = _busca_pilha(busca_chave);
+
+    free(busca_chave);
+
+    if(busca == NULL) {
+        throwUndeclaredError(valor_lexico.linha, valor_lexico.label);
+    }
+
+    if(busca->conteudo.natureza == NATUREZA_VETOR) {
+        throwVectorError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+    }
+
+    if(busca->conteudo.natureza == NATUREZA_FUNCAO) {
+        throwFunctionError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+    }
+}
+
+void verifica_vetor_no_escopo(ValorLexico valor_lexico) {
+
+    char* busca_chave = _chave_label(valor_lexico.label);
+
+    EntradaHash *busca = _busca_pilha(busca_chave);
+
+    free(busca_chave);
+
+    if(busca == NULL) {
+        throwUndeclaredError(valor_lexico.linha, valor_lexico.label);
+    }
+
+    if(busca->conteudo.natureza == NATUREZA_VARIAVEL) {
+        throwVariableError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+    }
+
+    if(busca->conteudo.natureza == NATUREZA_FUNCAO) {
+        throwFunctionError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+    }
+}
+
+void verifica_funcao_no_escopo(ValorLexico valor_lexico) {
+
+    char* busca_chave = _chave_label(valor_lexico.label);
+
+    EntradaHash *busca = _busca_pilha(busca_chave);
+
+    free(busca_chave);
+
+    if(busca == NULL) {
+        throwUndeclaredError(valor_lexico.linha, valor_lexico.label);
+    }
+
+    if(busca->conteudo.natureza == NATUREZA_VARIAVEL) {
+        throwVariableError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+    }
+
+    if(busca->conteudo.natureza == NATUREZA_VETOR) {
+        throwVectorError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+    }
+}
+
+//#endregion Verificação
+
 //#region Prints
 void print_pilha() {
 
@@ -503,8 +603,8 @@ void _print_tabela(EntradaHash *tabela, int tamanho) {
 
         Conteudo conteudo = tabela[i].conteudo;
 
-        printf(" | ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | RÓTULO: %12s | CHAVE: %16s |\n", 
-                i+1, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, conteudo.valor_lexico.label, chave
+        printf(" | ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | CHAVE: %20s |\n", 
+                i+1, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, chave
         );
     }
 }
@@ -526,6 +626,7 @@ char* _natureza_str(NaturezaSimbolo natureza) {
         case NATUREZA_FUNCAO:   return   "FUNCAO"; break;
         case NATUREZA_LITERAL:  return  "LITERAL"; break;
         case NATUREZA_VARIAVEL: return "VARIAVEL"; break;
+        case NATUREZA_VETOR: return "VETOR"; break;
         default:                return "--------"; break;
     }
 }

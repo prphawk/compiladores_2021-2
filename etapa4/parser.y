@@ -112,6 +112,8 @@ extern void *arvore;
 %type<nodo> programa
 
 %type<tipo_simbolo> tipo //TODO ver se n da merda na ast...
+%type<nodo> variavel
+%type<nodo> vetor
 %%
 
 programa: declaracoes { $$ = $1; arvore = $$; };
@@ -135,12 +137,12 @@ lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' list
 // TODO checar se pode declarar vetores de string. parece que não
 nome_variavel_global: TK_IDENTIFICADOR                      
                     { 
-                        insere_identificador_sem_tipo_pilha($1, 0); 
+                        insere_variavel_sem_tipo_pilha($1); 
                         libera_vlex($1); 
                     }
                     | TK_IDENTIFICADOR '[' TK_LIT_INT ']'   //TODO mudar indexador para expr aritmetica quando souber como pegar o valor
                     { 
-                        insere_identificador_sem_tipo_pilha($1, $3.valor_int); 
+                        insere_vetor_sem_tipo_pilha($1, $3.valor_int); 
                         libera_vlex($1); libera_vlex($3); 
                     };
 
@@ -157,7 +159,7 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR { libera_vlex($2); } 
+parametro: tipo TK_IDENTIFICADOR            { libera_vlex($2); } 
         | TK_PR_CONST tipo TK_IDENTIFICADOR { libera_vlex($3); };
 
 //TODO checar se eles aparecem na arvore (nao deveriam)
@@ -189,10 +191,11 @@ bloco_comandos_fim: '}'     { desempilha(); } ;
 
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
             Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
-            libera_vlex($1); //precisa liberar pq o identificador é substituido na arvore!!
             //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
+            verifica_funcao_no_escopo($1);
             $$ = novo_nodo;
+            libera_vlex($1); //precisa liberar pq o identificador é substituido na arvore!!
         };
 
 comando_simples: declaracao_var_local   { $$ = $1;}
@@ -227,58 +230,54 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
                         | cabeca_lista_nome_variavel_local { $$ = $1;}
                         ;
 
-cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE TK_IDENTIFICADOR {
+cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel { //TODO: assumindo que "variavel" ja foi declarada. CHECAR.
                                     Nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
-                                    adiciona_filho(novo_nodo, adiciona_nodo($3));
+                                    adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
-                                    insere_identificador_sem_tipo_pilha($1, 0); //TODO fazer a inicialização <=
-                                    //insere_identificador_sem_tipo_pilha($3, 0); o valor inicializado já deveria ter sido declarado.
+                                    insere_variavel_sem_tipo_pilha($1); //TODO fazer a inicialização <=
+                                    //insere_variavel_sem_tipo_pilha($3, 0); o valor inicializado já deveria ter sido declarado.
                                 }
                                 | TK_IDENTIFICADOR TK_OC_LE literal {
                                     Nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
-                                    insere_identificador_sem_tipo_pilha($1, 0); //TODO fazer a inicialização <=
+                                    insere_variavel_sem_tipo_pilha($1); //TODO fazer a inicialização <=
                                 }
                                 | TK_IDENTIFICADOR { 
-                                    insere_identificador_sem_tipo_pilha($1, 0);
+                                    insere_variavel_sem_tipo_pilha($1);
                                     libera_vlex($1), $$ = NULL;
                                 }
                                 ;
 
-comando_atribuicao: TK_IDENTIFICADOR '=' expressao
+comando_atribuicao: variavel '=' expressao
                     {
                         Nodo *novo_nodo = adiciona_nodo($2);
-                        adiciona_filho(novo_nodo, adiciona_nodo($1));
+                        adiciona_filho(novo_nodo, $1);
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
                     }
-                     | TK_IDENTIFICADOR'['expr_bin_aritmetica']' '=' expressao //TODO E3 mudando vetores indexers para expr_aritmeticas apenas
+                     | vetor '=' expressao //TODO E3 mudando vetores indexers para expr_aritmeticas apenas
                     {
-                        Nodo *nodo_vetor = adiciona_nodo_label("[]");
-                        adiciona_filho(nodo_vetor, adiciona_nodo($1));
-                        adiciona_filho(nodo_vetor, $3);
-
-                        Nodo *novo_nodo = adiciona_nodo($5);
-                        adiciona_filho(novo_nodo, nodo_vetor);
-                        adiciona_filho(novo_nodo, $6);
+                        Nodo *novo_nodo = adiciona_nodo($2);
+                        adiciona_filho(novo_nodo, $1);
+                        adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
                     }
                      ;
 // TODO checar tipo DE TODOS ESSES
-comando_entrada: TK_PR_INPUT TK_IDENTIFICADOR
+comando_entrada: TK_PR_INPUT variavel
                 {
                     Nodo *novo_nodo = adiciona_nodo_label("input");
-                    adiciona_filho(novo_nodo, adiciona_nodo($2));
+                    adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
                 };
 
-comando_saida: TK_PR_OUTPUT TK_IDENTIFICADOR 
+comando_saida: TK_PR_OUTPUT variavel 
                 {
                     Nodo *novo_nodo = adiciona_nodo_label("output");
-                    adiciona_filho(novo_nodo, adiciona_nodo($2));
+                    adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
                 }
                | TK_PR_OUTPUT literal
@@ -289,48 +288,38 @@ comando_saida: TK_PR_OUTPUT TK_IDENTIFICADOR
                 }
                ;
 
-comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT 
+comando_shift: variavel TK_OC_SL TK_LIT_INT 
                 {
                     Nodo *novo_nodo = adiciona_nodo($2);
-                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                    adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
                     insere_literal_pilha(TIPO_INT,$3);
                 }
-               | TK_IDENTIFICADOR'['expr_bin_aritmetica']' TK_OC_SL TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
-               {
-                    Nodo *nodo_vetor = adiciona_nodo_label("[]");
-                    adiciona_filho(nodo_vetor, adiciona_nodo($1));
-                    adiciona_filho(nodo_vetor, $3);
-                    Nodo *novo_nodo = adiciona_nodo($5);
-                    adiciona_filho(novo_nodo, nodo_vetor);
-                    adiciona_filho(novo_nodo, adiciona_nodo($6));
-                    $$ = novo_nodo;
-                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); /*TODO checar tipo ; TODO atribuir simbolos ; 
-                    //TODO Checar vetor ; TODO como pegar o valor do indexador? */
-                    insere_literal_pilha(TIPO_INT,$6);
-                }
-               | TK_IDENTIFICADOR TK_OC_SR TK_LIT_INT 
+               | vetor TK_OC_SL TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
                {
                     Nodo *novo_nodo = adiciona_nodo($2);
-                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                    adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
+                    //TODO Checar vetor ; TODO como pegar o valor do indexador? */
                     insere_literal_pilha(TIPO_INT,$3);
                 }
-               | TK_IDENTIFICADOR'['expr_bin_aritmetica']' TK_OC_SR TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
+               | variavel TK_OC_SR TK_LIT_INT 
                {
-                    Nodo *nodo_vetor = adiciona_nodo_label("[]");
-                    adiciona_filho(nodo_vetor, adiciona_nodo($1));
-                    adiciona_filho(nodo_vetor, $3);
-                    Nodo *novo_nodo = adiciona_nodo($5);
-                    adiciona_filho(novo_nodo, nodo_vetor);
-                    adiciona_filho(novo_nodo, adiciona_nodo($6));
+                    Nodo *novo_nodo = adiciona_nodo($2);
+                    adiciona_filho(novo_nodo, $1);
+                    adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos ; TODO Checar vetor
-                    insere_literal_pilha(TIPO_INT,$6);
+                    insere_literal_pilha(TIPO_INT,$3);
+                }
+               | vetor TK_OC_SR TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
+               {
+                    Nodo *novo_nodo = adiciona_nodo($2);
+                    adiciona_filho(novo_nodo, $1);
+                    adiciona_filho(novo_nodo, adiciona_nodo($3));
+                    $$ = novo_nodo;
+                    insere_literal_pilha(TIPO_INT,$3);
                 }
                ;
 
@@ -507,18 +496,28 @@ expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; }
                         | '(' expr_bin_aritmetica ')'   { $$ = $2; }
                         ; 
 
-operando_aritmetico: TK_IDENTIFICADOR   { $$ = adiciona_nodo($1); }
-                    | TK_IDENTIFICADOR'['expr_bin_aritmetica']'
-                    { 
-                        Nodo *novo_nodo = adiciona_nodo_label("[]");
-                        adiciona_filho(novo_nodo, adiciona_nodo($1));
-                        adiciona_filho(novo_nodo, $3);
-                        $$ = novo_nodo;
-                    }
+operando_aritmetico: variavel           { $$ = $1; }
+                    | vetor             { $$ = $1; }
                     | chamada_funcao    { $$ = $1; }
                     | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); }
                     | TK_LIT_INT        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT, $1); }
                     ;
+
+variavel: TK_IDENTIFICADOR 
+        { 
+            Nodo *novo_nodo = adiciona_nodo($1); 
+            verifica_variavel_no_escopo(novo_nodo); 
+            $$ = novo_nodo;
+        }; //TODO checar se foi declarado
+
+vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']' //TODO checar se foi declarado
+                { 
+                    verifica_vetor_no_escopo($1);
+                    Nodo *novo_nodo = adiciona_nodo_label("[]");
+                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                    adiciona_filho(novo_nodo, $3);
+                    $$ = novo_nodo;
+                };
 
 operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); } 
                 | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); }

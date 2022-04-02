@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"valor_lexico.h": "c",
+		"ast.h": "c",
+		"tabela_simbolos.h": "c"
+	}
+}

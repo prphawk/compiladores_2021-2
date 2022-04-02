@@ -1,11 +1,12 @@
 #include "errors.h"
+#include "tabela_simbolos.h"
 
 
 /*TODO Mensagens de erro significativas devem ser fornecidas.
 Elas devem descrever em linguagem natural o erro semantico, as linhas envolvidas, os identificadores e a natureza destes.*/
 void throwUndeclaredError(int linha, char *input)
 {
-  printf("ERRO linha %i", linha);
+  printf("ERRO linha %i: Variável %s não declarada.\n", linha, input);
   exit(ERR_UNDECLARED);
 }
 
@@ -15,20 +16,21 @@ void throwDeclaredError(int linha, char *input, int linha_declaracao)
   exit(ERR_DECLARED);
 }
 
-void throwVariableError(int linha, char *input, int linha_declaracao, NaturezaSimbolo natureza_simbolo)
+void throwVariableError(int linha, char *input, int linha_declaracao)
 {
-  printf("ERRO linha %i", linha);
+  printf("ERRO linha %i: Identificador \"%s\" de natureza VARIÁVEL declarada em linha %i sendo utilizada de forma inválida.\n", linha, input, linha_declaracao);
   exit(ERR_VARIABLE);
 }
 
-void throwVectorError(int linha, char *input, int linha_declaracao, NaturezaSimbolo natureza_simbolo)
+void throwVectorError(int linha, char *input, int linha_declaracao)
 {
-  printf("ERRO linha %i", linha);
+  printf("ERRO linha %i: Identificador \"%s\" de natureza VETOR declarada em linha %i sendo utilizada de forma inválida.\n", linha, input, linha_declaracao);
   exit(ERR_VECTOR);
 }
-void throwFunctionError(int linha, char *input, int linha_declaracao, NaturezaSimbolo natureza_simbolo)
+
+void throwFunctionError(int linha, char *input, int linha_declaracao)
 {
-  printf("ERRO linha %i", linha);
+  printf("ERRO linha %i: Identificador \"%s\" de natureza FUNÇÃO declarada em linha %i sendo utilizada de forma inválida.\n", linha, input, linha_declaracao);
   exit(ERR_FUNCTION);
 }
 void throwWrongTypeError(int linha, char *input)

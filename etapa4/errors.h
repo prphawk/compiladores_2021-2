@@ -23,9 +23,9 @@
 
 void throwUndeclaredError(int linha, char *input);
 void throwDeclaredError(int linha, char *input, int previousDeclarationLine);
-void throwVariableError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo);
-void throwVectorError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo);
-void throwFunctionError(int linha, char *input, int linha_declaracao_input, NaturezaSimbolo natureza_simbolo);
+void throwVariableError(int linha, char *input, int linha_declaracao_input);
+void throwVectorError(int linha, char *input, int linha_declaracao_input);
+void throwFunctionError(int linha, char *input, int linha_declaracao_input);
 void throwWrongTypeError(int linha, char *input);
 void throwStringToXError(int linha, char *input);
 void throwCharToXError(int linha, char *input);
