@@ -2,7 +2,7 @@
 #include "ast.h"
 
 PilhaHash *pilha_hash = NULL;
-int print_stuff = 1;
+int print_stuff = 0;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -525,6 +525,59 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 //#endregion Libera 
 
 //#region Verificação
+
+void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
+
+    Nodo *nodo_operacao = nodos_inicializados;
+    Nodo *nodo_esq, *nodo_dir;
+
+    while(nodo_operacao != NULL) {
+
+        nodo_esq = nodo_operacao->filho;
+
+        if(nodo_esq == NULL) break;
+
+        nodo_dir = nodo_esq->irmao;
+
+        if(nodo_dir == NULL) break;;
+
+        _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico);
+
+        nodo_esq->tipo = nodo_dir->tipo;   
+
+        nodo_operacao->tipo = tipo;
+
+        nodo_operacao = nodo_dir->irmao;
+    }
+
+}
+
+void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir) {
+    if(tipo_esq != tipo_dir) {
+
+        if(tipo_dir == TIPO_STRING) {
+            throwStringToXError(dir.linha, dir.label, esq.label);
+        }
+        if(tipo_dir == TIPO_CHAR) {
+            throwCharToXError(dir.linha, dir.label, esq.label);
+        }
+    }
+
+    if(tipo_dir == TIPO_STRING) {
+
+        char* chave_esq = _chave(esq);
+        char* chave_dir = _chave(dir);
+
+        EntradaHash *busca_esq = _busca_pilha(chave_esq);
+        EntradaHash *busca_dir = _busca_pilha(chave_dir);
+
+        if(busca_esq != NULL && busca_dir != NULL)
+            busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
+
+        free(chave_esq);
+        free(chave_dir);
+    }
+}
 
 void _verifica_conversao_str(TipoSimbolo tipo, EntradaHash *entrada) {
 

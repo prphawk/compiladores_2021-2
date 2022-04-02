@@ -227,10 +227,10 @@ comando_simples: declaracao_var_local   { $$ = $1;}
                ;
 
 //TODO atualizar o tipo do nodo tbm 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); } //TODO tem q verificar o tipo naquelas q foram inicializadas já
-                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); }
-                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); }
-                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); }
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); inicializacao_nodo($3, $4); } //TODO tem q verificar o tipo naquelas q foram inicializadas já
+                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); inicializacao_nodo($2, $3); }
+                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); inicializacao_nodo($2, $3); }
+                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); inicializacao_nodo($1, $2); }
                      ;
 
 lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local

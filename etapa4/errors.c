@@ -39,15 +39,15 @@ void throwWrongTypeError(int linha, char *input)
   exit(ERR_WRONG_TYPE);
 }
 
-void throwStringToXError(int linha, char *input)
+void throwStringToXError(int linha, char *input, char *x)
 {
-  printf("[ERR_STRING_TO_X] linha %i", linha);
+  printf("[ERR_STRING_TO_X] linha %i: Tipo STRING em \"%s\" sendo convertido ilegalmente para \"%s\"\n", linha, input, x);
   exit(ERR_STRING_TO_X);
 }
 
-void throwCharToXError(int linha, char *input)
+void throwCharToXError(int linha, char *input, char *x)
 {
-  printf("[ERR_CHAR_TO_X] linha %i", linha);
+  printf("[ERR_CHAR_TO_X] linha %i: Tipo CHAR em \"%s\" sendo convertido ilegalmente para \"%s\"\n", linha, input, x);
 
   exit(ERR_CHAR_TO_X);
 }

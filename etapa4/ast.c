@@ -7,14 +7,12 @@
 
 Tipo get_tipo_nodo(ValorLexico valor_lexico) {
     if(valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL) {
-        switch (valor_lexico.tipo_vlex_literal)
-        {
+        switch (valor_lexico.tipo_vlex_literal) {
             case VLEX_LITERAL_INT: return TIPO_INT; break;
             case VLEX_LITERAL_FLOAT: return TIPO_FLOAT; break;
             case VLEX_LITERAL_BOOL: return TIPO_BOOL; break;
             case VLEX_LITERAL_CHAR: return TIPO_CHAR; break;
             case VLEX_LITERAL_STRING: return TIPO_STRING; break;
-            default: return TIPO_OUTRO; break;
         }
     }
     return TIPO_OUTRO;
@@ -51,6 +49,15 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     nodo->irmao = NULL;
     nodo->valor_lexico = valor_lexico;
     nodo->tipo = get_tipo_nodo(valor_lexico);
+
+    return nodo;
+}
+
+Nodo *adiciona_nodo_e_tipo(ValorLexico valor_lexico, Tipo tipo)
+{
+    Nodo *nodo = adiciona_nodo(valor_lexico);
+
+    nodo->tipo = tipo;
 
     return nodo;
 }
@@ -111,11 +118,11 @@ void imprime_arvore(Nodo *nodo, int profundidade)
     }
 
     if (profundidade == 0)
-        printf("%s", nodo->valor_lexico.label);
+        printf("%s (%s)", nodo->valor_lexico.label, _tipo_str(nodo->tipo));
     else 
     {
-        printf("+---");
-        printf("%s", nodo->valor_lexico.label);
+        printf("●---");
+        printf("%s (%s)", nodo->valor_lexico.label, _tipo_str(nodo->tipo));
     }
     printf("\n");
 

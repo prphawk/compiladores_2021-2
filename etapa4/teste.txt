@@ -5,7 +5,7 @@ int vetor_int[ 100 ];
 
 int func1(int a, char b)
 {
-  static int k <= 20, lambda<="oi", gama;
+  static int k <= 20, lambda<=1, gama;
   char char_local_a, char_local_b;
   string oquesera <= "valor string";
   static int msm_var_escopo_dif;
