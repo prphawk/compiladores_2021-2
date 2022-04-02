@@ -104,7 +104,6 @@ extern void *arvore;
 %type<nodo> corpo
 %type<nodo> lista_argumentos
 %type<nodo> argumentos
-%type<nodo> argumento
 %type<nodo> cabecalho
 %type<nodo> cabecalho_1
 %type<nodo> cabecalho_2
@@ -130,8 +129,8 @@ declaracoes: declaracao declaracoes
 
 declaracao: declaracao_variavel_global { $$ = NULL; } | declaracao_funcao { $$ = $1; };
 
-declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';'    { insere_tipo_variavel_pilha($2); }
-                        | tipo lista_nome_variavel_global ';'                   { insere_tipo_variavel_pilha($1); }
+declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';'    { insere_tipo_identificador_pilha($2); }
+                        | tipo lista_nome_variavel_global ';'                   { insere_tipo_identificador_pilha($1); }
                         ;
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
@@ -228,10 +227,10 @@ comando_simples: declaracao_var_local   { $$ = $1;}
                ;
 
 //TODO atualizar o tipo do nodo tbm 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_variavel_pilha($3); } //TODO tem q verificar o tipo naquelas q foram inicializadas já
-                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_variavel_pilha($2); }
-                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_variavel_pilha($2); }
-                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_variavel_pilha($1); }
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); } //TODO tem q verificar o tipo naquelas q foram inicializadas já
+                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); }
+                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); }
+                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); }
                      ;
 
 lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local

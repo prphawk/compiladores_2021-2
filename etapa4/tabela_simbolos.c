@@ -2,7 +2,7 @@
 #include "ast.h"
 
 PilhaHash *pilha_hash = NULL;
-int print_stuff = 0;
+int print_stuff = 1;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -17,7 +17,7 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 //TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!! tem q calcular com o tamanho da string tbm
 int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
     int mult = 1;
-    if(tamanho_vetor) mult = tamanho_vetor;
+    if(tamanho_vetor > 0) mult = tamanho_vetor;
     switch(tipo) {
         case TIPO_INT: return TAMANHO_INT*mult; break;
         case TIPO_FLOAT: return TAMANHO_FLOAT*mult; break;
@@ -46,11 +46,6 @@ char *_chave(ValorLexico valor_lexico)
 
 char *_chave_label(char *label)
 {
-    // char str[10];
-    // sprintf(str, "_n_%d", natureza);
-
-    //return append_str_malloc(nome, str);
-
     return strdup(label);
 }
 
@@ -87,7 +82,7 @@ PilhaHash *_malloc_expande_tabela(PilhaHash *pilha)
 Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor) {
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
-    conteudo.coluna = -1;
+    conteudo.coluna = -1; //TODO botar coluna?
     conteudo.tamanho = _tamanho(valor_lexico, tipo, tamanho_vetor);
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
@@ -161,19 +156,11 @@ void insere_funcao_pilha(ValorLexico valor_lexico) {
     _declara_em_escopo(NATUREZA_FUNCAO, TIPO_OUTRO, valor_lexico, 0);
 }
 
-void insere_vetor_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
-    _declara_em_escopo(NATUREZA_VETOR, tipo, valor_lexico, tamanho_vetor);
-}
-
-void insere_variavel_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
-    _declara_em_escopo(NATUREZA_VARIAVEL, tipo, valor_lexico, 0);
-}
-
 void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
 
     char* chave = _chave(valor_lexico);
 
-    _adiciona_variavel_sem_tipo_pilha(chave, 0);
+    _insere_identificador_sem_tipo_pilha(chave, 0);
     _declara_em_escopo(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
 }
 
@@ -181,11 +168,11 @@ void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
 
     char* chave = _chave(valor_lexico);
 
-    _adiciona_variavel_sem_tipo_pilha(chave, tamanho_vetor);
+    _insere_identificador_sem_tipo_pilha(chave, tamanho_vetor);
     _declara_em_escopo(NATUREZA_VETOR, TIPO_PENDENTE, valor_lexico, 0);
 }
 
-void _adiciona_variavel_sem_tipo_pilha(char* chave, int tamanho_vetor) {
+void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
 
     VariavelSemTipoLst *nova_vst;
     nova_vst = malloc(sizeof(VariavelSemTipoLst));
@@ -199,7 +186,7 @@ void _adiciona_variavel_sem_tipo_pilha(char* chave, int tamanho_vetor) {
     pilha_hash->variaveis_sem_tipo = nova_vst;
 }
 
-void insere_tipo_variavel_pilha(TipoSimbolo tipo) {
+void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
     
     PilhaHash* pilha = pilha_hash;
 
@@ -208,11 +195,14 @@ void insere_tipo_variavel_pilha(TipoSimbolo tipo) {
     VariavelSemTipoLst *vst = pilha->variaveis_sem_tipo;
 
     while(vst != NULL) {
-       EntradaHash *resposta = _busca_topo_pilha(vst->chave, pilha);
+       EntradaHash *busca = _busca_topo_pilha(vst->chave, pilha);
 
-       if(resposta != NULL) {
-           resposta->conteudo.tipo = tipo;
-           resposta->conteudo.tamanho = _tamanho(resposta->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
+       if(busca != NULL) {
+
+            _verifica_conversao_str(tipo, busca);
+
+           busca->conteudo.tipo = tipo;
+           busca->conteudo.tamanho = _tamanho(busca->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
            if(print_stuff) print_pilha();
        } else {
            //TODO help???
@@ -535,6 +525,13 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 //#endregion Libera 
 
 //#region Verificação
+
+void _verifica_conversao_str(TipoSimbolo tipo, EntradaHash *entrada) {
+
+    if(tipo == TIPO_STRING && entrada->conteudo.natureza == NATUREZA_VETOR) {
+        throwStringVectorError(entrada->conteudo.valor_lexico.linha, entrada->conteudo.valor_lexico.label);
+    }
+}
 
 void verifica_variavel_no_escopo(Nodo *nodo) {
 

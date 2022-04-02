@@ -58,9 +58,9 @@ void throwStringSizeError(int linha, char *input, int linha_declaracao)
   exit(ERR_STRING_MAX);
 }
 
-void throwStringVectorError(int linha)
+void throwStringVectorError(int linha, char *input)
 {
-  printf("[ERR_STRING_VECTOR] linha %i", linha);
+  printf("[ERR_STRING_VECTOR] linha %i: Vetor \"%s\" não pode ser do tipo STRING.\n", linha, input);
   exit(ERR_STRING_VECTOR);
 }
 

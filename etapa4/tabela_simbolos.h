@@ -106,8 +106,8 @@ void desempilha();
 
 void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico);
 void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
-void _adiciona_variavel_sem_tipo_pilha(char *chave, int tamanho_vetor);
-void insere_tipo_variavel_pilha(TipoSimbolo tipo);
+void _insere_identificador_sem_tipo_pilha(char *chave, int tamanho_vetor);
+void insere_tipo_identificador_pilha(TipoSimbolo tipo);
 void atribuicao_simbolo(EntradaHash *entrada1, EntradaHash *entrada2);
 ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico);
 int _conta_tabelas(PilhaHash *pilha, int count);
@@ -116,3 +116,4 @@ Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo);
 EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexico);
 void _print_argumentos(ArgumentoFuncaoLst *argLst);
 void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico);
+void _verifica_conversao_str(TipoSimbolo tipo, EntradaHash *entrada);

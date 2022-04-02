@@ -30,7 +30,7 @@ void throwWrongTypeError(int linha, char *input);
 void throwStringToXError(int linha, char *input);
 void throwCharToXError(int linha, char *input);
 void throwStringSizeError(int linha, char *input, int linha_declaracao_input);
-void throwStringVectorError(int linha);
+void throwStringVectorError(int linha, char *input);
 void throwExcessArgsError(int linha, char *input, int linha_declaracao_input);
 void throwMissingArgsError(int linha, char *input, int linha_declaracao_input);
 void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao_input);
