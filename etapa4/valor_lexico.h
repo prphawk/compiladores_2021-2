@@ -10,7 +10,7 @@ typedef enum tipo_vlex
 
 typedef enum tipo_vlex_literal
 {
-    VLEX_LITERAL_INTEIRO,
+    VLEX_LITERAL_INT,
     VLEX_LITERAL_FLOAT,
     VLEX_LITERAL_BOOL,
     VLEX_LITERAL_CHAR,

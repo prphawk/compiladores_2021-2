@@ -209,6 +209,7 @@ comando_simples: declaracao_var_local   { $$ = $1;}
                | bloco_comandos         { $$ = $1;}
                ;
 
+//TODO atualizar o tipo do nodo tbm 
 declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_variavel_pilha($3); } //TODO tem q verificar o tipo naquelas q foram inicializadas já
                      | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_variavel_pilha($2); }
                      | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_variavel_pilha($2); }
@@ -294,7 +295,7 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
+                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
                     insere_literal_pilha(TIPO_INT,$3);
                 }
                | TK_IDENTIFICADOR'['expr_bin_aritmetica']' TK_OC_SL TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
@@ -306,8 +307,8 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, nodo_vetor);
                     adiciona_filho(novo_nodo, adiciona_nodo($6));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); /*TODO checar tipo ; TODO atribuir simbolos ; 
-                    TODO Checar vetor ; TODO como pegar o valor do indexador? */
+                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); /*TODO checar tipo ; TODO atribuir simbolos ; 
+                    //TODO Checar vetor ; TODO como pegar o valor do indexador? */
                     insere_literal_pilha(TIPO_INT,$6);
                 }
                | TK_IDENTIFICADOR TK_OC_SR TK_LIT_INT 
@@ -316,7 +317,7 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
+                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos
                     insere_literal_pilha(TIPO_INT,$3);
                 }
                | TK_IDENTIFICADOR'['expr_bin_aritmetica']' TK_OC_SR TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
@@ -328,7 +329,7 @@ comando_shift: TK_IDENTIFICADOR TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, nodo_vetor);
                     adiciona_filho(novo_nodo, adiciona_nodo($6));
                     $$ = novo_nodo;
-                    insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos ; TODO Checar vetor
+                    //insere_identificador_pilha(TIPO_OUTRO, $1, 0); //TODO checar tipo ; TODO atribuir simbolos ; TODO Checar vetor
                     insere_literal_pilha(TIPO_INT,$6);
                 }
                ;
@@ -357,7 +358,7 @@ comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos
                         }
                      ;
 
-comando_iterativo: TK_PR_FOR '(' comando_atribuicao':' expressao':' comando_atribuicao')' bloco_comandos
+comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_atribuicao')' bloco_comandos
                     {
                         Nodo *novo_nodo = adiciona_nodo_label("for");
                         adiciona_filho(novo_nodo, $3);
@@ -426,7 +427,7 @@ operador_unario: '-' { $$ = adiciona_nodo($1); }
 
 operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); } | TK_OC_AND { $$ = adiciona_nodo($1); };
 
-expressao: expr_ternaria        { $$ = $1; }
+expressao: expr_ternaria        { $$ = $1; } //fazer escadinha? pra evitar a repetição ali do ternario. v
         | expr_bin_aritmetica   { $$ = $1; }
         | expr_bin_logica       { $$ = $1; }
         ;
@@ -506,14 +507,13 @@ expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; }
                         | '(' expr_bin_aritmetica ')'   { $$ = $2; }
                         ; 
 
-operando_aritmetico: TK_IDENTIFICADOR   { $$ = adiciona_nodo($1); insere_identificador_pilha(TIPO_OUTRO, $1, 0); } //TODO checar tipo
+operando_aritmetico: TK_IDENTIFICADOR   { $$ = adiciona_nodo($1); }
                     | TK_IDENTIFICADOR'['expr_bin_aritmetica']'
                     { 
                         Nodo *novo_nodo = adiciona_nodo_label("[]");
                         adiciona_filho(novo_nodo, adiciona_nodo($1));
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
-                        insere_identificador_pilha(TIPO_OUTRO, $1, 0);  //TODO checar vetor e tipo do identificador
                     }
                     | chamada_funcao    { $$ = $1; }
                     | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); }

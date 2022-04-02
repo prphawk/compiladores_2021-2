@@ -2,7 +2,7 @@
 #include "errors.h"
 
 PilhaHash *pilha_hash = NULL;
-int print_stuff = 0;
+int print_stuff = 1;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -83,6 +83,31 @@ void _adiciona_argumento(EntradaHash entrada, TipoSimbolo tipo, int tamanho, Val
     // cria um entradaArgumento
     return;
 }
+
+Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor) {
+    Conteudo conteudo;
+    conteudo.linha = valor_lexico.linha;
+    conteudo.coluna = -1;
+    conteudo.tamanho = _tamanho(valor_lexico, tipo, tamanho_vetor);
+    conteudo.tipo = tipo;
+    conteudo.natureza = natureza;
+    conteudo.argumentos = NULL;
+    conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
+    return conteudo;
+}
+
+Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
+    Conteudo conteudo;
+    conteudo.linha = valor_lexico.linha;
+    conteudo.coluna = -1;
+    conteudo.tamanho = _tamanho(valor_lexico, tipo, 0);
+    conteudo.tipo = tipo;
+    conteudo.natureza = NATUREZA_LITERAL;
+    conteudo.argumentos = NULL;
+    conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
+    return conteudo;
+}
+
 //#endregion Auxiliares
 
 //#region Busca
@@ -124,13 +149,13 @@ EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha) {
 //#region Insere
 
 void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    _insere_em_pilha(NATUREZA_LITERAL, tipo, valor_lexico, 0);
+    _declara_literal_em_escopo(tipo, valor_lexico);
 }
 void insere_funcao_pilha(ValorLexico valor_lexico) {
-    _insere_em_pilha(NATUREZA_FUNCAO, TIPO_OUTRO, valor_lexico, 0);
+    _declara_em_escopo(NATUREZA_FUNCAO, TIPO_OUTRO, valor_lexico, 0);
 }
 void insere_identificador_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
-    _insere_em_pilha(NATUREZA_VARIAVEL, tipo, valor_lexico, tamanho_vetor);
+    _declara_em_escopo(NATUREZA_VARIAVEL, tipo, valor_lexico, tamanho_vetor);
 }
 
 void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
@@ -138,7 +163,7 @@ void insere_identificador_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_v
     char* chave = _chave(valor_lexico.label, NATUREZA_VARIAVEL);
 
     _adiciona_variavel_sem_tipo_pilha(chave, tamanho_vetor);
-    _insere_em_pilha(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
+    _declara_em_escopo(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
 }
 
 void _adiciona_variavel_sem_tipo_pilha(char* chave, int tamanho_vetor) {
@@ -204,7 +229,7 @@ void _atribuicao_simbolo_literal(EntradaHash *sim1, EntradaHash *sim2) {
 //          case VLEX_LITERAL_FLOAT:
 //             valor_lexico.valor_float=atof(yytext);
 //             break;
-//          case VLEX_LITERAL_INTEIRO:
+//          case VLEX_LITERAL_INT:
 //             valor_lexico.valor_int=atoi(yytext);
 //             break;
 //          case VLEX_LITERAL_CHAR:
@@ -237,7 +262,7 @@ ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
  -> ta mas e se fizer reatribuição de algo declarado fora do escopo? como achar?
  -> dai tu faz a função de ATRIBUIÇÃO, pq essa aqui tu usa pra DECLARAR.
 */
-EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
+EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
 
     if(pilha_hash == NULL) empilha();
 
@@ -256,27 +281,41 @@ EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorL
         return NULL;
     }
 
-    Conteudo conteudo;
-    conteudo.linha = valor_lexico.linha;
-    conteudo.coluna = -1;
-    conteudo.tamanho = _tamanho(valor_lexico, tipo, tamanho_vetor);
-    conteudo.tipo = tipo;
-    conteudo.natureza = natureza;
-    conteudo.argumentos = NULL;
-    conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
+    Conteudo conteudo = _novo_conteudo(valor_lexico, tipo, natureza, tamanho_vetor);
 
-    resposta = _insere_em_pilha_probing(chave_malloc, pilha, conteudo);
+    resposta = _insere_topo_pilha(chave_malloc, pilha, conteudo);
 
     if(print_stuff) {
-        printf("->> OP: INSERÇÃO ____________________________________________________________________________________________________\n");
+        printf("->> OP: DECLARAÇÃO ____________________________________________________________________________________________________\n");
         print_pilha();
     }
 
     return resposta;
 }
 
+EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexico) {
+
+    if(pilha_hash == NULL) empilha();
+
+    PilhaHash* pilha = pilha_hash;
+
+    if(pilha == NULL) return NULL;
+
+    char *chave_malloc = _chave(valor_lexico.label, NATUREZA_LITERAL);
+
+    EntradaHash *busca = _busca_topo_pilha(chave_malloc, pilha);
+
+    if(busca == NULL) {
+        Conteudo conteudo = _novo_conteudo_literal(valor_lexico, tipo);
+        return _insere_topo_pilha(chave_malloc, pilha, conteudo);
+    }
+
+    free(chave_malloc);
+    return busca;
+}
+
 //TODO checar se já existe
-EntradaHash *_insere_em_pilha_probing(char *chave, PilhaHash *pilha, Conteudo conteudo) {
+EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo) {
 
     EntradaHash *tabela = pilha->topo;
 

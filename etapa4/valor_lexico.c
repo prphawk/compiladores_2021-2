@@ -18,7 +18,7 @@ ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
          case VLEX_LITERAL_FLOAT:
             valor_lexico.valor_float=atof(yytext);
             break;
-         case VLEX_LITERAL_INTEIRO:
+         case VLEX_LITERAL_INT:
             valor_lexico.valor_int=atoi(yytext);
             break;
          case VLEX_LITERAL_CHAR:

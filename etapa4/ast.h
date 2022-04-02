@@ -5,7 +5,7 @@
 #include "tabela_simbolos.h"
 
 typedef struct Nodo {
-    TipoSimbolo tipo_simbolo;
+    Tipo tipo;
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;

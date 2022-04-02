@@ -9,7 +9,7 @@
 #define TAMANHO_CHAR 1 
 #define TAMANHO_INT 4
 #define TAMANHO_FLOAT 8 
-typedef enum tipo_simbolo
+typedef enum tipo
 {
     TIPO_INT,
     TIPO_FLOAT,
@@ -17,13 +17,18 @@ typedef enum tipo_simbolo
     TIPO_CHAR,
     TIPO_STRING,
     TIPO_OUTRO,
-    TIPO_PENDENTE,
+} Tipo;
+
+typedef enum tipo_simbolo
+{
+    TIPO_PENDENTE = TIPO_OUTRO + 1
 } TipoSimbolo;
 
 typedef enum natureza_simbolo
 {
     NATUREZA_LITERAL,
     NATUREZA_VARIAVEL,
+    NATUREZA_VETOR,
     NATUREZA_FUNCAO
 } NaturezaSimbolo;
 
@@ -74,10 +79,10 @@ typedef struct pilhaHash {
     VariavelSemTipoLst *variaveis_sem_tipo;
 } PilhaHash;
 
-EntradaHash *_insere_em_pilha(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
+EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 EntradaHash *_busca_pilha(char *chave, PilhaHash *pilha);
 EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha);
-EntradaHash *_insere_em_pilha_probing(char *chave, PilhaHash *pilha, Conteudo conteudo);
+EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo);
 EntradaHash *_malloc_tabela();
 PilhaHash *_malloc_expande_tabela(PilhaHash *pilha);
 char *_chave(char *nome, NaturezaSimbolo natureza);
@@ -108,3 +113,5 @@ void insere_tipo_variavel_pilha(TipoSimbolo tipo);
 void atribuicao_simbolo(EntradaHash *entrada1, EntradaHash *entrada2);
 ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico);
 int _conta_tabelas(PilhaHash *pilha, int count);
+Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor);
+Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo);
