@@ -721,27 +721,27 @@ void verifica_variavel_no_escopo(Nodo *nodo) {
     nodo->tipo = busca->conteudo.tipo;
 }
 
-void verifica_vetor_no_escopo(Nodo *nodo) {
+void verifica_vetor_no_escopo(Nodo *nodo_vetor, Nodo *nodo_identificador) {
 
-    char* busca_chave = _chave(nodo->valor_lexico);
+    char* busca_chave = _chave(nodo_identificador->valor_lexico);
 
     EntradaHash *busca = _busca_pilha(busca_chave);
 
     free(busca_chave);
 
     if(busca == NULL) {
-        throwUndeclaredError(nodo->valor_lexico.linha, nodo->valor_lexico.label);
+        throwUndeclaredError(nodo_identificador->valor_lexico.linha, nodo_identificador->valor_lexico.label);
     }
 
     if(busca->conteudo.natureza == NATUREZA_VARIAVEL) {
-        throwVariableError(nodo->valor_lexico.linha, nodo->valor_lexico.label, busca->conteudo.linha);
+        throwVariableError(nodo_identificador->valor_lexico.linha, nodo_identificador->valor_lexico.label, busca->conteudo.linha);
     }
 
     if(busca->conteudo.natureza == NATUREZA_FUNCAO) {
-        throwFunctionError(nodo->valor_lexico.linha, nodo->valor_lexico.label, busca->conteudo.linha);
+        throwFunctionError(nodo_identificador->valor_lexico.linha, nodo_identificador->valor_lexico.label, busca->conteudo.linha);
     }
 
-    nodo->tipo = busca->conteudo.tipo;
+    nodo_identificador->tipo = nodo_vetor->tipo = busca->conteudo.tipo;
 }
 
 void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *args_passados, Nodo *chamada_funcao) {
@@ -767,7 +767,6 @@ void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *args_passados, No
     int count_args_declarados = _conta_argumentos(busca->conteudo.argumentos);
     int count_args_chamados = _conta_argumentos_nodo(args_passados);
 
-    printf("\ndecl %i , chamados %i\n", count_args_declarados, count_args_chamados);
     if(count_args_declarados < count_args_chamados) {
         throwExcessArgsError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
 

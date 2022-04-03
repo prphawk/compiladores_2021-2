@@ -166,7 +166,6 @@ cabecalho_1: cabecalho_2 cabecalho_3 parametros ')'
             }
 cabecalho_2: tipo TK_IDENTIFICADOR
             { 
-                printf(">> cheguei aqui\n");
                 insere_funcao_pilha($1, $2);
                 Nodo *novo_nodo = adiciona_nodo($2); 
                 novo_nodo->tipo =  $1;
@@ -516,9 +515,10 @@ variavel: TK_IDENTIFICADOR
 vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'
                 { 
                     Nodo *novo_nodo = adiciona_nodo_label("[]");
-                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                    Nodo *identificador_novo_nodo = adiciona_nodo($1);
+                    adiciona_filho(novo_nodo, identificador_novo_nodo);
                     adiciona_filho(novo_nodo, $3);
-                    verifica_vetor_no_escopo(novo_nodo);
+                    verifica_vetor_no_escopo(novo_nodo, identificador_novo_nodo);
                     $$ = novo_nodo;
                 };
 
