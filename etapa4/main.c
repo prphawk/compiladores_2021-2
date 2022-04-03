@@ -7,7 +7,7 @@
 #include "ast.h"
 #include "tabela_simbolos.h"
 
-int print_arvore = 1;
+int print_arvore = 0;
 
 extern int yyparse(void);
 extern int yylex_destroy(void);

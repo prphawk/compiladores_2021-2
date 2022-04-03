@@ -528,7 +528,14 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
                 }
-                | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica //TODO mudar ../E3
+                | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica //TODO mudar ../E2
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                }
+                | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica //TODO mudar ../E2
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
