@@ -167,7 +167,7 @@ cabecalho_1: cabecalho_2 cabecalho_3 parametros ')'
 cabecalho_2: tipo TK_IDENTIFICADOR
             { 
                 insere_funcao_pilha($1, $2);
-                $$ = adiciona_nodo($2); 
+                $$ = adiciona_nodo_e_tipo($2, $1); 
             };
 cabecalho_3:  '(' { empilha(); };
 
