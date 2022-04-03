@@ -76,7 +76,7 @@ typedef struct pilhaHash {
     ArgumentoFuncaoLst *argumentos_sem_funcao;
 } PilhaHash;
 
-int e4_check_flag;
+int E4_CHECK_FLAG;
 
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 EntradaHash *_busca_pilha(char *chave);

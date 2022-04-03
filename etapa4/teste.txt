@@ -6,10 +6,11 @@ int vetor_int[ 100 ];
 int func1(int a, char b)
 {
   static int k <= 20, lambda<=1, gama;
-
+	bool boo <= true;
   string oquesera <= "valor string";
   string str <= "oioi";
-
+k = true || boo;
   k = a+1 ? 1 : 2;
+  input k;
   return k;
 }

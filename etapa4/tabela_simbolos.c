@@ -4,7 +4,7 @@
 PilhaHash *pilha_hash = NULL;
 char *ultima_funcao = NULL;
 int print_stuff = 0;
-e4_check_flag = 1;
+E4_CHECK_FLAG = 1;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -555,7 +555,7 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
 
-    if(e4_check_flag) _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
+    if(E4_CHECK_FLAG) _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
 
     operador->tipo = esq->tipo = dir->tipo;
 }
@@ -608,7 +608,7 @@ void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void verifica_expr_unaria(Nodo *nodo_unario, Nodo *nodo) {
 
-    if(e4_check_flag) _verifica_op_str_char_erro(nodo, nodo_unario->valor_lexico);
+    if(E4_CHECK_FLAG) _verifica_op_str_char_erro(nodo, nodo_unario->valor_lexico);
 
     if(nodo_unario != NULL)
         nodo_unario->tipo = nodo->tipo;
@@ -660,7 +660,7 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
         if(nodo_dir == NULL) break;
 
-        if(e4_check_flag) _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
+        if(E4_CHECK_FLAG) _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
 
         nodo_esq->tipo = nodo_dir->tipo;   
 
