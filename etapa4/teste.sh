@@ -21,7 +21,7 @@ evaluation=""
 # o que deve dar erro
 
 echo "\n------------- STARTING ERROR TEST CASES -------------\n"
-for file in ../testes_E4/*
+for file in ../testes_E4/wrong/*
     do
     "$executable" < "$file"
     result=$?

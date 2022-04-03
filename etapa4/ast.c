@@ -20,7 +20,7 @@ Tipo get_tipo_nodo(ValorLexico valor_lexico) {
 
 Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2) {
 
-    if(nodo1->tipo == nodo1->tipo) return nodo1->tipo;
+    if(nodo1->tipo == nodo2->tipo) return nodo1->tipo;
 
     if(possui_tipo(nodo1, nodo2, TIPO_INT)) {
         if(possui_tipo(nodo1, nodo2, TIPO_FLOAT))

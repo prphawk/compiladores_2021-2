@@ -558,6 +558,8 @@ void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *ope
 
     Tipo tipo = get_tipo_inferencia(expr1, expr2);
 
+    printf("\n%i + %i = %i", expr1->tipo, expr2->tipo, tipo);
+
     operador->tipo = tipo;
 }
 
@@ -651,13 +653,22 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
     if(tipo_esq != tipo_dir) {
 
         if(tipo_dir == TIPO_STRING) {
-            inicializacao ? 
-            throwStringToXError(dir.linha, dir.label, esq.label) : 
-            throwWrongTypeError(dir.linha, dir.label, esq.label);
+            // inicializacao ? 
+            // throwWrongTypeError(dir.linha, dir.label, esq.label);
+            throwStringToXError(dir.linha, dir.label, esq.label);
         }
         if(tipo_dir == TIPO_CHAR) {
-            inicializacao ?
-            throwCharToXError(dir.linha, dir.label, esq.label) : 
+            // inicializacao ?
+            // throwWrongTypeError(dir.linha, dir.label, esq.label);
+            throwCharToXError(dir.linha, dir.label, esq.label);
+        }
+
+        //tive que fazer um compromisso e lançar um erro generico ao inves do requerido em teste abc12.
+        if(tipo_dir == TIPO_OUTRO) {
+            throwWrongTypeError(dir.linha, dir.label, esq.label);
+        }
+
+        if(tipo_esq == TIPO_STRING || tipo_esq == TIPO_CHAR) {
             throwWrongTypeError(dir.linha, dir.label, esq.label);
         }
     }
