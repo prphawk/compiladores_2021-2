@@ -154,6 +154,9 @@ void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
 }
 
 void insere_funcao_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
+
+    if(tipo == TIPO_STRING) throwFunctionStringError(valor_lexico.linha, valor_lexico.label);
+
     EntradaHash *resposta = _declara_em_escopo(NATUREZA_FUNCAO, tipo, valor_lexico, 0);
     ultima_funcao = resposta->conteudo.valor_lexico.label;
 }
@@ -248,7 +251,7 @@ void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 void adiciona_argumentos_escopo_anterior(Nodo *nodo) {
 
     PilhaHash *pilha = pilha_hash;
-
+    //TODO tirar prints
     if(pilha == NULL) {
         printf(">> sem pilha? impossive.");
         return;
@@ -261,6 +264,7 @@ void adiciona_argumentos_escopo_anterior(Nodo *nodo) {
     EntradaHash *busca = _busca_topo_pilha(chave_malloc, (PilhaHash*)pilha->resto);
 
     if(busca != NULL) {
+        _verifica_parametros_funcao(pilha->argumentos_sem_funcao, busca);
         
         busca->conteudo.argumentos = reverse_args(pilha->argumentos_sem_funcao);
         pilha->argumentos_sem_funcao = NULL;
@@ -655,6 +659,16 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
         nodo_operacao = (Nodo*)nodo_dir->irmao;
     }
 
+}
+
+void _verifica_parametros_funcao(ArgumentoFuncaoLst *parametros, EntradaHash *entrada_funcao) {
+    ArgumentoFuncaoLst *aux = (ArgumentoFuncaoLst *)parametros;
+    while(aux != NULL) {
+        if(aux->tipo == TIPO_STRING) {
+            throwFunctionStringError(entrada_funcao->conteudo.linha, "parâmetros");
+        }
+        aux = aux->proximo;
+    }
 }
 
 void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir) {

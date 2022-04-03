@@ -16,7 +16,7 @@ int func1(int a, char b)
   a=*****msm_var_escopo_dif;
   a=&msm_var_escopo_dif;
   k = a+1 ? 1 : 2;
-  k = func1(boo, b);
+  //k = func1(boo, b);
   return k;
 }
 
