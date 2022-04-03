@@ -108,6 +108,6 @@ void throwWrongParShift(int linha)
 
 void throwReturnError(int linha, char *input)
 {
-  printf("[ERR_WRONG_PAR_RETURN] linha %i", linha);
+  printf("[ERR_WRONG_PAR_RETURN] linha %i: Tipo de \"%s\" é retorno incompatível com função.\n", linha, input);
   exit(ERR_WRONG_PAR_RETURN);
 }

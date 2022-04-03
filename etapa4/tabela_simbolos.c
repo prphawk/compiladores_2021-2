@@ -2,6 +2,7 @@
 #include "ast.h"
 
 PilhaHash *pilha_hash = NULL;
+char *ultima_funcao = NULL;
 int print_stuff = 0;
 
 /*
@@ -153,7 +154,12 @@ void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
 }
 
 void insere_funcao_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
-    _declara_em_escopo(NATUREZA_FUNCAO, tipo, valor_lexico, 0);
+    EntradaHash *resposta = _declara_em_escopo(NATUREZA_FUNCAO, tipo, valor_lexico, 0);
+    ultima_funcao = resposta->conteudo.valor_lexico.label;
+}
+
+void libera_ultima_funcao() {
+    ultima_funcao = NULL;
 }
 
 void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
@@ -526,6 +532,37 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 //#region Verificação
 
+void verifica_return(Nodo *operador, Nodo *expr1) {
+
+    if(ultima_funcao != NULL) {
+        char* chave = _chave_label(ultima_funcao);
+
+        EntradaHash *busca_funcao = _busca_topo_pilha(chave, pilha_hash->resto);
+
+        free(chave);
+
+        if(busca_funcao != NULL) {
+            
+            if(busca_funcao->conteudo.tipo != expr1->tipo) {
+                if(expr1->tipo == TIPO_STRING || expr1->tipo == TIPO_CHAR) {
+                    throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+                }
+            }
+            operador->tipo = busca_funcao->conteudo.tipo;
+            return;
+        }
+    }
+    throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+}
+
+void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *operador) {
+
+    _verifica_op_str_char_erro(validacao);
+
+    Tipo tipo = get_tipo_inferencia(expr1, expr2);
+
+    operador->tipo = tipo;
+}
 
 void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
 

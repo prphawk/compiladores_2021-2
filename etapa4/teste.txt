@@ -11,12 +11,13 @@ int func1(int a, char b)
   string oquesera <= "valor string";
   static int msm_var_escopo_dif;
 
-	boo = boo && baa || boo ;
+	boo = a && k ;
   k=12+3/6;
   a=*****msm_var_escopo_dif;
   a=&msm_var_escopo_dif;
   k = a+1 ? 1 : 2;
   k = func1(k, b);
+  return k;
 }
 
 char c;

@@ -150,7 +150,7 @@ nome_variavel_global: TK_IDENTIFICADOR
                     };
 
 corpo: '{' lista_comandos corpo_1 { $$ = $2; }
-corpo_1: '}' { desempilha(); }
+corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
 
 declaracao_funcao: cabecalho corpo //TODO como botar os parametros do cabeçalho no escopo do corpo?? 
                 {
@@ -313,6 +313,7 @@ comando_retorno: TK_PR_RETURN expressao
                     Nodo *novo_nodo = adiciona_nodo_label("return");
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
+                    verifica_return(novo_nodo, $2);
                 };
 
 comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos 
@@ -412,6 +413,7 @@ expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao
                 adiciona_filho(novo_nodo, $3); 
                 adiciona_filho(novo_nodo, $5); 
                 $$ = novo_nodo; 
+                verifica_expr_ternaria($1, $3, $5, novo_nodo);
             }
             | expr_bin_logica '?' expressao ':' expressao
             {
@@ -421,6 +423,7 @@ expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao
                 adiciona_filho(novo_nodo, $3);
                 adiciona_filho(novo_nodo, $5);
                 $$ = novo_nodo;
+                verifica_expr_ternaria($1, $3, $5, novo_nodo);
             };
 
 expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
