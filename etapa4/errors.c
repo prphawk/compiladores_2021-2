@@ -33,9 +33,9 @@ void throwFunctionError(int linha, char *input, int linha_declaracao)
   printf("[ERR_FUNCTION] linha %i: Identificador \"%s\" de natureza FUNÇÃO declarada em linha %i sendo utilizada de forma inválida.\n", linha, input, linha_declaracao);
   exit(ERR_FUNCTION);
 }
-void throwWrongTypeError(int linha, char *input)
+void throwWrongTypeError(int linha, char *input, char *x)
 {
-  printf("[ERR_WRONG_TYPE] linha %i", linha);
+  printf("[ERR_WRONG_TYPE] linha %i: Tipo de \"%s\" sendo ilegalmente atribuído à variável \"%s\"\n", linha, input, x);
   exit(ERR_WRONG_TYPE);
 }
 
@@ -54,7 +54,7 @@ void throwCharToXError(int linha, char *input, char *x)
 
 void throwStringSizeError(int linha, char *input, int linha_declaracao)
 {
-  printf("[ERR_STRING_MAX] linha %i", linha);
+  printf("[ERR_STRING_MAX] linha %i: \"%s\" excede o tamanho máximo declarado em linha %i\n", linha, input, linha_declaracao);
   exit(ERR_STRING_MAX);
 }
 

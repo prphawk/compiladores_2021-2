@@ -117,6 +117,6 @@ EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexi
 void _print_argumentos(ArgumentoFuncaoLst *argLst);
 void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico);
 void _verifica_conversao_str(TipoSimbolo tipo, EntradaHash *entrada);
-void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir);
+void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir, int inicializacao);
 void verifica_shift(ValorLexico valor_lexico_int);
 ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head);

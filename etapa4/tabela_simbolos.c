@@ -3,7 +3,7 @@
 
 PilhaHash *pilha_hash = NULL;
 char *ultima_funcao = NULL;
-int print_stuff = 1;
+int print_stuff = 0;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -250,6 +250,7 @@ void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 // vai ter q ficar com os argumentos pendentes tbm
 void adiciona_argumentos_escopo_anterior(Nodo *nodo) {
 
+
     PilhaHash *pilha = pilha_hash;
     //TODO tirar prints
     if(pilha == NULL) {
@@ -285,39 +286,6 @@ ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head) {
     head->proximo = NULL;
 
     return rest;
-}
-
-//TODO fazer as checagens de erros aqui!!!!
-void atribuicao_simbolo(EntradaHash *sim1, EntradaHash *sim2) {
-    // if(sim1->conteudo.natureza == NATUREZA_VARIAVEL) {
-    //     if(sim2->conteudo.natureza == NATUREZA_LITERAL) {
-
-    //     }
-    // }
-    return;
-}
-
-void _atribuicao_simbolo_literal(EntradaHash *sim1, EntradaHash *sim2) {
-
-// TODO mudar tipos dos que pode, erro dos que não pode
-//     switch(sim2->conteudo.valor_lexico.tipo_vlex_literal) {
-//          case VLEX_LITERAL_BOOL:
-//             sim1->conteudo. valor_lexico.valor_bool
-//             break;
-//          case VLEX_LITERAL_FLOAT:
-//             valor_lexico.valor_float=atof(yytext);
-//             break;
-//          case VLEX_LITERAL_INT:
-//             valor_lexico.valor_int=atoi(yytext);
-//             break;
-//          case VLEX_LITERAL_CHAR:
-//             valor_lexico.valor_char=yytext[1];
-//             break;
-//          case VLEX_LITERAL_STRING:
-//             valor_lexico.valor_string = strdup(yytext+1);
-//             valor_lexico.valor_string[strlen(valor_lexico.valor_string)-1] = '\0';
-//             break;
-//       }
 }
 
 ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
@@ -550,6 +518,13 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 //#region Verificação
 
+void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
+
+    _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
+
+    operador->tipo = esq->tipo = dir->tipo;
+}
+
 void verifica_return(Nodo *operador, Nodo *expr1) {
 
     if(ultima_funcao != NULL) {
@@ -650,7 +625,7 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
         if(nodo_dir == NULL) break;
 
-        _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico);
+        _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
 
         nodo_esq->tipo = nodo_dir->tipo;   
 
@@ -671,14 +646,18 @@ void _verifica_parametros_funcao(ArgumentoFuncaoLst *parametros, EntradaHash *en
     }
 }
 
-void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir) {
+void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir, int inicializacao) {
     if(tipo_esq != tipo_dir) {
 
         if(tipo_dir == TIPO_STRING) {
-            throwStringToXError(dir.linha, dir.label, esq.label);
+            inicializacao ? 
+            throwStringToXError(dir.linha, dir.label, esq.label) : 
+            throwWrongTypeError(dir.linha, dir.label, esq.label);
         }
         if(tipo_dir == TIPO_CHAR) {
-            throwCharToXError(dir.linha, dir.label, esq.label);
+            inicializacao ?
+            throwCharToXError(dir.linha, dir.label, esq.label) : 
+            throwWrongTypeError(dir.linha, dir.label, esq.label);
         }
     }
 
@@ -690,11 +669,23 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
         EntradaHash *busca_esq = _busca_pilha(chave_esq);
         EntradaHash *busca_dir = _busca_pilha(chave_dir);
 
-        if(busca_esq != NULL && busca_dir != NULL)
-            busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
+        if(busca_esq != NULL && busca_dir != NULL) {
 
+            //verifica_tamanho_maximo_string(busca_esq, busca_dir);
+                
+            if(inicializacao) {
+                busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
+                if(print_stuff) print_pilha();
+            }
+        }
         free(chave_esq);
         free(chave_dir);
+    }
+}
+
+void verifica_tamanho_maximo_string(EntradaHash *esq, EntradaHash *dir) {
+    if(esq->conteudo.tamanho < dir->conteudo.tamanho) {
+        throwStringSizeError(dir->conteudo.valor_lexico.linha, dir->conteudo.valor_lexico.label, esq->conteudo.linha);
     }
 }
 

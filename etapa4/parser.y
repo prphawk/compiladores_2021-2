@@ -166,6 +166,7 @@ cabecalho_1: cabecalho_2 cabecalho_3 parametros ')'
             }
 cabecalho_2: tipo TK_IDENTIFICADOR
             { 
+                printf(">> cheguei aqui\n");
                 insere_funcao_pilha($1, $2);
                 $$ = adiciona_nodo_e_tipo($2, $1); 
             };
@@ -268,6 +269,7 @@ comando_atribuicao: variavel_ou_vetor '=' expressao
                         adiciona_filho(novo_nodo, $1);
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
+                        verifica_atribuicao($1, novo_nodo, $3);
                     };
 
 // TODO checar tipo DE TODOS ESSES
@@ -519,8 +521,8 @@ vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'
                 };
 
 operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); } 
-                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); }
-                | expr_bin_aritmetica { $$ = $1; }; //TODO E3
+                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); };
+            //| expr_bin_aritmetica { $$ = $1; }; //TODO E3
 
 expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica 
                 {

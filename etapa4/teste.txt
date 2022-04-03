@@ -1,23 +1,2 @@
 //CORRECT
-static int msm_var_escopo_dif, b;
-string var_str;
-int vetor_int[ 100 ];
-
-int func1(int a, char b)
-{
-  static int k <= 20, lambda<=1, gama;
-  char char_local_a;
-  bool boo <= false, baa<=true;
-  string oquesera <= "valor string";
-  static int msm_var_escopo_dif;
-
-	boo = a && k ;
-  k=12+3/6;
-  a=*****msm_var_escopo_dif;
-  a=&msm_var_escopo_dif;
-  k = a+1 ? 1 : 2;
-  //k = func1(boo, b);
-  return k;
-}
-
-char c;
+int func1(){};
