@@ -4,6 +4,7 @@
 PilhaHash *pilha_hash = NULL;
 char *ultima_funcao = NULL;
 int print_stuff = 0;
+e4_check_flag = 0;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -280,7 +281,7 @@ ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head) {
     if (head == NULL || head->proximo == NULL)
         return head;
 
-    ArgumentoFuncaoLst* rest = reverse_args(head->proximo);
+    ArgumentoFuncaoLst* rest = reverse_args((ArgumentoFuncaoLst*)head->proximo);
     ((ArgumentoFuncaoLst*)head->proximo)->proximo = (ArgumentoFuncaoLst*)head;
 
     head->proximo = NULL;
@@ -520,7 +521,7 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
 
-    _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
+    if(e4_check_flag) _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
 
     operador->tipo = esq->tipo = dir->tipo;
 }
@@ -530,7 +531,7 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
     if(ultima_funcao != NULL) {
         char* chave = _chave_label(ultima_funcao);
 
-        EntradaHash *busca_funcao = _busca_topo_pilha(chave, pilha_hash->resto);
+        EntradaHash *busca_funcao = _busca_topo_pilha(chave, ((EntradaHash*)pilha_hash->resto));
 
         free(chave);
 
@@ -573,7 +574,7 @@ void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void verifica_expr_unaria(Nodo *nodo_unario, Nodo *nodo) {
 
-    _verifica_op_str_char_erro(nodo);
+    if(e4_check_flag) _verifica_op_str_char_erro(nodo);
 
     if(nodo_unario != NULL)
         nodo_unario->tipo = nodo->tipo;
@@ -625,7 +626,7 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
         if(nodo_dir == NULL) break;
 
-        _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
+        if(e4_check_flag) _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
 
         nodo_esq->tipo = nodo_dir->tipo;   
 
@@ -642,7 +643,7 @@ void _verifica_parametros_funcao(ArgumentoFuncaoLst *parametros, EntradaHash *en
         if(aux->tipo == TIPO_STRING) {
             throwFunctionStringError(entrada_funcao->conteudo.linha, "parâmetros");
         }
-        aux = aux->proximo;
+        aux = (ArgumentoFuncaoLst*)aux->proximo;
     }
 }
 

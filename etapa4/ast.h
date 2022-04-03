@@ -24,3 +24,4 @@ void libera_nodo(Nodo *nodo);
 void imprime_nodo(Nodo *nodo);
 void imprime_arestas(Nodo *nodo);
 void exporta(void *arvore);
+int possui_tipo(Nodo *nodo1, Nodo *nodo2, Tipo tipo);

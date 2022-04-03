@@ -76,6 +76,8 @@ typedef struct pilhaHash {
     ArgumentoFuncaoLst *argumentos_sem_funcao;
 } PilhaHash;
 
+int e4_check_flag;
+
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 EntradaHash *_busca_pilha(char *chave);
 EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha);
@@ -120,3 +122,4 @@ void _verifica_conversao_str(TipoSimbolo tipo, EntradaHash *entrada);
 void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir, int inicializacao);
 void verifica_shift(ValorLexico valor_lexico_int);
 ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head);
+void libera_ultima_funcao();
