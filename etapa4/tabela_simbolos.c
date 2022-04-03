@@ -4,7 +4,7 @@
 PilhaHash *pilha_hash = NULL;
 char *ultima_funcao = NULL;
 int print_stuff = 0;
-e4_check_flag = 0;
+e4_check_flag = 1;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 

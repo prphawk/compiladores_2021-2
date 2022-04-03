@@ -1,6 +1,0 @@
-//ERR_WRONG_PAR_RETURN
-char f(){
-  bool a;
-  a = true;
-  return a;
-}
