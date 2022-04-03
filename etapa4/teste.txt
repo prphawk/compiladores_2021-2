@@ -17,6 +17,7 @@ int func1(int a, char b)
   };
   b = b+1 ? 1 : 2;
   b = func1(k, b);
+  b << 17;
 }
 
 char c;

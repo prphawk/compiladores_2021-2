@@ -526,6 +526,12 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 //#region Verificação
 
+void verifica_shift(ValorLexico valor_lexico_int) {
+    if(valor_lexico_int.valor_int > 16) {
+        throwWrongParShift(valor_lexico_int.linha, valor_lexico_int.label);
+    }
+}
+
 void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
     Nodo *nodo_operacao = nodos_inicializados;
@@ -533,13 +539,13 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
     while(nodo_operacao != NULL) {
 
-        nodo_esq = nodo_operacao->filho;
+        nodo_esq = (Nodo*)nodo_operacao->filho;
 
         if(nodo_esq == NULL) break;
 
-        nodo_dir = nodo_esq->irmao;
+        nodo_dir = (Nodo*)nodo_esq->irmao;
 
-        if(nodo_dir == NULL) break;;
+        if(nodo_dir == NULL) break;
 
         _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico);
 
@@ -547,7 +553,7 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
         nodo_operacao->tipo = tipo;
 
-        nodo_operacao = nodo_dir->irmao;
+        nodo_operacao = (Nodo*)nodo_dir->irmao;
     }
 
 }

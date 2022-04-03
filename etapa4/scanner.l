@@ -70,7 +70,7 @@ TO_IGNORE [ \t\r]+|{COMMENT_SINGLE}
 
 {ID} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_IDENTIFICADOR, VLEX_LITERAL_NULL, num_lines); return TK_IDENTIFICADOR;}
 {FLOAT} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_FLOAT, num_lines); return TK_LIT_FLOAT;}
-{INT} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_INTEIRO, num_lines);  return TK_LIT_INT;}
+{INT} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_INT, num_lines);  return TK_LIT_INT;}
 {CHAR} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_CHAR, num_lines); return TK_LIT_CHAR;}
 {STRING} { yylval.valor_lexico = atribui_yylval(yytext, VLEX_TIPO_LITERAL, VLEX_LITERAL_STRING, num_lines); return TK_LIT_STRING;}
 {TO_IGNORE}

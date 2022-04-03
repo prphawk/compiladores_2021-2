@@ -67,6 +67,8 @@ extern void *arvore;
 
 %type<nodo> literal
 %type<nodo> cabeca_lista_nome_variavel_local
+%type<nodo> variavel_ou_literal
+%type<nodo> variavel_ou_vetor
 %type<nodo> lista_nome_variavel_local
 %type<nodo> declaracao_var_local
 %type<nodo> comando_simples
@@ -226,8 +228,7 @@ comando_simples: declaracao_var_local   { $$ = $1;}
                | bloco_comandos         { $$ = $1;}
                ;
 
-//TODO atualizar o tipo do nodo tbm 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); inicializacao_nodo($3, $4); } //TODO tem q verificar o tipo naquelas q foram inicializadas já
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); inicializacao_nodo($3, $4); }
                      | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); inicializacao_nodo($2, $3); }
                      | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); inicializacao_nodo($2, $3); }
                      | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); inicializacao_nodo($1, $2); }
@@ -244,26 +245,22 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
                         | cabeca_lista_nome_variavel_local { $$ = $1;}
                         ;
 
-cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel { //TODO: assumindo que "variavel" ja foi declarada. CHECAR.
+cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel_ou_literal {
                                     Nodo *novo_nodo = adiciona_nodo($2);
                                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
-                                    insere_variavel_sem_tipo_pilha($1); //TODO fazer a inicialização <=
-                                    //insere_variavel_sem_tipo_pilha($3, 0); o valor inicializado já deveria ter sido declarado.
-                                }
-                                | TK_IDENTIFICADOR TK_OC_LE literal {
-                                    Nodo *novo_nodo = adiciona_nodo($2);
-                                    adiciona_filho(novo_nodo, adiciona_nodo($1));
-                                    adiciona_filho(novo_nodo, $3);
-                                    $$ = novo_nodo;
-                                    insere_variavel_sem_tipo_pilha($1); //TODO fazer a inicialização <=
+                                    insere_variavel_sem_tipo_pilha($1);
                                 }
                                 | TK_IDENTIFICADOR { 
                                     insere_variavel_sem_tipo_pilha($1);
                                     libera_vlex($1), $$ = NULL;
                                 }
                                 ;
+
+variavel_ou_literal: variavel { $$ = $1; } | literal { $$ = $1; };
+
+variavel_ou_vetor: variavel { $$ = $1; } | vetor { $$ = $1; };
 
 comando_atribuicao: variavel '=' expressao
                     {
@@ -278,8 +275,8 @@ comando_atribuicao: variavel '=' expressao
                         adiciona_filho(novo_nodo, $1);
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
-                    }
-                     ;
+                    };
+
 // TODO checar tipo DE TODOS ESSES
 comando_entrada: TK_PR_INPUT variavel
                 {
@@ -288,52 +285,30 @@ comando_entrada: TK_PR_INPUT variavel
                     $$ = novo_nodo;
                 };
 
-comando_saida: TK_PR_OUTPUT variavel 
+comando_saida: TK_PR_OUTPUT variavel_ou_literal 
                 {
                     Nodo *novo_nodo = adiciona_nodo_label("output");
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
-                }
-               | TK_PR_OUTPUT literal
-               {
-                    Nodo *novo_nodo = adiciona_nodo_label("output");
-                    adiciona_filho(novo_nodo, $2);
-                    $$ = novo_nodo;
-                }
-               ;
+                };
 
-comando_shift: variavel TK_OC_SL TK_LIT_INT 
+comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT 
                 {
                     Nodo *novo_nodo = adiciona_nodo($2);
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
                     insere_literal_pilha(TIPO_INT,$3);
+                    verifica_shift($3);
                 }
-               | vetor TK_OC_SL TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
-               {
-                    Nodo *novo_nodo = adiciona_nodo($2);
-                    adiciona_filho(novo_nodo, $1);
-                    adiciona_filho(novo_nodo, adiciona_nodo($3));
-                    $$ = novo_nodo;
-                    //TODO Checar vetor ; TODO como pegar o valor do indexador? */
-                    insere_literal_pilha(TIPO_INT,$3);
-                }
-               | variavel TK_OC_SR TK_LIT_INT 
+               | variavel_ou_vetor TK_OC_SR TK_LIT_INT 
                {
                     Nodo *novo_nodo = adiciona_nodo($2);
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
                     insere_literal_pilha(TIPO_INT,$3);
-                }
-               | vetor TK_OC_SR TK_LIT_INT //TODO mudar para expr aritmetica e checar testes
-               {
-                    Nodo *novo_nodo = adiciona_nodo($2);
-                    adiciona_filho(novo_nodo, $1);
-                    adiciona_filho(novo_nodo, adiciona_nodo($3));
-                    $$ = novo_nodo;
-                    insere_literal_pilha(TIPO_INT,$3);
+                    verifica_shift($3);
                 }
                ;
 

@@ -6,22 +6,22 @@ evaluation=""
 echo "STARTING OFFICIAL TEST CASES"
 
 #checar memleaks
-for file in ../etapa3/testes_E3_format/*
-    do
-    valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"
-    result=$?
-    print="FROM:${file}"
-    echo "$print\n"
-done
+# for file in ../etapa3/testes_E3_format/*
+#     do
+#     valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"
+#     result=$?
+#     print="FROM:${file}"
+#     echo "$print\n"
+# done
 
 #checar gramatica
-# for file in ../testes_E2/*
-#     do
-#     "$executable" < "$file"
-#     result=$?
-#     evaluation=$(head -1 "$file")
+for file in ../testes_E2/*
+    do
+    "$executable" < "$file"
+    result=$?
+    evaluation=$(head -1 "$file")
     
-#     print="FROM:${file} RESULT:${evaluation}"
-#     echo "$print\n"
+    print="FROM:${file} RESULT:${evaluation}"
+    echo "$print\n"
   
-# done
+done

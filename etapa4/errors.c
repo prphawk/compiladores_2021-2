@@ -88,25 +88,25 @@ void throwFunctionStringError(int linha, char *input, int linha_declaracao)
   exit(ERR_WRONG_TYPE_ARGS);
 }
 
-void throwWrongParInput(int linha)
+void throwWrongParInput(int linha, char *input)
 {
   printf("[ERR_WRONG_PAR_INPUT] linha %i", linha);
   exit(ERR_WRONG_PAR_INPUT);
 }
 
-void throwWrongParOutput(int linha)
+void throwWrongParOutput(int linha, char *input)
 {
   printf("[ERR_WRONG_PAR_OUTPUT] linha %i", linha);
   exit(ERR_WRONG_PAR_OUTPUT);
 }
 
-void throwShiftError(int linha)
+void throwWrongParShift(int linha, char *input)
 {
-  printf("[ERR_WRONG_PAR_SHIFT] linha %i", linha);
+  printf("[ERR_WRONG_PAR_SHIFT] linha %i: Operador inteiro à direita de comando SHIFT é maior que 16.\n", linha);
   exit(ERR_WRONG_PAR_SHIFT);
 }
 
-void throwReturnError(int linha)
+void throwReturnError(int linha, char *input)
 {
   printf("[ERR_WRONG_PAR_RETURN] linha %i", linha);
   exit(ERR_WRONG_PAR_RETURN);
