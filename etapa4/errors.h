@@ -26,7 +26,7 @@ void throwDeclaredError(int linha, char *input, int previousDeclarationLine);
 void throwVariableError(int linha, char *input, int linha_declaracao_input);
 void throwVectorError(int linha, char *input, int linha_declaracao_input);
 void throwFunctionError(int linha, char *input, int linha_declaracao_input);
-void throwWrongTypeError(int linha, char *input, char *x);
+void throwWrongTypeError(int linha, char *input, char *x, char *tipo_x);
 void throwStringToXError(int linha, char *input, char *x);
 void throwCharToXError(int linha, char *input, char *x);
 void throwStringSizeError(int linha, char *input, int linha_declaracao_input);

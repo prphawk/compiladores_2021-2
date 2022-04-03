@@ -404,7 +404,7 @@ void empilha()
 
     pilha_hash = pilha_aux;
 
-    if(print_stuff) printf("\n->>> empilhando\n");
+    if(print_stuff) printf("\n->>> OP: EMPILHANDO\n");
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
@@ -454,7 +454,7 @@ void desempilha()
 
     pilha_hash = nova_pilha;
 
-    if(print_stuff) printf("\n->>> desempilhando\n");
+    if(print_stuff) printf("\n->>> OP: DESEMPILHANDO\n");
 }
 
 // função que libera a tabela hash e tudo que há dentro dela (i.e. libera a memória caso necessário)
@@ -553,20 +553,18 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
 
 void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *operador) {
 
-    _verifica_op_str_char_erro(validacao);
+    _verifica_op_str_char_erro(validacao, operador->valor_lexico);
 
     Tipo tipo = get_tipo_inferencia(expr1, expr2);
-
-    printf("\n%i + %i = %i", expr1->tipo, expr2->tipo, tipo);
 
     operador->tipo = tipo;
 }
 
 void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
 
-    _verifica_op_str_char_erro(esq);
+    _verifica_op_str_char_erro(esq, operador->valor_lexico);
 
-    _verifica_op_str_char_erro(dir);
+    _verifica_op_str_char_erro(dir, operador->valor_lexico);
 
     Tipo tipo = get_tipo_inferencia(esq, dir);
 
@@ -575,7 +573,7 @@ void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void verifica_expr_unaria(Nodo *nodo_unario, Nodo *nodo) {
 
-    if(e4_check_flag) _verifica_op_str_char_erro(nodo);
+    if(e4_check_flag) _verifica_op_str_char_erro(nodo, nodo_unario->valor_lexico);
 
     if(nodo_unario != NULL)
         nodo_unario->tipo = nodo->tipo;
@@ -589,12 +587,12 @@ void verifica_input(Nodo *nodo_input, Nodo *nodo) {
     nodo_input->tipo = nodo->tipo;
 }
 
-void _verifica_op_str_char_erro(Nodo *nodo) {
+void _verifica_op_str_char_erro(Nodo *nodo, ValorLexico vlex_op) {
     if(nodo->tipo == TIPO_STRING) {
-        throwStringToXError(nodo->valor_lexico.linha, nodo->valor_lexico.label, "número");
+        throwStringToXError(nodo->valor_lexico.linha, nodo->valor_lexico.label, vlex_op.label);
     }
     if(nodo->tipo == TIPO_CHAR) {
-        throwCharToXError(nodo->valor_lexico.linha, nodo->valor_lexico.label, "número");
+        throwCharToXError(nodo->valor_lexico.linha, nodo->valor_lexico.label, vlex_op.label);
     }
 }
 
@@ -664,11 +662,11 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
 
         //tive que fazer um compromisso e lançar um erro generico ao inves do requerido em teste abc12.
         if(tipo_dir == TIPO_OUTRO) {
-            throwWrongTypeError(dir.linha, dir.label, esq.label);
+            throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
         }
 
         if(tipo_esq == TIPO_STRING || tipo_esq == TIPO_CHAR) {
-            throwWrongTypeError(dir.linha, dir.label, esq.label);
+            throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
         }
     }
 
@@ -797,15 +795,10 @@ void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_de
     ArgumentoFuncaoLst *args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados;
 
     while (args_passados_aux != NULL) {
-        if(args_passados_aux->tipo != args_declarados_aux->tipo) {
-
-            printf(">> %s\n", _tipo_str(args_passados_aux->tipo));
-            
+        if(args_passados_aux->tipo != args_declarados_aux->tipo) {            
             if(args_passados_aux->tipo == TIPO_STRING) {
                 throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
             }
-
-            
             throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
         }
 
