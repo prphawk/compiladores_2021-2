@@ -8,7 +8,7 @@ int func1(int a, char b)
   static int k <= 20, lambda<=1, gama;
 
   string oquesera <= "valor string";
-  //string str <= "oioi";
+  string str <= "oioi";
 
   k = a+1 ? 1 : 2;
   return k;

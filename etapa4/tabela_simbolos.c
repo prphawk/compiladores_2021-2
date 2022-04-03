@@ -16,6 +16,41 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 
 //#region Auxiliares
 
+int _conta_tabelas(PilhaHash *pilha, int count) {
+    
+    PilhaHash *aux_pilha = pilha;
+
+    if(aux_pilha == NULL) return count;
+
+    return _conta_tabelas((PilhaHash*)pilha->resto, ++count);
+}
+
+int _conta_argumentos(ArgumentoFuncaoLst *args) {
+
+    int count = 0;
+
+    ArgumentoFuncaoLst *arg_aux = args;
+
+    while (arg_aux != NULL) {
+        arg_aux = (ArgumentoFuncaoLst *)arg_aux->proximo;
+        count++;
+    }
+    return count;
+}
+
+int _conta_argumentos_nodo(Nodo *nodo) {
+
+    int count = 0;
+
+    Nodo *nodo_aux = nodo;
+
+    while (nodo_aux != NULL) {
+        nodo_aux = (Nodo *)nodo_aux->filho;
+        count++;
+    }
+    return count;
+}
+
 //TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!! tem q calcular com o tamanho da string tbm
 int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
     int mult = 1;
@@ -679,13 +714,12 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
         EntradaHash *busca_dir = _busca_pilha(chave_dir);
 
         if(busca_esq != NULL && busca_dir != NULL) {
-
-            //verifica_tamanho_maximo_string(busca_esq, busca_dir);
                 
             if(inicializacao) {
                 busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
                 if(print_stuff) print_pilha();
-            }
+
+            } else verifica_tamanho_maximo_string(busca_esq, busca_dir);
         }
         free(chave_esq);
         free(chave_dir);
@@ -831,41 +865,6 @@ void print_pilha() {
 
         aux_pilha = (PilhaHash*)aux_pilha->resto;
     }
-}
-
-int _conta_tabelas(PilhaHash *pilha, int count) {
-    
-    PilhaHash *aux_pilha = pilha;
-
-    if(aux_pilha == NULL) return count;
-
-    return _conta_tabelas((PilhaHash*)pilha->resto, ++count);
-}
-
-int _conta_argumentos(ArgumentoFuncaoLst *args) {
-
-    int count = 0;
-
-    ArgumentoFuncaoLst *arg_aux = args;
-
-    while (arg_aux != NULL) {
-        arg_aux = (ArgumentoFuncaoLst *)arg_aux->proximo;
-        count++;
-    }
-    return count;
-}
-
-int _conta_argumentos_nodo(Nodo *nodo) {
-
-    int count = 0;
-
-    Nodo *nodo_aux = nodo;
-
-    while (nodo_aux != NULL) {
-        nodo_aux = (Nodo *)nodo_aux->filho;
-        count++;
-    }
-    return count;
 }
 
 //printa pilha com tabela e seus valores
