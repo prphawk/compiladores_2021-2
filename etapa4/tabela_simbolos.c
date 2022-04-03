@@ -3,7 +3,7 @@
 
 PilhaHash *pilha_hash = NULL;
 char *ultima_funcao = NULL;
-int print_stuff = 0;
+int print_stuff = 1;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -261,12 +261,26 @@ void adiciona_argumentos_escopo_anterior(Nodo *nodo) {
     EntradaHash *busca = _busca_topo_pilha(chave_malloc, (PilhaHash*)pilha->resto);
 
     if(busca != NULL) {
-        busca->conteudo.argumentos = pilha->argumentos_sem_funcao;
+        
+        busca->conteudo.argumentos = reverse_args(pilha->argumentos_sem_funcao);
         pilha->argumentos_sem_funcao = NULL;
     }
     
     free(chave_malloc);
     return;
+}
+
+ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head) {
+
+    if (head == NULL || head->proximo == NULL)
+        return head;
+
+    ArgumentoFuncaoLst* rest = reverse_args(head->proximo);
+    ((ArgumentoFuncaoLst*)head->proximo)->proximo = (ArgumentoFuncaoLst*)head;
+
+    head->proximo = NULL;
+
+    return rest;
 }
 
 //TODO fazer as checagens de erros aqui!!!!
@@ -544,8 +558,11 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
         if(busca_funcao != NULL) {
             
             if(busca_funcao->conteudo.tipo != expr1->tipo) {
-                if(expr1->tipo == TIPO_STRING || expr1->tipo == TIPO_CHAR) {
+                if(expr1->tipo == TIPO_CHAR) {
                     throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+                }
+                if(expr1->tipo == TIPO_STRING) {
+                    throwFunctionStringError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
                 }
             }
             operador->tipo = busca_funcao->conteudo.tipo;
@@ -722,7 +739,7 @@ void verifica_vetor_no_escopo(Nodo *nodo) {
     nodo->tipo = busca->conteudo.tipo;
 }
 
-void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos, Nodo *chamada_funcao) {
+void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *args_passados, Nodo *chamada_funcao) {
 
     char* busca_chave = _chave_label(valor_lexico.label);
 
@@ -743,7 +760,7 @@ void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos, 
     }
 
     int count_args_declarados = _conta_argumentos(busca->conteudo.argumentos);
-    int count_args_chamados = _conta_argumentos_nodo(nodo_argumentos);
+    int count_args_chamados = _conta_argumentos_nodo(args_passados);
 
     printf("\ndecl %i , chamados %i\n", count_args_declarados, count_args_chamados);
     if(count_args_declarados < count_args_chamados) {
@@ -753,13 +770,32 @@ void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos, 
         throwMissingArgsError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
 
     } else {
-        //TODO checagem dos tipos de nodos etc.
-
+        _verifica_tipos_argumentos(args_passados, busca->conteudo.argumentos,busca->conteudo.linha);
     }
 
     chamada_funcao->tipo = busca->conteudo.tipo;
 }
 
+void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_declarados, int linha_declarada) {
+
+    Nodo *args_passados_aux = args_passados;
+    ArgumentoFuncaoLst *args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados;
+
+    while (args_passados_aux != NULL) {
+
+        if(args_passados_aux->tipo != args_declarados_aux->tipo) {
+            if(args_passados_aux->tipo == TIPO_CHAR)
+                throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
+            
+            if(args_passados_aux->tipo == TIPO_STRING) {
+                throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
+            }
+        }
+
+        args_passados_aux = (Nodo *)args_passados_aux->filho;
+        args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados_aux->proximo;
+    }
+}
 //#endregion Verificação
 
 //#region Prints

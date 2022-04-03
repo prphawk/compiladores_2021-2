@@ -34,7 +34,7 @@ void throwStringVectorError(int linha, char *input);
 void throwExcessArgsError(int linha, char *input, int linha_declaracao_input);
 void throwMissingArgsError(int linha, char *input, int linha_declaracao_input);
 void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao_input);
-void throwFunctionStringError(int linha, char *input, int linha_declaracao_input);
+void throwFunctionStringError(int linha, char *input);
 void throwWrongParInput(int linha, char *input);
 void throwWrongParOutput(int linha, char *input);
 void throwWrongParShift(int linha);

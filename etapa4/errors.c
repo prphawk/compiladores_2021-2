@@ -78,13 +78,13 @@ void throwMissingArgsError(int linha, char *input, int linha_declaracao)
 
 void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao)
 {
-  printf("[ERR_WRONG_TYPE_ARGS] linha %i:Função \"%s\" declarada em linha %i sendo chamada com argumentos de tipos errados.\n", linha, input, linha_declaracao);
+  printf("[ERR_WRONG_TYPE_ARGS] linha %i: Argumento \"%s\" possui tipo incompatível com função declarada em linha %i.\n", linha, input, linha_declaracao);
   exit(ERR_WRONG_TYPE_ARGS);
 }
 
-void throwFunctionStringError(int linha, char *input, int linha_declaracao)
+void throwFunctionStringError(int linha, char *input)
 {
-  printf("[ERR_WRONG_TYPE_ARGS] linha %i", linha);
+  printf("[ERR_WRONG_TYPE_ARGS] linha %i elemento %s: Retorno, argumentos e parâmetros de funções não podem ser do tipo STRING.\n", linha, input);
   exit(ERR_WRONG_TYPE_ARGS);
 }
 

@@ -3,5 +3,6 @@
 		"valor_lexico.h": "c",
 		"ast.h": "c",
 		"tabela_simbolos.h": "c"
-	}
+	},
+	"C_Cpp.errorSquiggles": "Disabled"
 }
