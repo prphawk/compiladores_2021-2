@@ -84,8 +84,8 @@ void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao)
 
 void throwFunctionStringError(int linha, char *input)
 {
-  printf("[ERR_WRONG_TYPE_ARGS] linha %i em %s: Retorno, argumentos e parâmetros de funções não podem ser do tipo STRING.\n", linha, input);
-  exit(ERR_WRONG_TYPE_ARGS);
+  printf("[ERR_FUNCTION_STRING] linha %i em %s: Retorno, argumentos e parâmetros de funções não podem ser do tipo STRING.\n", linha, input);
+  exit(ERR_FUNCTION_STRING);
 }
 
 void throwWrongParInput(int linha, char *input)

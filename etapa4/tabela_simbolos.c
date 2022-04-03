@@ -251,7 +251,6 @@ void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 // vai ter q ficar com os argumentos pendentes tbm
 void adiciona_argumentos_escopo_anterior(Nodo *nodo) {
 
-
     PilhaHash *pilha = pilha_hash;
     //TODO tirar prints
     if(pilha == NULL) {
@@ -798,14 +797,13 @@ void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_de
     ArgumentoFuncaoLst *args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados;
 
     while (args_passados_aux != NULL) {
-
         if(args_passados_aux->tipo != args_declarados_aux->tipo) {
+            
+            if(args_passados_aux->tipo == TIPO_STRING)
+                throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
+
             if(args_passados_aux->tipo == TIPO_CHAR)
                 throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
-            
-            if(args_passados_aux->tipo == TIPO_STRING) {
-                throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
-            }
         }
 
         args_passados_aux = (Nodo *)args_passados_aux->filho;
