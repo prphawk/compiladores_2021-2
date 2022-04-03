@@ -168,7 +168,9 @@ cabecalho_2: tipo TK_IDENTIFICADOR
             { 
                 printf(">> cheguei aqui\n");
                 insere_funcao_pilha($1, $2);
-                $$ = adiciona_nodo_e_tipo($2, $1); 
+                Nodo *novo_nodo = adiciona_nodo($2); 
+                novo_nodo->tipo =  $1;
+                $$ = novo_nodo;
             };
 cabecalho_3:  '(' { empilha(); };
 

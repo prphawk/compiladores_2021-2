@@ -1,2 +1,15 @@
 //CORRECT
-int func1(){};
+static int msm_var_escopo_dif, b;
+string var_str;
+int vetor_int[ 100 ];
+
+int func1(int a, char b)
+{
+  static int k <= 20, lambda<=1, gama;
+
+  string oquesera <= "valor string";
+  //string str <= "oioi";
+
+  k = a+1 ? 1 : 2;
+  return k;
+}

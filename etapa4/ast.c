@@ -53,15 +53,6 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     return nodo;
 }
 
-Nodo *adiciona_nodo_e_tipo(ValorLexico valor_lexico, Tipo tipo)
-{
-    Nodo *nodo = adiciona_nodo(valor_lexico);
-
-    nodo->tipo = tipo;
-
-    return nodo;
-}
-
 Nodo *adiciona_nodo_label_concat(char *label, char *label2) {
     char* result = append_str_malloc(label, label2);
     Nodo *nodo = adiciona_nodo_label(result);
