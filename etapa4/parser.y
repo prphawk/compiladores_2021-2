@@ -166,7 +166,7 @@ cabecalho_1: cabecalho_2 cabecalho_3 parametros ')'
             }
 cabecalho_2: tipo TK_IDENTIFICADOR
             { 
-                insere_funcao_pilha($2);
+                insere_funcao_pilha($1, $2);
                 $$ = adiciona_nodo($2); 
             };
 cabecalho_3:  '(' { empilha(); };
@@ -209,7 +209,7 @@ chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' {
             Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
             //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
-            verifica_funcao_no_escopo($1, $3);
+            verifica_funcao_no_escopo($1, $3, novo_nodo);
             $$ = novo_nodo;
             libera_vlex($1); //precisa liberar pq o identificador é substituido na arvore!!
         };
@@ -262,14 +262,7 @@ variavel_ou_literal: variavel { $$ = $1; } | literal { $$ = $1; };
 
 variavel_ou_vetor: variavel { $$ = $1; } | vetor { $$ = $1; };
 
-comando_atribuicao: variavel '=' expressao
-                    {
-                        Nodo *novo_nodo = adiciona_nodo($2);
-                        adiciona_filho(novo_nodo, $1);
-                        adiciona_filho(novo_nodo, $3);
-                        $$ = novo_nodo;
-                    }
-                     | vetor '=' expressao //TODO E3 mudando vetores indexers para expr_aritmeticas apenas
+comando_atribuicao: variavel_ou_vetor '=' expressao
                     {
                         Nodo *novo_nodo = adiciona_nodo($2);
                         adiciona_filho(novo_nodo, $1);
@@ -436,6 +429,7 @@ expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
+                    verifica_expr_binaria($1, $2, $3);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2
@@ -443,6 +437,7 @@ expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
+                    verifica_expr_binaria($1, $2, $3);
                 }
 			    ;
 expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
@@ -451,6 +446,7 @@ expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
+                    verifica_expr_binaria($1, $2, $3);
                 }
 				;
 expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
@@ -459,6 +455,8 @@ expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
 						adiciona_filho($2, $1);
 						adiciona_filho($2, $3);
 						$$ = $2;
+                        verifica_expr_binaria($1, $2, $3);
+
 					}
 					;
 expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
@@ -467,18 +465,26 @@ expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
 						adiciona_filho($2, $1);
 						adiciona_filho($2, $3);
 						$$ = $2;
+                        verifica_expr_binaria($1, $2, $3);
 					}
 					;            
-expr_unaria_aritmetica: expr_parenteses_aritmetica { $$ = $1; }
+expr_unaria_aritmetica: 
+                expr_parenteses_aritmetica 
+                { 
+                    $$ = $1; 
+                    //verifica_expr_unaria(NULL, $1);
+                }
 				| operador_unario expr_parenteses_aritmetica 
 				{
 					adiciona_filho($1, $2);
 					$$ = $1;
+                    verifica_expr_unaria($1, $2);
 				}
 				| operador_asterisco expr_unaria_aritmetica
 				{
 					adiciona_filho($1, $2);
 					$$ = $1;
+                    verifica_expr_unaria($1, $2);
 				}
 				;
 

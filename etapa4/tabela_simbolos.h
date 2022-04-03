@@ -98,7 +98,7 @@ void _print_tabela(EntradaHash *tabela, int tamanho_tabela);
 
 void print_pilha();
 void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
-void insere_funcao_pilha(ValorLexico valor_lexico);
+void insere_funcao_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
 void insere_variavel_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 
 void empilha();

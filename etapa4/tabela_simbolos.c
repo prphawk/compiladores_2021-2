@@ -152,8 +152,8 @@ void insere_literal_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
     _declara_literal_em_escopo(tipo, valor_lexico);
 }
 
-void insere_funcao_pilha(ValorLexico valor_lexico) {
-    _declara_em_escopo(NATUREZA_FUNCAO, TIPO_OUTRO, valor_lexico, 0);
+void insere_funcao_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
+    _declara_em_escopo(NATUREZA_FUNCAO, tipo, valor_lexico, 0);
 }
 
 void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
@@ -526,12 +526,40 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 //#region Verificação
 
+void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
+
+    _verifica_op_str_char_erro(esq);
+
+    _verifica_op_str_char_erro(dir);
+
+    Tipo tipo = get_tipo_inferencia(esq, dir);
+
+    operador->tipo = tipo;
+}
+
+void verifica_expr_unaria(Nodo *nodo_unario, Nodo *nodo) {
+
+    _verifica_op_str_char_erro(nodo);
+
+    if(nodo_unario != NULL)
+        nodo_unario->tipo = nodo->tipo;
+}
+
 void verifica_input(Nodo *nodo_input, Nodo *nodo) {
     if(nodo->tipo != TIPO_INT && nodo->tipo != TIPO_FLOAT) {
         throwWrongParInput(nodo->valor_lexico.linha, nodo->valor_lexico.label);
     }
 
     nodo_input->tipo = nodo->tipo;
+}
+
+void _verifica_op_str_char_erro(Nodo *nodo) {
+    if(nodo->tipo == TIPO_STRING) {
+        throwStringToXError(nodo->valor_lexico.linha, nodo->valor_lexico.label, "número");
+    }
+    if(nodo->tipo == TIPO_CHAR) {
+        throwCharToXError(nodo->valor_lexico.linha, nodo->valor_lexico.label, "número");
+    }
 }
 
 void verifica_output(Nodo *nodo_output, Nodo *nodo) {
@@ -656,7 +684,7 @@ void verifica_vetor_no_escopo(Nodo *nodo) {
     nodo->tipo = busca->conteudo.tipo;
 }
 
-void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos) {
+void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos, Nodo *chamada_funcao) {
 
     char* busca_chave = _chave_label(valor_lexico.label);
 
@@ -691,7 +719,7 @@ void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos) 
 
     }
 
-
+    chamada_funcao->tipo = busca->conteudo.tipo;
 }
 
 //#endregion Verificação
