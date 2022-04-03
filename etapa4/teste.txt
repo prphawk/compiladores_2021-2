@@ -12,12 +12,11 @@ int func1(int a, char b)
 	
   k=12+3/5;
   {
-    output "oioioioi";
+    output oquesera;
     b = ?b;
   };
   b = b+1 ? 1 : 2;
   b = func1(k, b);
-  b << 17;
 }
 
 char c;

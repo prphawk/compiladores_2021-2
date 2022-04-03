@@ -90,17 +90,17 @@ void throwFunctionStringError(int linha, char *input, int linha_declaracao)
 
 void throwWrongParInput(int linha, char *input)
 {
-  printf("[ERR_WRONG_PAR_INPUT] linha %i", linha);
+  printf("[ERR_WRONG_PAR_INPUT] linha %i: Operando \"%s\" em INPUT não é do tipo FLOAT ou INT.\n", linha, input);
   exit(ERR_WRONG_PAR_INPUT);
 }
 
 void throwWrongParOutput(int linha, char *input)
 {
-  printf("[ERR_WRONG_PAR_OUTPUT] linha %i", linha);
+  printf("[ERR_WRONG_PAR_OUTPUT] linha %i: Operando \"%s\" em OUTPUT não é do tipo FLOAT ou INT.\n", linha, input);
   exit(ERR_WRONG_PAR_OUTPUT);
 }
 
-void throwWrongParShift(int linha, char *input)
+void throwWrongParShift(int linha)
 {
   printf("[ERR_WRONG_PAR_SHIFT] linha %i: Operador inteiro à direita de comando SHIFT é maior que 16.\n", linha);
   exit(ERR_WRONG_PAR_SHIFT);

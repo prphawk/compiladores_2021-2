@@ -37,5 +37,5 @@ void throwWrongTypeArgsError(int linha, char *input, int linha_declaracao_input)
 void throwFunctionStringError(int linha, char *input, int linha_declaracao_input);
 void throwWrongParInput(int linha, char *input);
 void throwWrongParOutput(int linha, char *input);
-void throwWrongParShift(int linha, char *input);
+void throwWrongParShift(int linha);
 void throwReturnError(int linha, char *input);

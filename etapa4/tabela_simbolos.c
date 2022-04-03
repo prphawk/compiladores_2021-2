@@ -526,9 +526,25 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 //#region Verificação
 
+void verifica_input(Nodo *nodo_input, Nodo *nodo) {
+    if(nodo->tipo != TIPO_INT && nodo->tipo != TIPO_FLOAT) {
+        throwWrongParInput(nodo->valor_lexico.linha, nodo->valor_lexico.label);
+    }
+
+    nodo_input->tipo = nodo->tipo;
+}
+
+void verifica_output(Nodo *nodo_output, Nodo *nodo) {
+    if(nodo->tipo != TIPO_INT && nodo->tipo != TIPO_FLOAT) {
+        throwWrongParOutput(nodo->valor_lexico.linha, nodo->valor_lexico.label);
+    }
+
+    nodo_output->tipo = nodo->tipo;
+}
+
 void verifica_shift(ValorLexico valor_lexico_int) {
     if(valor_lexico_int.valor_int > 16) {
-        throwWrongParShift(valor_lexico_int.linha, valor_lexico_int.label);
+        throwWrongParShift(valor_lexico_int.linha);
     }
 }
 
@@ -613,27 +629,31 @@ void verifica_variavel_no_escopo(Nodo *nodo) {
     if(busca->conteudo.natureza == NATUREZA_FUNCAO) {
         throwFunctionError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
     }
+
+    nodo->tipo = busca->conteudo.tipo;
 }
 
-void verifica_vetor_no_escopo(ValorLexico valor_lexico) {
+void verifica_vetor_no_escopo(Nodo *nodo) {
 
-    char* busca_chave = _chave_label(valor_lexico.label);
+    char* busca_chave = _chave(nodo->valor_lexico);
 
     EntradaHash *busca = _busca_pilha(busca_chave);
 
     free(busca_chave);
 
     if(busca == NULL) {
-        throwUndeclaredError(valor_lexico.linha, valor_lexico.label);
+        throwUndeclaredError(nodo->valor_lexico.linha, nodo->valor_lexico.label);
     }
 
     if(busca->conteudo.natureza == NATUREZA_VARIAVEL) {
-        throwVariableError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+        throwVariableError(nodo->valor_lexico.linha, nodo->valor_lexico.label, busca->conteudo.linha);
     }
 
     if(busca->conteudo.natureza == NATUREZA_FUNCAO) {
-        throwFunctionError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
+        throwFunctionError(nodo->valor_lexico.linha, nodo->valor_lexico.label, busca->conteudo.linha);
     }
+
+    nodo->tipo = busca->conteudo.tipo;
 }
 
 void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *nodo_argumentos) {

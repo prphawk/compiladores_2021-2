@@ -283,6 +283,8 @@ comando_entrada: TK_PR_INPUT variavel
                     Nodo *novo_nodo = adiciona_nodo_label("input");
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
+                    verifica_input(novo_nodo, $2);
+
                 };
 
 comando_saida: TK_PR_OUTPUT variavel_ou_literal 
@@ -290,6 +292,7 @@ comando_saida: TK_PR_OUTPUT variavel_ou_literal
                     Nodo *novo_nodo = adiciona_nodo_label("output");
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
+                    verifica_output(novo_nodo, $2);
                 };
 
 comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT 
@@ -298,8 +301,8 @@ comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    insere_literal_pilha(TIPO_INT,$3);
                     verifica_shift($3);
+                    insere_literal_pilha(TIPO_INT,$3);
                 }
                | variavel_ou_vetor TK_OC_SR TK_LIT_INT 
                {
@@ -307,8 +310,8 @@ comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    insere_literal_pilha(TIPO_INT,$3);
                     verifica_shift($3);
+                    insere_literal_pilha(TIPO_INT,$3);
                 }
                ;
 
@@ -499,10 +502,10 @@ variavel: TK_IDENTIFICADOR
 
 vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'
                 { 
-                    verifica_vetor_no_escopo($1);
                     Nodo *novo_nodo = adiciona_nodo_label("[]");
                     adiciona_filho(novo_nodo, adiciona_nodo($1));
                     adiciona_filho(novo_nodo, $3);
+                    verifica_vetor_no_escopo(novo_nodo);
                     $$ = novo_nodo;
                 };
 
