@@ -577,7 +577,9 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
                     throwFunctionStringError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
                 }
                 
-                throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+                if(busca_funcao->conteudo.tipo == TIPO_CHAR) {
+                    throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+                }
             }
             operador->tipo = busca_funcao->conteudo.tipo;
             return;
