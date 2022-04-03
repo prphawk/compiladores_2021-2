@@ -798,12 +798,15 @@ void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_de
 
     while (args_passados_aux != NULL) {
         if(args_passados_aux->tipo != args_declarados_aux->tipo) {
-            
-            if(args_passados_aux->tipo == TIPO_STRING)
-                throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
 
-            if(args_passados_aux->tipo == TIPO_CHAR)
-                throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
+            printf(">> %s\n", _tipo_str(args_passados_aux->tipo));
+            
+            if(args_passados_aux->tipo == TIPO_STRING) {
+                throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
+            }
+
+            
+            throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
         }
 
         args_passados_aux = (Nodo *)args_passados_aux->filho;
