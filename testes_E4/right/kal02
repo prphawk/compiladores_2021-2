@@ -1,0 +1,5 @@
+float a;
+int f() {
+  a = 2.0;
+  return 0;
+}

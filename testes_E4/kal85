@@ -1,0 +1,6 @@
+//ERR_WRONG_PAR_OUTPUT
+int f(){
+    char a <= 'a';
+    output a; 
+    return 0;
+}

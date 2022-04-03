@@ -1,0 +1,11 @@
+//ERR_FUNCTION_STRING
+string g() {
+  string ret <= "universo";
+  return ret;
+}
+int f() {
+    int a;
+    int b;
+    a = g();
+    return 0;
+}

@@ -1,0 +1,6 @@
+//ERR_MISSING_ARGS
+int g(int a) { return 0; }
+int f() {
+    g();
+    return 0;
+}

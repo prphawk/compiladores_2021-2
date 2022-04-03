@@ -1,0 +1,9 @@
+int f() {
+    int a;
+    int b;
+    float c;
+    bool d;
+    int e;
+    a = b + c * d / e;
+    return 0;
+}

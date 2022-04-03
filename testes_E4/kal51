@@ -1,0 +1,6 @@
+//ERR_FUNCTION
+int g() { return 0; }
+int f() {
+    g[10] = 2;
+    return 0;
+}

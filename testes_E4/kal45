@@ -1,0 +1,11 @@
+//ERR_UNDECLARED
+int f(){
+    {
+	{
+	   {
+	      v[3] = 42;
+ 	   };
+	};
+    };
+    return 0;
+}

@@ -1,0 +1,7 @@
+//ERR_CHAR_TO_X
+int f() {
+    char a <= 'o';
+    float b;
+    b = 3.2 + a;
+    return 0;
+}

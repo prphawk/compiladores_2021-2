@@ -1,0 +1,6 @@
+//ERR_DECLARED
+int a;
+int a;
+int f(){
+    return 0;
+}

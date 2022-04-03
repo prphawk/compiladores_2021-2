@@ -1,0 +1,6 @@
+int f() {
+  string a <= "universo";
+  string b <= "univ.";
+  a = b;
+  return 0;
+}

@@ -1,0 +1,6 @@
+//ERR_FUNCTION_STRING
+int g(float b, int c, string oi) { return 0; }
+int f() {
+    g(4.5, false, "teste");
+    return 0;
+}

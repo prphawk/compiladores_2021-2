@@ -1,0 +1,4 @@
+bool f(){
+    float a;
+    return a;
+}

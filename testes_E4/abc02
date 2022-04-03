@@ -1,0 +1,6 @@
+//ERR_WRONG_PAR_RETURN
+char f(){
+  float a;
+  a = 3;
+  return a;
+}

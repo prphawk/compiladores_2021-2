@@ -1,0 +1,5 @@
+bool v[10];
+int f() {
+  v[3] = false;
+  return 0;
+}

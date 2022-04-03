@@ -1,0 +1,7 @@
+//ERR_WRONG_TYPE
+int f() {
+    int a;
+    string b <= "universo";
+    a = b;
+    return 0;
+}

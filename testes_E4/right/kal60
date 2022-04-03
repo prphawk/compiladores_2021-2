@@ -1,0 +1,4 @@
+int f() {
+    string a <= "universo";
+    return 0;
+}

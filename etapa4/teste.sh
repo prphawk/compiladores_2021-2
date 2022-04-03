@@ -3,25 +3,30 @@
 SUCCESS=0
 executable="./etapa4"
 evaluation=""
-echo "STARTING OFFICIAL TEST CASES"
 
-#checar memleaks
-# for file in ../etapa3/testes_E3_format/*
-#     do
-#     valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"
-#     result=$?
-#     print="FROM:${file}"
-#     echo "$print\n"
-# done
+echo "STARTING ERROR TEST CASES"
 
-#checar gramatica
-for file in ../testes_E2/*
+# o que nao deve dar erro
+for file in ../testes_E4/right/*
     do
     "$executable" < "$file"
     result=$?
-    evaluation=$(head -1 "$file")
     
-    print="FROM:${file} RESULT:${evaluation}"
+    print="FROM:${file}"
     echo "$print\n"
   
 done
+
+# echo "\nSTARTING CORRECT TEST CASES\n"
+
+# # o que deve dar erro
+# for file in ../testes_E4/*
+#     do
+#     "$executable" < "$file"
+#     result=$?
+#     evaluation=$(head -1 "$file")
+    
+#     print="FROM:${file} RESULT:${evaluation}"
+#     echo "$print\n"
+  
+#done

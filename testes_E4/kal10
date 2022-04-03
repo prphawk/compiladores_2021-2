@@ -1,0 +1,6 @@
+//ERR_UNDECLARED
+int f(){
+    string z <= "a";
+    a = z;
+    return 0;
+}

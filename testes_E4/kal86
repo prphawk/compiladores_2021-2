@@ -1,0 +1,7 @@
+//ERR_WRONG_PAR_OUTPUT
+int f(){
+    bool a;
+    a = false;
+    output a; 
+    return 0;
+}

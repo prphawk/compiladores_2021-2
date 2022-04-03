@@ -1,0 +1,4 @@
+//ERR_DECLARED
+int g(int a, int b) {
+  int b;
+}

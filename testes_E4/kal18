@@ -1,0 +1,6 @@
+//ERR_UNDECLARED
+int f() {
+    char car <= 'd';
+    a[3] = car;
+    return 0;
+}
