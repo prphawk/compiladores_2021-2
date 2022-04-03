@@ -538,12 +538,12 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
         if(busca_funcao != NULL) {
             
             if(busca_funcao->conteudo.tipo != expr1->tipo) {
-                if(expr1->tipo == TIPO_CHAR) {
-                    throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
-                }
+                
                 if(expr1->tipo == TIPO_STRING) {
                     throwFunctionStringError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
                 }
+                
+                throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
             }
             operador->tipo = busca_funcao->conteudo.tipo;
             return;
