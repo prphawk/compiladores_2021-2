@@ -517,18 +517,21 @@ vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'
 
 operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); } 
                 | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); }
+                | expr_bin_aritmetica { $$ = $1; }; //TODO E3
 
 expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica 
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
+                    verifica_expr_binaria($1, $2, $3);
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_logica 
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
+                    verifica_expr_binaria($1, $2, $3);
                 };
 
 expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };

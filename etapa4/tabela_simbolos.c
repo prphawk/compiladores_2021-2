@@ -526,6 +526,7 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 //#region Verificação
 
+
 void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
 
     _verifica_op_str_char_erro(esq);
