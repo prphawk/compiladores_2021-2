@@ -35,26 +35,26 @@ void throwFunctionError(int linha, char *input, int linha_declaracao)
 }
 void throwWrongTypeError(int linha, char *input, char *x, char *tipo_x)
 {
-  printf("[ERR_WRONG_TYPE] linha %i: Tipo de \"%s\" sendo ilegalmente atribuído à variável \"%s\" de tipo %s\n", linha, input, x, tipo_x);
+  printf("[ERR_WRONG_TYPE] linha %i: Tipo de \"%s\" sendo ilegalmente atribuído à variável \"%s\" de tipo %s.\n", linha, input, x, tipo_x);
   exit(ERR_WRONG_TYPE);
 }
 
 void throwStringToXError(int linha, char *input, char *x)
 {
-  printf("[ERR_STRING_TO_X] linha %i: Tipo STRING em \"%s\" sendo convertido ilegalmente para outro tipo em \"%s\"\n", linha, input, x);
+  printf("[ERR_STRING_TO_X] linha %i: Tipo STRING em \"%s\" sendo convertido ilegalmente para outro tipo em \"%s\".\n", linha, input, x);
   exit(ERR_STRING_TO_X);
 }
 
 void throwCharToXError(int linha, char *input, char *x)
 {
-  printf("[ERR_CHAR_TO_X] linha %i: Tipo CHAR em \"%s\" sendo convertido ilegalmente para outro tipo em \"%s\"\n", linha, input, x);
+  printf("[ERR_CHAR_TO_X] linha %i: Tipo CHAR em \"%s\" sendo convertido ilegalmente para outro tipo em \"%s\".\n", linha, input, x);
 
   exit(ERR_CHAR_TO_X);
 }
 
 void throwStringSizeError(int linha, char *input, int linha_declaracao)
 {
-  printf("[ERR_STRING_MAX] linha %i: \"%s\" excede o tamanho máximo declarado em linha %i\n", linha, input, linha_declaracao);
+  printf("[ERR_STRING_MAX] linha %i: \"%s\" excede o tamanho máximo declarado em linha %i.\n", linha, input, linha_declaracao);
   exit(ERR_STRING_MAX);
 }
 
@@ -110,4 +110,10 @@ void throwReturnError(int linha, char *input)
 {
   printf("[ERR_WRONG_PAR_RETURN] linha %i: Tipo de \"%s\" é retorno incompatível com função.\n", linha, input);
   exit(ERR_WRONG_PAR_RETURN);
+}
+
+void throwUnexpectedError(int linha, char *input)
+{
+  printf("[ERR_UNEXPECTED] linha %i: %s\n", linha, input);
+  exit(1);
 }
