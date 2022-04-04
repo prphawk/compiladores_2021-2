@@ -113,10 +113,9 @@ extern void *arvore;
 %type<nodo> declaracao
 %type<nodo> declaracoes
 %type<nodo> programa
-
-%type<tipo_simbolo> tipo //TODO ver se n da merda na ast...
 %type<nodo> variavel
 %type<nodo> vetor
+%type<tipo_simbolo> tipo
 %%
 
 programa: declaracoes { $$ = $1; arvore = $$; };
@@ -161,7 +160,7 @@ declaracao_funcao: cabecalho corpo //TODO como botar os parametros do cabeçalho
 cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };
 cabecalho_1: cabecalho_2 cabecalho_3 parametros ')' 
             { 
-                adiciona_argumentos_escopo_anterior($1); 
+                adiciona_parametros_escopo_anterior($1); 
                 $$ = $1; 
             }
 cabecalho_2: tipo TK_IDENTIFICADOR
@@ -179,8 +178,8 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR            { insere_argumento_sem_funcao($1, $2); libera_vlex($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_argumento_sem_funcao($2, $3); libera_vlex($3); };
+parametro: tipo TK_IDENTIFICADOR            { insere_parametro_sem_funcao($1, $2); libera_vlex($2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_parametro_sem_funcao($2, $3); libera_vlex($3); };
 
 tipo: TK_PR_INT     { $$ = TIPO_INT;    }
     | TK_PR_FLOAT   { $$ = TIPO_FLOAT;  }
@@ -190,15 +189,11 @@ tipo: TK_PR_INT     { $$ = TIPO_INT;    }
     ;
 
 lista_comandos: comando_simples ';' lista_comandos 
-    { 
-        if($1==NULL)
-            $$ = $3;
-        else {
-            adiciona_filho($1, $3);
-            $$ = $1;
-        }
-    } //caso $1 seja apenas um identificador, volta nulo e n podemos processar o $3
-    | { $$ = NULL; };
+                { 
+                    if($1==NULL) $$ = $3;
+                    else { adiciona_filho($1, $3); $$ = $1; }
+                }
+                | { $$ = NULL; };
 
 bloco_comandos: bloco_comandos_inicio_escopo lista_comandos bloco_comandos_fim_escopo { $$ = $2; } ;
 bloco_comandos_inicio_escopo: '{'  { empilha();    } ;
@@ -206,11 +201,10 @@ bloco_comandos_fim_escopo: '}'     { desempilha(); } ;
 
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
             Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
-            //adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
             if(E4_CHECK_FLAG) verifica_funcao_no_escopo($1, $3, novo_nodo);
             $$ = novo_nodo;
-            libera_vlex($1); //precisa liberar pq o identificador é substituido na arvore!!
+            libera_vlex($1);
         };
 
 comando_simples: declaracao_var_local   { $$ = $1;}
@@ -227,10 +221,10 @@ comando_simples: declaracao_var_local   { $$ = $1;}
                | bloco_comandos         { $$ = $1;}
                ;
 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); inicializacao_nodo($3, $4); }
-                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); inicializacao_nodo($2, $3); }
-                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); inicializacao_nodo($2, $3); }
-                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); inicializacao_nodo($1, $2); }
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); if(E4_CHECK_FLAG) verifica_inicializacao($3, $4); }
+                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); if(E4_CHECK_FLAG) verifica_inicializacao($2, $3); }
+                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); if(E4_CHECK_FLAG) verifica_inicializacao($2, $3); }
+                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); if(E4_CHECK_FLAG) verifica_inicializacao($1, $2); }
                      ;
 
 lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local

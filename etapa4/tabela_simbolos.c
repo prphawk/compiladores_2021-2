@@ -224,98 +224,95 @@ void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
     nova_vst->chave = chave;
     nova_vst->tamanho_vetor = tamanho_vetor;
 
-    if(pilha_hash == NULL) empilha();
-
-    VariavelSemTipoLst *vst_head = pilha_hash->variaveis_sem_tipo;
+    VariavelSemTipoLst *vst_head = global_variaveis_sem_tipo;
     nova_vst->proximo = (struct VariavelSemTipoLst *)vst_head;
-    pilha_hash->variaveis_sem_tipo = nova_vst;
+    global_variaveis_sem_tipo = nova_vst;
 }
 
 void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
     
+    if(pilha_hash == NULL) empilha();
+
     PilhaHash* pilha = pilha_hash;
 
-    if(pilha == NULL) return;
-
-    VariavelSemTipoLst *vst = pilha->variaveis_sem_tipo;
+    VariavelSemTipoLst *vst = global_variaveis_sem_tipo;
 
     while(vst != NULL) {
+
        EntradaHash *busca = _busca_topo_pilha(vst->chave, pilha);
 
-       if(busca != NULL) {
+        if(busca == NULL) throwUnexpectedError(-1, ">> Não tá encontrando o identificador para atualizar o tipo pendente.");
 
-            _verifica_conversao_str(tipo, busca);
+        else {
 
-           busca->conteudo.tipo = tipo;
-           busca->conteudo.tamanho = _tamanho(busca->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
-           if(print_stuff) print_pilha();
-       } else {
-           //TODO help???
-            if(print_stuff) printf("nao encontrado?? %s\n", vst->chave);
-       }
+            _verifica_vetor_string(tipo, busca);
+
+            busca->conteudo.tipo = tipo;
+            busca->conteudo.tamanho = _tamanho(busca->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
+
+            if(print_stuff) print_pilha();
+        }
+
         VariavelSemTipoLst *antigo_vst = vst;
         vst = (VariavelSemTipoLst *)vst->proximo;
+
         _libera_head_vst(antigo_vst);
     }
 
-    pilha->variaveis_sem_tipo = vst;
-    
-    return;
+    global_variaveis_sem_tipo = vst;
 }
 
-void insere_argumento_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
+void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
     
     _declara_em_escopo(NATUREZA_VARIAVEL, tipo, valor_lexico, 0);
 
     ArgumentoFuncaoLst *novo_arg_lst;
+
     novo_arg_lst = malloc(sizeof(ArgumentoFuncaoLst));
     novo_arg_lst->tipo = tipo;
 
-    if(pilha_hash == NULL) {
-        printf(">> n ta empilhando antes dos parametros");
-        return;
-    }
+    if(pilha_hash == NULL) throwUnexpectedError(valor_lexico.linha, ">> Não tá empilhando antes dos parâmetros.");
 
-    ArgumentoFuncaoLst *antigo_arg_lst = pilha_hash->argumentos_sem_funcao;
+    //novo ArgumentoFuncaoLst no inicio da lista de argumentos sem funcao do escopo
+    ArgumentoFuncaoLst *antigo_arg_lst = parametros_sem_funcao;
     novo_arg_lst->proximo = (struct ArgumentoFuncaoLst *)antigo_arg_lst;
-    pilha_hash->argumentos_sem_funcao = novo_arg_lst;
+    parametros_sem_funcao = novo_arg_lst;
 }
 
-// TODO função que adiciona um argumento à lista de argumentos de uma variável > DO TIPO FUNÇÃO < (checar!!!)
-// TODO cara como isso bate com a declaração dos parametros? como se bota uma função na tabela what
-// vai ter q ficar com os argumentos pendentes tbm
-void adiciona_argumentos_escopo_anterior(Nodo *nodo) {
+// função que adiciona um argumento à lista de argumentos de uma função
+void adiciona_parametros_escopo_anterior(Nodo *nodo_funcao) {
 
     PilhaHash *pilha = pilha_hash;
-    //TODO tirar prints
+
     if(pilha == NULL) {
-        printf(">> sem pilha? impossive.");
-        return;
+        throwUnexpectedError(nodo_funcao->valor_lexico.linha, ">> Sem escopo anterior para adicionar os parâmetros.");
     }
 
-    if(pilha->argumentos_sem_funcao == NULL) return;
+    if(parametros_sem_funcao == NULL) return;
 
-    char *chave_malloc = _chave(nodo->valor_lexico);
+    char *chave_malloc = _chave(nodo_funcao->valor_lexico);
 
     EntradaHash *busca = _busca_topo_pilha(chave_malloc, (PilhaHash*)pilha->resto);
 
     if(busca != NULL) {
-        _verifica_parametros_funcao(pilha->argumentos_sem_funcao, busca);
+        _verifica_parametros_funcao(parametros_sem_funcao, busca);
         
-        busca->conteudo.argumentos = reverse_args(pilha->argumentos_sem_funcao);
-        pilha->argumentos_sem_funcao = NULL;
+        busca->conteudo.argumentos = reverse_args(parametros_sem_funcao);
+
+        parametros_sem_funcao = NULL;
+    } else {    
+        throwUnexpectedError(nodo_funcao->valor_lexico.linha, ">> Sem função para adicionar os parâmetros.");
     }
-    
+
     free(chave_malloc);
-    return;
 }
 
 ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head) {
 
-    if (head == NULL || head->proximo == NULL)
-        return head;
+    if(head == NULL || head->proximo == NULL) return head;
 
     ArgumentoFuncaoLst* rest = reverse_args((ArgumentoFuncaoLst*)head->proximo);
+
     ((ArgumentoFuncaoLst*)head->proximo)->proximo = (ArgumentoFuncaoLst*)head;
 
     head->proximo = NULL;
@@ -430,8 +427,6 @@ void empilha()
 
     pilha_aux->quantidade_atual = 0;
     pilha_aux->tamanho_tabela = TAMANHO_INICIAL_HASH;
-    pilha_aux->variaveis_sem_tipo = NULL;
-    pilha_aux->argumentos_sem_funcao = NULL;
 
     EntradaHash *tabela = _malloc_tabela();
     pilha_aux->topo = tabela;
@@ -439,7 +434,7 @@ void empilha()
 
     pilha_hash = pilha_aux;
 
-    if(print_stuff) printf("\n->>> OP: EMPILHANDO\n");
+    if(print_stuff) printf("\n>> OP: EMPILHANDO\n");
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
@@ -465,6 +460,9 @@ EntradaHash *_malloc_tabela() {
 //#region Libera 
 
 void libera_pilha() {
+
+    _libera_vsts();
+
     while(pilha_hash != NULL) {
         desempilha();
     }
@@ -481,18 +479,14 @@ void desempilha()
 
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
 
-    _libera_vsts(antiga_pilha->variaveis_sem_tipo);
-
-    _libera_argumentos(antiga_pilha->argumentos_sem_funcao);
-
     free(antiga_pilha);
 
     pilha_hash = nova_pilha;
 
-    if(print_stuff) printf("\n->>> OP: DESEMPILHANDO\n");
+    if(print_stuff) printf("\n>> OP: DESEMPILHANDO\n");
 }
 
-// função que libera a tabela hash e tudo que há dentro dela (i.e. libera a memória caso necessário)
+// função que libera a tabela hash e tudo que há dentro dela
 void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
 
     if(tabela == NULL) return;
@@ -512,15 +506,7 @@ void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
     free(tabela);
 }
 
-void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
-
-    if(argumento == NULL) return;
-
-    _libera_argumentos((ArgumentoFuncaoLst *)argumento->proximo);
-
-    free(argumento);
-}
-
+// libera a head da lista global de variáveis sem tipo (também chamada quando encontramos o tipo)
 void _libera_head_vst(VariavelSemTipoLst *vst) {
 
     if(vst == NULL) return;
@@ -531,22 +517,29 @@ void _libera_head_vst(VariavelSemTipoLst *vst) {
     free(vst);
 }
 
-void _libera_vsts(VariavelSemTipoLst *vst) {
+// libera lista global de variáveis sem tipo (por precaução, já é pra estar vazia.)
+void _libera_vsts() {
 
-    if(vst == NULL) return;
+    VariavelSemTipoLst *vst = global_variaveis_sem_tipo;
 
-    _libera_vsts((VariavelSemTipoLst *)vst->proximo);
+    while(vst != NULL) {
 
-    _libera_head_vst(vst);
+        _libera_head_vst(vst);
+
+        vst = global_variaveis_sem_tipo->proximo;
+
+        global_variaveis_sem_tipo = vst;
+    }
 }
 
-void _libera_args(ArgumentoFuncaoLst *args) {
+//libera argumentos de uma funcao na tabela
+void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
 
-    if(args == NULL) return;
+    if(argumento == NULL) return;
 
-    _libera_args((ArgumentoFuncaoLst *)args->proximo);
+    _libera_argumentos((ArgumentoFuncaoLst *)argumento->proximo);
 
-    free(args);
+    free(argumento);
 }
 
 //#endregion Libera 
@@ -555,7 +548,7 @@ void _libera_args(ArgumentoFuncaoLst *args) {
 
 void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
 
-    if(E4_CHECK_FLAG) _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
+    _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
 
     operador->tipo = esq->tipo = dir->tipo;
 }
@@ -563,6 +556,7 @@ void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
 void verifica_return(Nodo *operador, Nodo *expr1) {
 
     if(ultima_funcao != NULL) {
+
         char* chave = _chave_label(ultima_funcao);
 
         EntradaHash *busca_funcao = _busca_topo_pilha(chave, ((EntradaHash*)pilha_hash->resto));
@@ -610,7 +604,7 @@ void verifica_expr_binaria(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void verifica_expr_unaria(Nodo *nodo_unario, Nodo *nodo) {
 
-    if(E4_CHECK_FLAG) _verifica_op_str_char_erro(nodo, nodo_unario->valor_lexico);
+    _verifica_op_str_char_erro(nodo, nodo_unario->valor_lexico);
 
     if(nodo_unario != NULL)
         nodo_unario->tipo = nodo->tipo;
@@ -649,7 +643,7 @@ void verifica_shift(Nodo *nodo_shift, ValorLexico valor_lexico_int) {
     nodo_shift->tipo = TIPO_INT;
 }
 
-void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
+void verifica_inicializacao(Tipo tipo, Nodo *nodos_inicializados) {
 
     Nodo *nodo_operacao = nodos_inicializados;
     Nodo *nodo_esq, *nodo_dir;
@@ -664,7 +658,7 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
         if(nodo_dir == NULL) break;
 
-        if(E4_CHECK_FLAG) _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
+        _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
 
         nodo_esq->tipo = nodo_dir->tipo;   
 
@@ -672,20 +666,22 @@ void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
 
         nodo_operacao = (Nodo*)nodo_dir->irmao;
     }
-
 }
 
 void _verifica_parametros_funcao(ArgumentoFuncaoLst *parametros, EntradaHash *entrada_funcao) {
-    ArgumentoFuncaoLst *aux = (ArgumentoFuncaoLst *)parametros;
-    while(aux != NULL) {
-        if(aux->tipo == TIPO_STRING) {
-            throwFunctionStringError(entrada_funcao->conteudo.linha, "parâmetros");
-        }
-        aux = (ArgumentoFuncaoLst*)aux->proximo;
+
+    ArgumentoFuncaoLst *params = (ArgumentoFuncaoLst *)parametros;
+
+    while(params != NULL) {
+
+        if(params->tipo == TIPO_STRING) throwFunctionStringError(entrada_funcao->conteudo.linha, "parâmetros");
+        
+        params = (ArgumentoFuncaoLst*)params->proximo;
     }
 }
 
 void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir, int inicializacao) {
+
     if(tipo_esq != tipo_dir) {
 
         if(tipo_esq == TIPO_STRING || tipo_esq == TIPO_CHAR) {
@@ -705,9 +701,14 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
         if(tipo_dir == TIPO_OUTRO) {
             throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
         }
-    }
 
-    if(tipo_dir == TIPO_STRING) {
+    } else _verifica_tamanho_maximo_string(esq, dir, inicializacao);
+}
+ 
+
+void _verifica_tamanho_maximo_string(Tipo tipo_dir, ValorLexico esq, ValorLexico dir, int inicializacao) {
+
+     if(tipo_dir == TIPO_STRING) {
 
         char* chave_esq = _chave(esq);
         char* chave_dir = _chave(dir);
@@ -717,25 +718,21 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
 
         if(busca_esq != NULL && busca_dir != NULL) {
                 
-            if(inicializacao) {
+            if(inicializacao) { //senao é atribuicao
                 busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
+
                 if(print_stuff) print_pilha();
 
-            } else verifica_tamanho_maximo_string(busca_esq, busca_dir);
+            } else if(busca_esq->conteudo.tamanho < busca_dir->conteudo.tamanho) {
+                throwStringSizeError(busca_dir->conteudo.valor_lexico.linha, busca_dir->conteudo.valor_lexico.label, busca_esq->conteudo.linha);
+            }
         }
         free(chave_esq);
         free(chave_dir);
     }
 }
 
-void verifica_tamanho_maximo_string(EntradaHash *esq, EntradaHash *dir) {
-    if(esq->conteudo.tamanho < dir->conteudo.tamanho) {
-        throwStringSizeError(dir->conteudo.valor_lexico.linha, dir->conteudo.valor_lexico.label, esq->conteudo.linha);
-    }
-}
-
-void _verifica_conversao_str(TipoSimbolo tipo, EntradaHash *entrada) {
-
+void _verifica_vetor_string(TipoSimbolo tipo, EntradaHash *entrada) {
     if(tipo == TIPO_STRING && entrada->conteudo.natureza == NATUREZA_VETOR) {
         throwStringVectorError(entrada->conteudo.valor_lexico.linha, entrada->conteudo.valor_lexico.label);
     }
@@ -827,21 +824,23 @@ void verifica_funcao_no_escopo(ValorLexico valor_lexico, Nodo *args_passados, No
 
 void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_declarados, int linha_declarada) {
 
-    Nodo *args_passados_aux = args_passados;
-    ArgumentoFuncaoLst *args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados;
+    Nodo *passados_nodo = args_passados;
+    ArgumentoFuncaoLst *declarados_afl = args_declarados;
 
-    while (args_passados_aux != NULL) {
-        if(args_passados_aux->tipo != args_declarados_aux->tipo) {
-            if(possui_tipo_aux(args_passados_aux->tipo, args_declarados_aux->tipo, TIPO_STRING)) {
-                throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
+    while (passados_nodo != NULL) {
+
+        if(passados_nodo->tipo != declarados_afl->tipo) {
+
+            if(possui_tipo_aux(passados_nodo->tipo, declarados_afl->tipo, TIPO_STRING)) {
+                throwFunctionStringError(passados_nodo->valor_lexico.linha, passados_nodo->valor_lexico.label);
             }
-            if(possui_tipo_aux(args_passados_aux->tipo, args_declarados_aux->tipo, TIPO_CHAR)) {
-                throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
+
+            if(possui_tipo_aux(passados_nodo->tipo, declarados_afl->tipo, TIPO_CHAR)) {
+                throwWrongTypeArgsError(passados_nodo->valor_lexico.linha, passados_nodo->valor_lexico.label, linha_declarada);
             }
         }
-
-        args_passados_aux = (Nodo *)args_passados_aux->irmao;
-        args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados_aux->proximo;
+        passados_nodo = (Nodo *)passados_nodo->irmao;
+        declarados_afl = (ArgumentoFuncaoLst *)declarados_afl->proximo;
     }
 }
 //#endregion Verificação

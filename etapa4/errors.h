@@ -39,3 +39,4 @@ void throwWrongParInput(int linha, char *input);
 void throwWrongParOutput(int linha, char *input);
 void throwWrongParShift(int linha);
 void throwReturnError(int linha, char *input);
+void throwUnexpectedError(int linha, char *input);
