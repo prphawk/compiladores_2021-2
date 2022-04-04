@@ -292,7 +292,7 @@ comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    if(E4_CHECK_FLAG) verifica_shift($3);
+                    if(E4_CHECK_FLAG) verifica_shift(novo_nodo, $3);
                     insere_literal_pilha(TIPO_INT,$3);
                 }
                | variavel_ou_vetor TK_OC_SR TK_LIT_INT 
@@ -301,7 +301,7 @@ comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    if(E4_CHECK_FLAG) verifica_shift($3);
+                    if(E4_CHECK_FLAG) verifica_shift(novo_nodo, $3);
                     insere_literal_pilha(TIPO_INT,$3);
                 }
                ;
