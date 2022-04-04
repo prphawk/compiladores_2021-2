@@ -1,0 +1,11 @@
+//ERR_STRING_TO_X
+int f() {
+  int b;
+  string a <= "universo";
+  {
+    {
+      b = a;
+    };
+  };     
+  return 0;
+}

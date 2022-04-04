@@ -1,0 +1,6 @@
+char v[10];
+int f() {
+  char car <= 'd';
+  v[3] = car;
+  return 0;
+}

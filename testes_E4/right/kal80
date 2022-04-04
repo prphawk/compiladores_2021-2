@@ -1,0 +1,5 @@
+int f(){
+    int a;
+    output a; 
+    return 0;
+}

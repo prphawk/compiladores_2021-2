@@ -1,0 +1,6 @@
+//ERR_FUNCTION_STRING
+int g(string a) { return 0; }
+int f() {
+    g("teste");
+    return 0;
+}

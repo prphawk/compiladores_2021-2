@@ -1,0 +1,11 @@
+//ERR_UNDECLARED
+int f(){
+    {
+	{
+	   {
+	      g();
+ 	   };
+	};
+    };
+    return 0;
+}

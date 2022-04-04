@@ -5,6 +5,44 @@
 #include <stdlib.h>
 #include <string.h>
 
+Tipo get_tipo_nodo(ValorLexico valor_lexico) {
+    if(valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL) {
+        switch (valor_lexico.tipo_vlex_literal) {
+            case VLEX_LITERAL_INT: return TIPO_INT; break;
+            case VLEX_LITERAL_FLOAT: return TIPO_FLOAT; break;
+            case VLEX_LITERAL_BOOL: return TIPO_BOOL; break;
+            case VLEX_LITERAL_CHAR: return TIPO_CHAR; break;
+            case VLEX_LITERAL_STRING: return TIPO_STRING; break;
+        }
+    }
+    return TIPO_OUTRO;
+}
+
+Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2) {
+
+    if(nodo1->tipo == nodo2->tipo) return nodo1->tipo;
+
+    if(possui_tipo(nodo1, nodo2, TIPO_INT)) {
+        if(possui_tipo(nodo1, nodo2, TIPO_FLOAT))
+            return TIPO_FLOAT;
+        if(possui_tipo(nodo1, nodo2, TIPO_BOOL))
+            return TIPO_INT;
+    }
+
+    if(possui_tipo(nodo1, nodo2, TIPO_FLOAT) 
+    && possui_tipo(nodo1, nodo2, TIPO_BOOL))
+        return TIPO_FLOAT;
+
+    return TIPO_OUTRO;
+}
+
+int possui_tipo(Nodo *nodo1, Nodo *nodo2, Tipo tipo) {
+    return (nodo1->tipo == tipo || nodo2->tipo == tipo);
+}
+int possui_tipo_aux(Tipo t1, Tipo t2, Tipo tipo) {
+    return (t1 == tipo || t2 == tipo);
+}
+
 Nodo *adiciona_nodo(ValorLexico valor_lexico)
 {
     Nodo *nodo;
@@ -13,6 +51,7 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     nodo->filho = NULL;
     nodo->irmao = NULL;
     nodo->valor_lexico = valor_lexico;
+    nodo->tipo = get_tipo_nodo(valor_lexico);
 
     return nodo;
 }
@@ -39,6 +78,7 @@ Nodo *adiciona_nodo_label(char *label)
     nodo->valor_lexico = valor_lexico;
     nodo->filho = NULL;
     nodo->irmao = NULL;
+    nodo->tipo = TIPO_OUTRO;
 
     return nodo;
 }
@@ -72,11 +112,11 @@ void imprime_arvore(Nodo *nodo, int profundidade)
     }
 
     if (profundidade == 0)
-        printf("%s", nodo->valor_lexico.label);
+        printf("%s (%s)", nodo->valor_lexico.label, _tipo_str(nodo->tipo));
     else 
     {
-        printf("+---");
-        printf("%s", nodo->valor_lexico.label);
+        printf("●---");
+        printf("%s (%s)", nodo->valor_lexico.label, _tipo_str(nodo->tipo));
     }
     printf("\n");
 
@@ -107,6 +147,12 @@ void adiciona_irmao(Nodo *nodo, Nodo *novo_irmao)
     nodo->irmao = novo_irmao;
     novo_irmao->irmao = NULL;
     return;
+}
+
+void adiciona_irmao_head(Nodo *nodo, Nodo *novo_irmao)
+{
+    nodo->irmao = novo_irmao;
+    //novo_irmao->irmao = NULL;
 }
 
 void libera(void *pai)

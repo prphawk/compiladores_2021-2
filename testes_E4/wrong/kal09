@@ -1,0 +1,6 @@
+//ERR_UNDECLARED
+int f() {
+    char z <= 'b';
+    a = z;
+    return 0;
+}

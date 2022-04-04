@@ -18,7 +18,7 @@ ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
          case VLEX_LITERAL_FLOAT:
             valor_lexico.valor_float=atof(yytext);
             break;
-         case VLEX_LITERAL_INTEIRO:
+         case VLEX_LITERAL_INT:
             valor_lexico.valor_int=atoi(yytext);
             break;
          case VLEX_LITERAL_CHAR:
@@ -35,10 +35,15 @@ ValorLexico atribui_yylval(char* yytext, TipoVLex tipo, TipoVLexLiteral tipo_vle
 
 void libera_vlex(ValorLexico valor_lexico)
 {
-    if(tem_valor_string(valor_lexico))
+    if(tem_valor_string(valor_lexico) && valor_lexico.valor_string != NULL) //TODO mudar na E3
+    {
         free(valor_lexico.valor_string);
-    if(valor_lexico.label != NULL)
+         valor_lexico.valor_string = NULL;
+    }
+    if(valor_lexico.label != NULL) {
         free(valor_lexico.label);
+         valor_lexico.label = NULL;
+    }
     return;
 }
 

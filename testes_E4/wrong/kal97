@@ -1,0 +1,6 @@
+//ERR_WRONG_PAR_SHIFT
+int f(){
+    int a;
+    a >> 18;
+    return 0;
+}

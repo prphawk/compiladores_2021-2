@@ -6,6 +6,9 @@
 #include <string.h>
 #include "ast.h"
 #include "tabela_simbolos.h"
+
+int print_arvore = 0;
+
 extern int yyparse(void);
 extern int yylex_destroy(void);
 
@@ -17,8 +20,7 @@ int main (int argc, char **argv)
 {
   int ret = yyparse(); 
   //exporta (arvore);
-  //imprime_arvore(arvore);
-  //print_escopos();
+  if(print_arvore) imprime_arvore(arvore, 0);
   libera(arvore);
   libera_pilha();
   arvore = NULL;

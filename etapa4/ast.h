@@ -5,7 +5,7 @@
 #include "tabela_simbolos.h"
 
 typedef struct Nodo {
-    TipoSimbolo tipo_simbolo;
+    Tipo tipo;
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
@@ -24,3 +24,4 @@ void libera_nodo(Nodo *nodo);
 void imprime_nodo(Nodo *nodo);
 void imprime_arestas(Nodo *nodo);
 void exporta(void *arvore);
+int possui_tipo(Nodo *nodo1, Nodo *nodo2, Tipo tipo);

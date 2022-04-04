@@ -1,0 +1,6 @@
+//ERR_WRONG_PAR_OUTPUT
+int f(){
+    string a <= "universo";
+    output a; 
+    return 0;
+}

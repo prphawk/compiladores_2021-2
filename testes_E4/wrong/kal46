@@ -1,0 +1,6 @@
+//ERR_VARIABLE
+int a;
+int f() {
+    a[10] = 34;
+    return 0;
+}

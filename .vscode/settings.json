@@ -1,0 +1,10 @@
+{
+	"files.associations": {
+		"valor_lexico.h": "c",
+		"ast.h": "c",
+		"tabela_simbolos.h": "c",
+		"kal54": "cpp",
+		"abc12": "cpp"
+	},
+	"C_Cpp.errorSquiggles": "Disabled"
+}

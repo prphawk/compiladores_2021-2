@@ -1,0 +1,5 @@
+//ERR_UNDECLARED
+int f() {
+    a[3] = 2;
+    return 0;
+}

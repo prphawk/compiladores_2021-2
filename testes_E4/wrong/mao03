@@ -1,0 +1,9 @@
+//ERR_WRONG_TYPE
+int f() {
+    string a <= "universo";
+    int b;
+    float c;
+    bool d;
+    a = b + c * d;
+    return 0;
+}

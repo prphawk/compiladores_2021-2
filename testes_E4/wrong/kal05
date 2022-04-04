@@ -1,0 +1,7 @@
+//ERR_STRING_TO_X
+string a;
+int b;
+int f(){
+  b = a;
+  return 0;
+}

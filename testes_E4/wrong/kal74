@@ -1,0 +1,7 @@
+//ERR_WRONG_TYPE
+float v[30];
+int f() {
+    string b <= "universo";
+    v[2] = b;
+    return 0;
+}

@@ -1,0 +1,7 @@
+//ERR_STRING_TO_X
+int f() {
+    string a <= "universo";
+    float b;
+    b = 3.3 + a;
+    return 0;
+}

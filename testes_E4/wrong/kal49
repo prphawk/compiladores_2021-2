@@ -1,0 +1,6 @@
+//ERR_VECTOR
+int v[100];
+int f() {
+    v();
+    return 0;
+}

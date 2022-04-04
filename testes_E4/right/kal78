@@ -1,0 +1,5 @@
+int f() {
+    int a;
+    input a;
+    return 0;
+}

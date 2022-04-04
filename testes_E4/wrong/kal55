@@ -1,0 +1,8 @@
+//ERR_STRING_TO_X
+int f() {
+    string a <= "universo";
+    char b;
+    int car;
+    b = car + a;
+    return 0;
+}

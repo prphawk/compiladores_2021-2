@@ -1,0 +1,5 @@
+int g(float b) { return 0; }
+int f() {
+    g(4.5);
+    return 0;
+}

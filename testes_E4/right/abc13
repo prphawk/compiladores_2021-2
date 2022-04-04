@@ -1,0 +1,8 @@
+int i;
+int f(){
+  int i;
+  while(i) do {
+      int i;
+      i = 2;
+  };
+}
