@@ -350,8 +350,8 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                   ;
 
 argumentos: expressao',' argumentos 
-            {;
-                adiciona_filho($1, $3);
+            {
+                adiciona_irmao_head($1, $3); //TODO mudar E3
                 $$ = $1;
             }
             | expressao { $$ = $1; };
@@ -406,7 +406,7 @@ expressao: expr_ternaria        { $$ = $1; } //fazer escadinha? pra evitar a rep
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
             { 
                 libera_vlex($2); //não usaremos, mas foi alocado!!
-                Nodo *novo_nodo = adiciona_nodo_label("?:"); 
+                Nodo *novo_nodo = adiciona_nodo_label("?:");
                 adiciona_filho(novo_nodo, $1); 
                 adiciona_filho(novo_nodo, $3); 
                 adiciona_filho(novo_nodo, $5); 

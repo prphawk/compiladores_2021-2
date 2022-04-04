@@ -39,6 +39,9 @@ Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2) {
 int possui_tipo(Nodo *nodo1, Nodo *nodo2, Tipo tipo) {
     return (nodo1->tipo == tipo || nodo2->tipo == tipo);
 }
+int possui_tipo_aux(Tipo t1, Tipo t2, Tipo tipo) {
+    return (t1 == tipo || t2 == tipo);
+}
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico)
 {
@@ -144,6 +147,12 @@ void adiciona_irmao(Nodo *nodo, Nodo *novo_irmao)
     nodo->irmao = novo_irmao;
     novo_irmao->irmao = NULL;
     return;
+}
+
+void adiciona_irmao_head(Nodo *nodo, Nodo *novo_irmao)
+{
+    nodo->irmao = novo_irmao;
+    //novo_irmao->irmao = NULL;
 }
 
 void libera(void *pai)
