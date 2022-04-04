@@ -641,10 +641,12 @@ void verifica_output(Nodo *nodo_output, Nodo *nodo) {
     nodo_output->tipo = nodo->tipo;
 }
 
-void verifica_shift(ValorLexico valor_lexico_int) {
+void verifica_shift(Nodo *nodo_shift, ValorLexico valor_lexico_int) {
     if(valor_lexico_int.valor_int > 16) {
         throwWrongParShift(valor_lexico_int.linha);
     }
+
+    nodo_shift->tipo = TIPO_INT;
 }
 
 void inicializacao_nodo(Tipo tipo, Nodo *nodos_inicializados) {
