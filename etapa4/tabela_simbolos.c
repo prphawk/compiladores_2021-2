@@ -686,23 +686,21 @@ void _verifica_parametros_funcao(ArgumentoFuncaoLst *parametros, EntradaHash *en
 void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir, int inicializacao) {
     if(tipo_esq != tipo_dir) {
 
+        if(tipo_esq == TIPO_STRING || tipo_esq == TIPO_CHAR) {
+            throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
+        }
+
+        //TODO ver se tem um jeito de resolver aquele problem dos kal73, kal74
         if(tipo_dir == TIPO_STRING) {
-            // inicializacao ? 
-            // throwWrongTypeError(dir.linha, dir.label, esq.label);
             throwStringToXError(dir.linha, dir.label, esq.label);
         }
+        
         if(tipo_dir == TIPO_CHAR) {
-            // inicializacao ?
-            // throwWrongTypeError(dir.linha, dir.label, esq.label);
             throwCharToXError(dir.linha, dir.label, esq.label);
         }
 
         //tive que fazer um compromisso e lançar um erro generico ao inves do requerido em teste abc12.
         if(tipo_dir == TIPO_OUTRO) {
-            throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
-        }
-
-        if(tipo_esq == TIPO_STRING || tipo_esq == TIPO_CHAR) {
             throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
         }
     }
