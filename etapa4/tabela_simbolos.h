@@ -70,9 +70,11 @@ typedef struct pilhaHash {
     struct PilhaHash *resto;
 } PilhaHash;
 
-int E4_CHECK_FLAG;
-ArgumentoFuncaoLst *parametros_sem_funcao;
+PilhaHash *pilha_hash
+ArgumentoFuncaoLst *global_parametros_sem_funcao;
 VariavelSemTipoLst *global_variaveis_sem_tipo;
+char *ultima_funcao;
+int E4_CHECK_FLAG;
 
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 EntradaHash *_busca_pilha(char *chave);

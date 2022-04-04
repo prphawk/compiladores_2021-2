@@ -1,10 +1,13 @@
 #include "tabela_simbolos.h"
 #include "ast.h"
 
-PilhaHash *pilha_hash = NULL;
-char *ultima_funcao = NULL;
-int print_stuff = 0;
+pilha_hash = NULL;
+ultima_funcao = NULL;
+global_parametros_sem_funcao = NULL;
+global_variaveis_sem_tipo = NULL;
 E4_CHECK_FLAG = 1;
+
+int print_stuff = 0;
 
 /*
 TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
@@ -51,7 +54,7 @@ int _conta_argumentos_nodo(Nodo *nodo) {
     return count;
 }
 
-//TODO checar tamanhos na tabela. Função que retorna o tamanho do tipoSimbolo
+//Função que retorna o tamanho do tipoSimbolo
 int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
     int mult = 1;
     if(tamanho_vetor > 0) mult = tamanho_vetor;
@@ -68,16 +71,8 @@ int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
     }
 }
 
-// função que recebe um nome (label?) e uma natureza (variável, função, literal) e cria uma chave dando append nos dois
-// exemplo out: func1_n_3
-// TODO ver se esse projeto é pra aceitar a declaração do mesmo nome com naturezas diferentes. tipo nome (variavel) != nome(){} (função)
 char *_chave(ValorLexico valor_lexico)
 {
-    // char str[10];
-    // sprintf(str, "_n_%d", natureza);
-
-    //return append_str_malloc(nome, str);
-
     return strdup(valor_lexico.label);
 }
 
@@ -274,9 +269,9 @@ void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
     if(pilha_hash == NULL) throwUnexpectedError(valor_lexico.linha, ">> Não tá empilhando antes dos parâmetros.");
 
     //novo ArgumentoFuncaoLst no inicio da lista de argumentos sem funcao do escopo
-    ArgumentoFuncaoLst *antigo_arg_lst = parametros_sem_funcao;
+    ArgumentoFuncaoLst *antigo_arg_lst = global_parametros_sem_funcao;
     novo_arg_lst->proximo = (struct ArgumentoFuncaoLst *)antigo_arg_lst;
-    parametros_sem_funcao = novo_arg_lst;
+    global_parametros_sem_funcao = novo_arg_lst;
 }
 
 // função que adiciona um argumento à lista de argumentos de uma função
@@ -288,18 +283,18 @@ void adiciona_parametros_escopo_anterior(Nodo *nodo_funcao) {
         throwUnexpectedError(nodo_funcao->valor_lexico.linha, ">> Sem escopo anterior para adicionar os parâmetros.");
     }
 
-    if(parametros_sem_funcao == NULL) return;
+    if(global_parametros_sem_funcao == NULL) return;
 
     char *chave_malloc = _chave(nodo_funcao->valor_lexico);
 
     EntradaHash *busca = _busca_topo_pilha(chave_malloc, (PilhaHash*)pilha->resto);
 
     if(busca != NULL) {
-        _verifica_parametros_funcao(parametros_sem_funcao, busca);
+        _verifica_parametros_funcao(global_parametros_sem_funcao, busca);
         
-        busca->conteudo.argumentos = reverse_args(parametros_sem_funcao);
+        busca->conteudo.argumentos = reverse_args(global_parametros_sem_funcao);
 
-        parametros_sem_funcao = NULL;
+        global_parametros_sem_funcao = NULL;
     } else {    
         throwUnexpectedError(nodo_funcao->valor_lexico.linha, ">> Sem função para adicionar os parâmetros.");
     }
@@ -333,13 +328,6 @@ ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
 }
 
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
-// chamar ao declarar
-// TODO gente como diferenciamos redeclaração e redefinição aqui
-/* TODO só procura no topo da pilha, tem que mudar!!!
- -> wait n precisa pq pode declarar algo com msm nome em escopos diferentes 
- -> ta mas e se fizer reatribuição de algo declarado fora do escopo? como achar?
- -> dai tu faz a função de ATRIBUIÇÃO, pq essa aqui tu usa pra DECLARAR.
-*/
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
 
     if(pilha_hash == NULL) empilha();
@@ -353,7 +341,6 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
     EntradaHash *busca = _busca_topo_pilha(chave_malloc, pilha);
 
     if(busca != NULL) {
-        //TODO ve redlecaração ou apenas atribuição??
         throwDeclaredError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
         free(chave_malloc);
         return NULL;

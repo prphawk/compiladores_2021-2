@@ -136,13 +136,12 @@ declaracao_variavel_global: TK_PR_STATIC tipo lista_nome_variavel_global ';'    
 
 lista_nome_variavel_global: nome_variavel_global | nome_variavel_global ',' lista_nome_variavel_global;
 
-// TODO checar se pode declarar vetores de string. parece que não
 nome_variavel_global: TK_IDENTIFICADOR                      
                     { 
                         insere_variavel_sem_tipo_pilha($1); 
                         libera_vlex($1); 
                     }
-                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'   //TODO mudar indexador para expr aritmetica quando souber como pegar o valor
+                    | TK_IDENTIFICADOR '[' TK_LIT_INT ']'
                     { 
                         insere_vetor_sem_tipo_pilha($1, $3.valor_int); 
                         libera_vlex($1); libera_vlex($3); 
@@ -151,7 +150,7 @@ nome_variavel_global: TK_IDENTIFICADOR
 corpo: '{' lista_comandos corpo_1 { $$ = $2; }
 corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
 
-declaracao_funcao: cabecalho corpo //TODO como botar os parametros do cabeçalho no escopo do corpo?? 
+declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
                     $$ = $1;
