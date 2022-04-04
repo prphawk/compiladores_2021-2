@@ -216,7 +216,10 @@ expr_parenteses_aritmetica: operando_aritmetico | '(' expr_bin_aritmetica ')';
 /* note que operandos lógicos (booleans), diferentemente de expr aritmeticas, 
 não são expressões por si só e apenas são reconhecidos como tal quando estão entre operações */
 expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
-               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica;
+               | expr_parenteses_logica operador_binario_logico expr_parenteses_logica
+               | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica
+               | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica
+               ;
 
 expr_parenteses_logica: operando_logico | '(' expr_bin_logica ')';
 

@@ -10,7 +10,6 @@
 #define TAMANHO_CHAR 1 
 #define TAMANHO_INT 4
 #define TAMANHO_FLOAT 8
-
 typedef enum tipo
 {
     TIPO_INT,
@@ -49,7 +48,7 @@ typedef struct variavelSemTipoLst
 
 typedef struct conteudo {
     int linha;
-    int coluna; //opcional, -1 quando n existe 
+    int coluna; //opcional, posição da linha, -1 quando n aplicável 
     int tamanho;
     TipoSimbolo tipo;
     NaturezaSimbolo natureza;
@@ -71,10 +70,10 @@ typedef struct pilhaHash {
 } PilhaHash;
 
 PilhaHash *pilha_hash
-ArgumentoFuncaoLst *global_parametros_sem_funcao;
-VariavelSemTipoLst *global_variaveis_sem_tipo;
-char *ultima_funcao;
-int E4_CHECK_FLAG;
+ArgumentoFuncaoLst *global_parametros_sem_funcao; // para inserir uma lista de parametros nos atributos de uma função ainda não reconhecida pela gramática
+VariavelSemTipoLst *global_variaveis_sem_tipo; // para inserir e atualizar no escopo uma lista de declarações cujo tipo ainda não foi reconhecido pela gramática
+char *ultima_funcao; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
+int E4_CHECK_FLAG; // existe pra desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 EntradaHash *_busca_pilha(char *chave);

@@ -342,9 +342,11 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                   }
                   ;
 
+/* mudança de lista de filhos para lista de irmãos para poder corretamente contabilizar o número e 
+verificar o tipo de argumentos formados por expressões passados em uma função ex: foo(10+30,40+2) */
 argumentos: expressao',' argumentos 
             {
-                adiciona_irmao_head($1, $3); //TODO mudar E3
+                adiciona_irmao_head($1, $3);
                 $$ = $1;
             }
             | expressao { $$ = $1; };
@@ -398,7 +400,7 @@ expressao: expr_ternaria        { $$ = $1; } //fazer escadinha? pra evitar a rep
 
 expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao 
             { 
-                libera_vlex($2); //não usaremos, mas foi alocado!!
+                libera_vlex($2);
                 Nodo *novo_nodo = adiciona_nodo_label("?:");
                 adiciona_filho(novo_nodo, $1); 
                 adiciona_filho(novo_nodo, $3); 
@@ -521,14 +523,14 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
                 }
-                | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica //TODO mudar ../E2
+                | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
                 }
-                | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica //TODO mudar ../E2
+                | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);

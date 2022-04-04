@@ -7,8 +7,6 @@ typedef struct Nodo {
     valorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
-    // TODO modificar função de adicionar nodo para incluir o tipo
-    // TipoSimbolo tipo;
 } Nodo;
 
 Nodo *adiciona_nodo(valorLexico valor_lexico);

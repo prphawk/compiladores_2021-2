@@ -150,17 +150,11 @@ tipo: TK_PR_INT | TK_PR_FLOAT | TK_PR_CHAR | TK_PR_BOOL | TK_PR_STRING;
 
 corpo: bloco_comandos { $$ = $1; } ;
 
-lista_comandos: comando_simples ';' lista_comandos 
-    { 
-        if($1==NULL)
-            $$ = $3;
-        else {
-            adiciona_filho($1, $3);
-            $$ = $1;
-        }
-    } //caso $1 seja apenas um identificador, volta nulo e n podemos processar o $3
-    //TODO checar correção.
-    | { $$ = NULL; };
+lista_comandos: comando_simples ';' lista_comandos { 
+                if($1==NULL) $$ = $3;
+                else { adiciona_filho($1, $3); $$ = $1; }
+            }
+            | { $$ = NULL; };
 
 bloco_comandos: '{' lista_comandos '}' { $$ = $2; } ;
 
@@ -492,7 +486,18 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica 
                     adiciona_filho($2, $3);
                     $$ = $2;
                 }
-			    ;
+                | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                }
+                | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                };
 
 expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
 
