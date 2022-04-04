@@ -706,12 +706,12 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
 }
  
 
-void _verifica_tamanho_maximo_string(EntradaHash *esq, EntradaHash *dir, int inicializacao) {
+void _verifica_tamanho_maximo_string(Tipo tipo_dir, ValorLexico esq, ValorLexico dir, int inicializacao) {
 
-     if(dir->conteudo.tipo == TIPO_STRING) {
+     if(tipo_dir == TIPO_STRING) {
 
-        char* chave_esq = _chave(esq->conteudo.valor_lexico);
-        char* chave_dir = _chave(dir->conteudo.valor_lexico);
+        char* chave_esq = _chave(esq);
+        char* chave_dir = _chave(dir);
 
         EntradaHash *busca_esq = _busca_pilha(chave_esq);
         EntradaHash *busca_dir = _busca_pilha(chave_dir);
@@ -723,8 +723,8 @@ void _verifica_tamanho_maximo_string(EntradaHash *esq, EntradaHash *dir, int ini
 
                 if(print_stuff) print_pilha();
 
-            } else if(esq->conteudo.tamanho < dir->conteudo.tamanho) {
-                throwStringSizeError(dir->conteudo.valor_lexico.linha, dir->conteudo.valor_lexico.label, esq->conteudo.linha);
+            } else if(busca_esq->conteudo.tamanho < busca_dir->conteudo.tamanho) {
+                throwStringSizeError(busca_dir->conteudo.valor_lexico.linha, busca_dir->conteudo.valor_lexico.label, busca_esq->conteudo.linha);
             }
         }
         free(chave_esq);
