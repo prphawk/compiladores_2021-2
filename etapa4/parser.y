@@ -346,7 +346,7 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
 verificar o tipo de argumentos formados por expressões passados em uma função ex: foo(10+30,40+2) */
 argumentos: expressao',' argumentos 
             {
-                adiciona_irmao_head($1, $3);
+                adiciona_irmao($1, $3);
                 $$ = $1;
             }
             | expressao { $$ = $1; };

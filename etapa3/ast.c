@@ -45,7 +45,7 @@ void adiciona_filho(Nodo *nodo, Nodo *filho)
        }
        else
        {
-           adiciona_irmao(acha_ultimo_irmao(nodo->filho), filho);
+           adiciona_ultimo_irmao(acha_ultimo_irmao(nodo->filho), filho);
        }
    }
    return;
@@ -94,7 +94,7 @@ Nodo *acha_ultimo_irmao(Nodo *nodo_irmao)
 }
 
 
-void adiciona_irmao(Nodo *nodo, Nodo *novo_irmao)
+void adiciona_ultimo_irmao(Nodo *nodo, Nodo *novo_irmao)
 {
     nodo->irmao = novo_irmao;
     novo_irmao->irmao = NULL;

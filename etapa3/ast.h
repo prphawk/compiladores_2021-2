@@ -14,7 +14,7 @@ Nodo *adiciona_nodo_label(char *label);
 void adiciona_filho(Nodo *nodo, Nodo *filho);
 void imprime_arvore(Nodo *nodo, int profundidade);
 Nodo *acha_ultimo_irmao(Nodo *nodo_irmao);
-void adiciona_irmao(Nodo *irmao, Nodo *novo_irmao);
+void adiciona_ultimo_irmao(Nodo *irmao, Nodo *novo_irmao);
 void libera(void *pai);
 void libera_irmaos(void *filhos);
 void libera_nodo(Nodo *nodo);
