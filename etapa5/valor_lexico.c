@@ -48,7 +48,7 @@ int tem_valor_string(ValorLexico valor_lexico) {
 }
 
 char* append_str_malloc(char* str1, char* str2) {
-   char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char)); //TODO precisa add o \0 aqui ou nem?
+   char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char)); //TODO add o \0 aqui
    strcpy(result, str1);
    strcat(result, str2);
    return result;

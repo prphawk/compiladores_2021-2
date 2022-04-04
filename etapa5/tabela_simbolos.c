@@ -6,10 +6,10 @@ VariavelSemTipoLst *global_variaveis_sem_tipo = NULL; // para inserir e atualiza
 char *ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
 int E4_CHECK_FLAG = 1; // existe pra desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
-int print_stuff = 0;
+int print_stuff = 1;
 
 /*
-TABELA HASH - a tabela hash usa open adressing. 
+TABELA HASH - a tabela hash usa open adressing.
               ela é um array de estruturas EntradaHash alocado dinamicamente (não confundir com linked lists).
               isso nos dá a opção de expandir o tamanho da tabela se ficar mt densa. é necessário guardar o tamanho do array alocado assim.
 CONFLITOS   - o probing em caso de conflito pula pro endereço seguinte. por enquanto ele só dá um pulinho de cada vez. dá pra mudar.
@@ -210,6 +210,7 @@ void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
     _declara_em_escopo(NATUREZA_VETOR, TIPO_PENDENTE, valor_lexico, 0);
 }
 
+// identificador = variavel ou vetor
 void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
 
     VariavelSemTipoLst *nova_vst;
@@ -697,7 +698,6 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
     } else _verifica_tamanho_maximo_string(tipo_dir, esq, dir, inicializacao);
 }
  
-
 void _verifica_tamanho_maximo_string(Tipo tipo_dir, ValorLexico esq, ValorLexico dir, int inicializacao) {
 
      if(tipo_dir == TIPO_STRING) {

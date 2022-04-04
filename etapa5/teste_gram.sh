@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SUCCESS=0
-executable="./etapa4"
+executable="./etapa5"
 evaluation=""
 echo "\nSTARTING GRAMMAR TEST CASES\n"
 
