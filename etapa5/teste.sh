@@ -1,0 +1,32 @@
+#!/bin/bash
+
+SUCCESS=0
+executable="./etapa5"
+evaluation=""
+
+
+# o que NAO deve dar erro
+
+echo "------------- STARTING CORRECT TEST CASES -------------\n"
+for file in ../testes_E4/right/*
+    do
+    "$executable" < "$file"
+    result=$?
+    
+    print="FROM:${file}"
+    echo "$print\n"
+done
+  
+
+# o que deve dar erro
+
+echo "\n------------- STARTING ERRONEOUS TEST CASES -------------\n"
+for file in ../testes_E4/wrong/*
+    do
+    "$executable" < "$file"
+    result=$?
+    evaluation=$(head -1 "$file")
+    
+    print="FROM:${file} RESULT:${evaluation}"
+    echo "$print\n"
+done
