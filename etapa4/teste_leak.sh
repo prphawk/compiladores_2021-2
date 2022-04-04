@@ -13,3 +13,11 @@ for file in ../etapa3/testes_E3_format/*
     print="FROM:${file}"
     echo "$print\n"
 done
+
+for file in ../testes_E4/right/*
+    do
+    valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"
+    result=$?
+    print="FROM:${file}"
+    echo "$print\n"
+done

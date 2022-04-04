@@ -1,4 +1,5 @@
 //CORRECT
+/*
 static int msm_var_escopo_dif, b;
 string var_str;
 int vetor_int[ 100 ];
@@ -13,4 +14,14 @@ k = boo || boo && (1+2);
   k = a+1 ? 1 : 2;
   input k;
   return k;
+}
+*/
+
+int k(int x, int y, int z){}
+
+int f(){
+	int a;
+	float d;
+	a = (30+31) + 40;
+    k(10+43,d,30+40);
 }

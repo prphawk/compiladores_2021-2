@@ -45,13 +45,13 @@ int _conta_argumentos_nodo(Nodo *nodo) {
     Nodo *nodo_aux = nodo;
 
     while (nodo_aux != NULL) {
-        nodo_aux = (Nodo *)nodo_aux->filho;
+        nodo_aux = (Nodo *)nodo_aux->irmao;
         count++;
     }
     return count;
 }
 
-//TODO função que retorna o tamanho do tipoSimbolo ISSO AI TA INCOMPLETO!!!! tem q calcular com o tamanho da string tbm
+//TODO checar tamanhos na tabela. Função que retorna o tamanho do tipoSimbolo
 int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
     int mult = 1;
     if(tamanho_vetor > 0) mult = tamanho_vetor;
@@ -576,7 +576,7 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
                 if(expr1->tipo == TIPO_STRING) {
                     throwFunctionStringError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
                 }
-                
+
                 if(busca_funcao->conteudo.tipo == TIPO_CHAR) {
                     throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
                 }
@@ -831,14 +831,16 @@ void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_de
     ArgumentoFuncaoLst *args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados;
 
     while (args_passados_aux != NULL) {
-        if(args_passados_aux->tipo != args_declarados_aux->tipo) {            
-            if(args_passados_aux->tipo == TIPO_STRING) {
+        if(args_passados_aux->tipo != args_declarados_aux->tipo) {
+            if(possui_tipo_aux(args_passados_aux->tipo, args_declarados_aux->tipo, TIPO_STRING)) {
                 throwFunctionStringError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label);
             }
-            throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
+            if(possui_tipo_aux(args_passados_aux->tipo, args_declarados_aux->tipo, TIPO_CHAR)) {
+                throwWrongTypeArgsError(args_passados_aux->valor_lexico.linha, args_passados_aux->valor_lexico.label, linha_declarada);
+            }
         }
 
-        args_passados_aux = (Nodo *)args_passados_aux->filho;
+        args_passados_aux = (Nodo *)args_passados_aux->irmao;
         args_declarados_aux = (ArgumentoFuncaoLst *)args_declarados_aux->proximo;
     }
 }
