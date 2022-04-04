@@ -10,7 +10,7 @@ E4_CHECK_FLAG = 1;
 int print_stuff = 0;
 
 /*
-TABELA HASH - a tabela hash é pra ser construida utilizando open adressing. 
+TABELA HASH - a tabela hash usa open adressing. 
               ela é um array de estruturas EntradaHash alocado dinamicamente (não confundir com linked lists).
               isso nos dá a opção de expandir o tamanho da tabela se ficar mt densa. é necessário guardar o tamanho do array alocado assim.
 CONFLITOS   - o probing em caso de conflito pula pro endereço seguinte. por enquanto ele só dá um pulinho de cada vez. dá pra mudar.
@@ -71,6 +71,9 @@ int _tamanho(ValorLexico valor_lexico, TipoSimbolo tipo, int tamanho_vetor) {
     }
 }
 
+/* faz uma cópia do label de valor léxico que deve ser liberado depois (mas não precisa ser assim, pode ser apenas a cópia de um ponteiro). 
+é desse jeito para possibilitar a mudança do formato de chaves de alguma forma que fosse possível possuir diferentes entradas hash de mesmo 
+nome mas naturezas diferentes (ex: variável e função com mesmo nome no mesmo escopo). */
 char *_chave(ValorLexico valor_lexico)
 {
     return strdup(valor_lexico.label);
@@ -192,10 +195,6 @@ void insere_funcao_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
     ultima_funcao = resposta->conteudo.valor_lexico.label;
 }
 
-void libera_ultima_funcao() {
-    ultima_funcao = NULL;
-}
-
 void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
 
     char* chave = _chave(valor_lexico);
@@ -315,6 +314,7 @@ ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head) {
     return rest;
 }
 
+//função que faz deep copy para evitar double free() nos vlex compartilhados pela AST e tabela de símbolos!
 ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
 
     ValorLexico new_vlex = valor_lexico;
@@ -351,7 +351,7 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
     EntradaHash *resposta = _insere_topo_pilha(chave_malloc, pilha, conteudo);
 
     if(print_stuff) {
-        printf("->> OP: DECLARAÇÃO ____________________________________________________________________________________________________\n");
+        printf("\n>> OP: DECLARAÇÃO\n");
         print_pilha();
     }
 
@@ -491,6 +491,11 @@ void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
     }
 
     free(tabela);
+}
+
+// só aponta mesmo. o conteúdo vai ser desalocado ao liberar todas as chaves das tabelas
+void libera_ultima_funcao() {
+    ultima_funcao = NULL;
 }
 
 // libera a head da lista global de variáveis sem tipo (também chamada quando encontramos o tipo)
@@ -667,6 +672,7 @@ void _verifica_parametros_funcao(ArgumentoFuncaoLst *parametros, EntradaHash *en
     }
 }
 
+// em expr1 (= / <=) expr2: expr1 é esq, expr2 é dir.
 void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir, ValorLexico dir, int inicializacao) {
 
     if(tipo_esq != tipo_dir) {

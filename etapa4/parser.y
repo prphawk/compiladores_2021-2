@@ -159,7 +159,8 @@ declaracao_funcao: cabecalho corpo
 cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };
 cabecalho_1: cabecalho_2 cabecalho_3 parametros ')' 
             { 
-                adiciona_parametros_escopo_anterior($1); 
+                adiciona_parametros_escopo_anterior($1); /* como a gramática não permite declarar funções 
+                dentro de funções é certo que a função procurada vai estar no escopo imediatamente anterior*/
                 $$ = $1; 
             }
 cabecalho_2: tipo TK_IDENTIFICADOR
@@ -170,7 +171,6 @@ cabecalho_2: tipo TK_IDENTIFICADOR
                 $$ = novo_nodo;
             };
 cabecalho_3:  '(' { empilha(); };
-
 
 
 parametros: lista_parametros | ;
@@ -198,13 +198,13 @@ bloco_comandos: bloco_comandos_inicio_escopo lista_comandos bloco_comandos_fim_e
 bloco_comandos_inicio_escopo: '{'  { empilha();    } ;
 bloco_comandos_fim_escopo: '}'     { desempilha(); } ;
 
-chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' { 
-            Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
-            adiciona_filho(novo_nodo, $3);
-            if(E4_CHECK_FLAG) verifica_funcao_no_escopo($1, $3, novo_nodo);
-            $$ = novo_nodo;
-            libera_vlex($1);
-        };
+chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' {
+                Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
+                adiciona_filho(novo_nodo, $3);
+                if(E4_CHECK_FLAG) verifica_funcao_no_escopo($1, $3, novo_nodo);
+                $$ = novo_nodo;
+                libera_vlex($1);
+            };
 
 comando_simples: declaracao_var_local   { $$ = $1;}
                | comando_atribuicao     { $$ = $1;}
