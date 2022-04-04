@@ -1,11 +1,10 @@
 #include "tabela_simbolos.h"
-#include "ast.h"
 
-pilha_hash = NULL;
-ultima_funcao = NULL;
-global_parametros_sem_funcao = NULL;
-global_variaveis_sem_tipo = NULL;
-E4_CHECK_FLAG = 1;
+PilhaHash *pilha_hash = NULL;
+ArgumentoFuncaoLst *global_parametros_sem_funcao = NULL; // para inserir uma lista de parametros nos atributos de uma função ainda não reconhecida pela gramática
+VariavelSemTipoLst *global_variaveis_sem_tipo = NULL; // para inserir e atualizar no escopo uma lista de declarações cujo tipo ainda não foi reconhecido pela gramática
+char *ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
+int E4_CHECK_FLAG = 1; // existe pra desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
 int print_stuff = 0;
 
@@ -25,7 +24,7 @@ int _conta_tabelas(PilhaHash *pilha, int count) {
 
     if(aux_pilha == NULL) return count;
 
-    return _conta_tabelas((PilhaHash*)pilha->resto, ++count);
+    return _conta_tabelas(pilha->resto, ++count);
 }
 
 int _conta_argumentos(ArgumentoFuncaoLst *args) {
@@ -35,7 +34,7 @@ int _conta_argumentos(ArgumentoFuncaoLst *args) {
     ArgumentoFuncaoLst *arg_aux = args;
 
     while (arg_aux != NULL) {
-        arg_aux = (ArgumentoFuncaoLst *)arg_aux->proximo;
+        arg_aux = arg_aux->proximo;
         count++;
     }
     return count;
@@ -48,7 +47,7 @@ int _conta_argumentos_nodo(Nodo *nodo) {
     Nodo *nodo_aux = nodo;
 
     while (nodo_aux != NULL) {
-        nodo_aux = (Nodo *)nodo_aux->irmao;
+        nodo_aux = nodo_aux->irmao;
         count++;
     }
     return count;
@@ -155,7 +154,7 @@ EntradaHash *_busca_pilha(char *chave) {
 
         if(busca != NULL) return busca;
         
-        pilha = (PilhaHash*)pilha->resto;
+        pilha = pilha->resto;
     }
 	
     return busca;
@@ -219,7 +218,7 @@ void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
     nova_vst->tamanho_vetor = tamanho_vetor;
 
     VariavelSemTipoLst *vst_head = global_variaveis_sem_tipo;
-    nova_vst->proximo = (struct VariavelSemTipoLst *)vst_head;
+    nova_vst->proximo = vst_head;
     global_variaveis_sem_tipo = nova_vst;
 }
 
@@ -248,7 +247,7 @@ void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
         }
 
         VariavelSemTipoLst *antigo_vst = vst;
-        vst = (VariavelSemTipoLst *)vst->proximo;
+        vst = vst->proximo;
 
         _libera_head_vst(antigo_vst);
     }
@@ -269,7 +268,7 @@ void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     //novo ArgumentoFuncaoLst no inicio da lista de argumentos sem funcao do escopo
     ArgumentoFuncaoLst *antigo_arg_lst = global_parametros_sem_funcao;
-    novo_arg_lst->proximo = (struct ArgumentoFuncaoLst *)antigo_arg_lst;
+    novo_arg_lst->proximo = antigo_arg_lst;
     global_parametros_sem_funcao = novo_arg_lst;
 }
 
@@ -286,7 +285,7 @@ void adiciona_parametros_escopo_anterior(Nodo *nodo_funcao) {
 
     char *chave_malloc = _chave(nodo_funcao->valor_lexico);
 
-    EntradaHash *busca = _busca_topo_pilha(chave_malloc, (PilhaHash*)pilha->resto);
+    EntradaHash *busca = _busca_topo_pilha(chave_malloc, pilha->resto);
 
     if(busca != NULL) {
         _verifica_parametros_funcao(global_parametros_sem_funcao, busca);
@@ -305,9 +304,9 @@ ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head) {
 
     if(head == NULL || head->proximo == NULL) return head;
 
-    ArgumentoFuncaoLst* rest = reverse_args((ArgumentoFuncaoLst*)head->proximo);
+    ArgumentoFuncaoLst* rest = reverse_args(head->proximo);
 
-    ((ArgumentoFuncaoLst*)head->proximo)->proximo = (ArgumentoFuncaoLst*)head;
+    head->proximo->proximo = head;
 
     head->proximo = NULL;
 
@@ -410,7 +409,7 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
 void empilha()
 {
     PilhaHash *pilha_aux;
-    pilha_aux = (PilhaHash*)malloc(sizeof(PilhaHash));
+    pilha_aux = malloc(sizeof(PilhaHash));
 
     pilha_aux->quantidade_atual = 0;
     pilha_aux->tamanho_tabela = TAMANHO_INICIAL_HASH;
@@ -427,7 +426,7 @@ void empilha()
 //aloca novo array de EntradaHash (com valores NULL pls)
 EntradaHash *_malloc_tabela() {
 
-    EntradaHash *tabela = (EntradaHash*)malloc(sizeof(EntradaHash) * TAMANHO_INICIAL_HASH);
+    EntradaHash *tabela = malloc(sizeof(EntradaHash) * TAMANHO_INICIAL_HASH);
 
     for (int i = 0; i < TAMANHO_INICIAL_HASH; i++) {
         EntradaHash* entrada = &tabela[i];
@@ -460,7 +459,7 @@ void desempilha()
 {
     if(pilha_hash == NULL) return;
 
-    PilhaHash *nova_pilha = (PilhaHash *)pilha_hash->resto;
+    PilhaHash *nova_pilha = pilha_hash->resto;
 
     PilhaHash *antiga_pilha = pilha_hash;
 
@@ -529,7 +528,7 @@ void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
 
     if(argumento == NULL) return;
 
-    _libera_argumentos((ArgumentoFuncaoLst *)argumento->proximo);
+    _libera_argumentos(argumento->proximo);
 
     free(argumento);
 }
@@ -551,7 +550,7 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
 
         char* chave = _chave_label(ultima_funcao);
 
-        EntradaHash *busca_funcao = _busca_topo_pilha(chave, ((EntradaHash*)pilha_hash->resto));
+        EntradaHash *busca_funcao = _busca_topo_pilha(chave, pilha_hash->resto);
 
         free(chave);
 
@@ -642,11 +641,11 @@ void verifica_inicializacao(Tipo tipo, Nodo *nodos_inicializados) {
 
     while(nodo_operacao != NULL) {
 
-        nodo_esq = (Nodo*)nodo_operacao->filho;
+        nodo_esq = nodo_operacao->filho;
 
         if(nodo_esq == NULL) break;
 
-        nodo_dir = (Nodo*)nodo_esq->irmao;
+        nodo_dir = nodo_esq->irmao;
 
         if(nodo_dir == NULL) break;
 
@@ -656,19 +655,19 @@ void verifica_inicializacao(Tipo tipo, Nodo *nodos_inicializados) {
 
         nodo_operacao->tipo = tipo;
 
-        nodo_operacao = (Nodo*)nodo_dir->irmao;
+        nodo_operacao = nodo_dir->irmao;
     }
 }
 
 void _verifica_parametros_funcao(ArgumentoFuncaoLst *parametros, EntradaHash *entrada_funcao) {
 
-    ArgumentoFuncaoLst *params = (ArgumentoFuncaoLst *)parametros;
+    ArgumentoFuncaoLst *params = parametros;
 
     while(params != NULL) {
 
         if(params->tipo == TIPO_STRING) throwFunctionStringError(entrada_funcao->conteudo.linha, "parâmetros");
         
-        params = (ArgumentoFuncaoLst*)params->proximo;
+        params = params->proximo;
     }
 }
 
@@ -695,7 +694,7 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
             throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
         }
 
-    } else _verifica_tamanho_maximo_string(esq, dir, inicializacao);
+    } else _verifica_tamanho_maximo_string(tipo_dir, esq, dir, inicializacao);
 }
  
 
@@ -824,16 +823,16 @@ void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_de
 
         if(passados_nodo->tipo != declarados_afl->tipo) {
 
-            if(possui_tipo_aux(passados_nodo->tipo, declarados_afl->tipo, TIPO_STRING)) {
+            if(possui_tipo(passados_nodo->tipo, declarados_afl->tipo, TIPO_STRING)) {
                 throwFunctionStringError(passados_nodo->valor_lexico.linha, passados_nodo->valor_lexico.label);
             }
 
-            if(possui_tipo_aux(passados_nodo->tipo, declarados_afl->tipo, TIPO_CHAR)) {
+            if(possui_tipo(passados_nodo->tipo, declarados_afl->tipo, TIPO_CHAR)) {
                 throwWrongTypeArgsError(passados_nodo->valor_lexico.linha, passados_nodo->valor_lexico.label, linha_declarada);
             }
         }
-        passados_nodo = (Nodo *)passados_nodo->irmao;
-        declarados_afl = (ArgumentoFuncaoLst *)declarados_afl->proximo;
+        passados_nodo = passados_nodo->irmao;
+        declarados_afl = declarados_afl->proximo;
     }
 }
 //#endregion Verificação
@@ -859,7 +858,7 @@ void print_pilha() {
 
         profundidade++;
 
-        aux_pilha = (PilhaHash*)aux_pilha->resto;
+        aux_pilha = aux_pilha->resto;
     }
 }
 
@@ -913,7 +912,7 @@ void _print_argumentos(ArgumentoFuncaoLst *argLst) {
 
         while(aux != NULL) {
             printf("%s ", _tipo_str(aux->tipo));
-            aux = (ArgumentoFuncaoLst *)aux->proximo;
+            aux = aux->proximo;
         }
 
         printf("|");

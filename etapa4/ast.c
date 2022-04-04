@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern char*_tipo_str(Tipo tipo);
+
 Tipo get_tipo_nodo(ValorLexico valor_lexico) {
     if(valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL) {
         switch (valor_lexico.tipo_vlex_literal) {
@@ -22,24 +24,25 @@ Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2) {
 
     if(nodo1->tipo == nodo2->tipo) return nodo1->tipo;
 
-    if(possui_tipo(nodo1, nodo2, TIPO_INT)) {
-        if(possui_tipo(nodo1, nodo2, TIPO_FLOAT))
+    if(possui_tipo_nodo(nodo1, nodo2, TIPO_INT)) {
+        if(possui_tipo_nodo(nodo1, nodo2, TIPO_FLOAT))
             return TIPO_FLOAT;
-        if(possui_tipo(nodo1, nodo2, TIPO_BOOL))
+        if(possui_tipo_nodo(nodo1, nodo2, TIPO_BOOL))
             return TIPO_INT;
     }
 
-    if(possui_tipo(nodo1, nodo2, TIPO_FLOAT) 
-    && possui_tipo(nodo1, nodo2, TIPO_BOOL))
+    if(possui_tipo_nodo(nodo1, nodo2, TIPO_FLOAT) 
+    && possui_tipo_nodo(nodo1, nodo2, TIPO_BOOL))
         return TIPO_FLOAT;
 
     return TIPO_OUTRO;
 }
 
-int possui_tipo(Nodo *nodo1, Nodo *nodo2, Tipo tipo) {
+int possui_tipo_nodo(Nodo *nodo1, Nodo *nodo2, Tipo tipo) {
     return (nodo1->tipo == tipo || nodo2->tipo == tipo);
 }
-int possui_tipo_aux(Tipo t1, Tipo t2, Tipo tipo) {
+
+int possui_tipo(Tipo t1, Tipo t2, Tipo tipo) {
     return (t1 == tipo || t2 == tipo);
 }
 
@@ -157,7 +160,7 @@ void libera(void *pai)
 {
     if(pai == NULL) return;
 
-    Nodo *pai_arvore = (Nodo*)pai;
+    Nodo *pai_arvore = pai;
 
     libera(pai_arvore->filho);
 
@@ -207,7 +210,7 @@ void imprime_arestas(Nodo *nodo)
 void exporta(void *arvore)
 {
     Nodo *nodo_arvore;
-    nodo_arvore = (Nodo*) arvore;
+    nodo_arvore =  arvore;
     imprime_nodo(nodo_arvore);
     imprime_arestas(nodo_arvore);
     return;

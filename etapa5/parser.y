@@ -8,6 +8,7 @@ int yylex(void);
 int yyerror (char const *s);
 extern int get_line_number (void);
 extern void *arvore;
+extern int E4_CHECK_FLAG;
 %}
 %define parse.error verbose
 %code requires {

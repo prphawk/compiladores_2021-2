@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SUCCESS=0
-executable="./etapa5"
+executable="./etapa4"
 evaluation=""
 echo "\nSTARTING MEM LEAK TEST CASES\n"
 

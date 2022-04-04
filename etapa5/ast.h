@@ -2,7 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "valor_lexico.h"
-#include "tabela_simbolos.h"
+
+typedef enum tipo
+{
+    TIPO_INT,
+    TIPO_FLOAT,
+    TIPO_BOOL,
+    TIPO_CHAR,
+    TIPO_STRING,
+    TIPO_OUTRO,
+} Tipo;
 
 typedef struct Nodo {
     Tipo tipo;
@@ -25,4 +34,6 @@ void libera_nodo(Nodo *nodo);
 void imprime_nodo(Nodo *nodo);
 void imprime_arestas(Nodo *nodo);
 void exporta(void *arvore);
-int possui_tipo(Nodo *nodo1, Nodo *nodo2, Tipo tipo);
+int possui_tipo(Tipo t1, Tipo t2, Tipo tipo);
+int possui_tipo_nodo(Nodo *nodo1, Nodo *nodo2, Tipo tipo);
+Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2);
