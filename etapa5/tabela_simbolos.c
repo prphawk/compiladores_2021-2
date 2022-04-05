@@ -4,7 +4,7 @@ PilhaHash *pilha_hash = NULL;
 ArgumentoFuncaoLst *global_parametros_sem_funcao = NULL; // para inserir uma lista de parametros nos atributos de uma função ainda não reconhecida pela gramática
 VariavelSemTipoLst *global_variaveis_sem_tipo = NULL; // para inserir e atualizar no escopo uma lista de declarações cujo tipo ainda não foi reconhecido pela gramática
 char *ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
-int E4_CHECK_FLAG = 1; // existe pra desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
+int E4_CHECK_FLAG = 1; // existe pra habilitar/desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
 extern int print_simbolos;
 

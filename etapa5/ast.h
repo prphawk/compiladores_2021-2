@@ -38,3 +38,4 @@ int possui_tipo(Tipo t1, Tipo t2, Tipo tipo);
 int possui_tipo_nodo(Nodo *nodo1, Nodo *nodo2, Tipo tipo);
 Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2);
 char* _get_label_nodo(Nodo *nodo);
+void _imprime_filhos(Nodo *nodo);
