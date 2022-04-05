@@ -1,0 +1,9 @@
+int main() {
+	int x;
+	int i;
+	i = true;
+	while(i) do {
+		x = 1;
+		i = false;
+	};
+}

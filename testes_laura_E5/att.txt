@@ -1,0 +1,7 @@
+int x, y, z;
+int main() {
+	int x;
+	x = 2;
+	int y <= 10;
+	z = 30;
+}

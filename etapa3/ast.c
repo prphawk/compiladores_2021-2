@@ -45,7 +45,7 @@ void adiciona_filho(Nodo *nodo, Nodo *filho)
        }
        else
        {
-           adiciona_ultimo_irmao(acha_ultimo_irmao(nodo->filho), filho);
+           _adiciona_ultimo_irmao(_acha_ultimo_irmao(nodo->filho), filho);
        }
    }
    return;
@@ -82,7 +82,7 @@ void imprime_arvore(Nodo *nodo, int profundidade)
     return;
 }
 
-Nodo *acha_ultimo_irmao(Nodo *nodo_irmao)
+Nodo *_acha_ultimo_irmao(Nodo *nodo_irmao)
 {
     Nodo *aux_nodo = nodo_irmao;
 
@@ -94,7 +94,7 @@ Nodo *acha_ultimo_irmao(Nodo *nodo_irmao)
 }
 
 
-void adiciona_ultimo_irmao(Nodo *nodo, Nodo *novo_irmao)
+void _adiciona_ultimo_irmao(Nodo *nodo, Nodo *novo_irmao)
 {
     nodo->irmao = novo_irmao;
     novo_irmao->irmao = NULL;
@@ -116,7 +116,7 @@ void libera(void *pai)
     free(pai_arvore);
 }
 
-void imprime_nodo(Nodo *nodo)
+void _imprime_nodo(Nodo *nodo)
 {
     if (nodo == NULL)
         return;
@@ -128,14 +128,14 @@ void imprime_nodo(Nodo *nodo)
     nodo_f = nodo->filho;
     while(nodo_f!=NULL)
     {
-        imprime_nodo(nodo_f);
+        _imprime_nodo(nodo_f);
         nodo_f = nodo_f->irmao;
     }
     
     return;
 }
 
-void imprime_arestas(Nodo *nodo)
+void _imprime_arestas(Nodo *nodo)
 {
     if (nodo == NULL)
         return;
@@ -145,7 +145,7 @@ void imprime_arestas(Nodo *nodo)
     while(nodo_f!=NULL)
     {
         printf("%p, %p\n", nodo, nodo_f);
-        imprime_arestas(nodo_f);
+        _imprime_arestas(nodo_f);
         nodo_f = nodo_f->irmao;
     }
     
@@ -156,7 +156,7 @@ void exporta(void *arvore)
 {
     Nodo *nodo_arvore;
     nodo_arvore = (Nodo*) arvore;
-    imprime_nodo(nodo_arvore);
-    imprime_arestas(nodo_arvore);
+    _imprime_nodo(nodo_arvore);
+    _imprime_arestas(nodo_arvore);
     return;
 }

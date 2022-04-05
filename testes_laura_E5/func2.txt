@@ -1,0 +1,11 @@
+int f() {
+
+	return 200;
+}
+
+int main() {
+
+	int x;
+	x = 10;
+	x = f();
+}

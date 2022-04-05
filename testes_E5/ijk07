@@ -1,0 +1,13 @@
+//Expressões aritméticas, com operações binárias: multiplicação
+int main()
+{
+  int a;
+  int b;
+  int c;
+  b = 15;
+  c = 3;
+  a = b * c;
+  b = a * c;
+  c = a * b;
+  return 0;
+}

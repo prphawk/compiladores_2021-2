@@ -1,0 +1,6 @@
+int c[10];
+int f(int a)
+{
+  int a;
+  c[5] = 3 * f(a) + a;
+}

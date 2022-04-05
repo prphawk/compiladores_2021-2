@@ -8,6 +8,7 @@
 #include "tabela_simbolos.h"
 
 int print_arvore = 0;
+int print_simbolos = 0;
 
 extern int yyparse(void);
 extern int yylex_destroy(void);
