@@ -175,7 +175,7 @@ char* _get_label_nodo(Nodo *nodo) {
     return nodo->valor_lexico.label;
 }
 
-void _imprime_nodo(Nodo *nodo)
+void _imprime_label_nodo(Nodo *nodo)
 {
     printf("%p [label=\"", nodo);
     printf("%s", _get_label_nodo(nodo));
@@ -188,9 +188,9 @@ void exporta(void *arvore)
    
     if (nodo == NULL) return;
 
-    _imprime_nodo(nodo);
+    _imprime_label_nodo(nodo);
 
-    filhos(nodo);
+    _imprime_filhos(nodo);
 
     Nodo *nodo_f = nodo->filho;
 
@@ -202,7 +202,7 @@ void exporta(void *arvore)
 
 }
 
-void filhos(Nodo *nodo) {
+void _imprime_filhos(Nodo *nodo) {
 
     Nodo *nodo_f = nodo->filho;
 

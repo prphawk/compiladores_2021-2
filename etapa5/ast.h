@@ -31,7 +31,7 @@ void _adiciona_ultimo_irmao(Nodo *irmao, Nodo *novo_irmao);
 void libera(void *pai);
 void libera_irmaos(void *filhos);
 void libera_nodo(Nodo *nodo);
-void _imprime_nodo(Nodo *nodo);
+void _imprime_label_nodo(Nodo *nodo);
 void _imprime_arestas(Nodo *nodo);
 void exporta(void *arvore);
 int possui_tipo(Tipo t1, Tipo t2, Tipo tipo);
