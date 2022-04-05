@@ -1,0 +1,12 @@
+int main() {
+
+	int x <= 20;
+	int z <= 40;
+	
+	int w;
+	
+	w = false ? x + 2 : x + 3;
+
+	return 0;
+
+}

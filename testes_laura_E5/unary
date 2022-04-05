@@ -1,0 +1,25 @@
+int main() {
+
+
+	int x;
+	int y;
+	int z;
+	int w;
+	int ww;
+	int www;
+	int wwww;
+	int wwwww;
+	int wwwwww;
+
+	x = -4;
+	y = x - x;
+	z = x + x;
+	w = #5;
+	ww = #x;
+	www = - ( 2 < 5 );
+	wwww = # ( 2 < 5 );
+	wwwww = ! ( 2 < 5 );
+	wwwwww = ! false;
+	
+
+}

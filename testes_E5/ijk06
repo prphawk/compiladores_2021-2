@@ -1,0 +1,13 @@
+//Expressões aritméticas, com operações binárias: divisão
+int main()
+{
+  int a;
+  int b;
+  int c;
+  b = 75;
+  c = 3;
+  a = b / c;
+  b = a / 5;
+  c = a / 2;
+  return 0;
+}
