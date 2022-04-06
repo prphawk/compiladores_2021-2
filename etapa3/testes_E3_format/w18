@@ -1,8 +1,0 @@
-int f(){
-    int a;
-    int b;
-    if (a) {
-       a = b;
-       b = a;
-    };
-}

@@ -6,20 +6,16 @@ Em etapa5, para compilar as files:
 
 > ./etapa5 < teste.txt
 
-Checar mem leaks com teste.txt:
-
-(instalar o valgrind)
+Checar mem leaks com teste.txt **(instalar o valgrind)**:
 
 > make checkleak
 
-Debugar:
-
-(instalar o gdb)
+Debugar **(instalar o gdb)**:
 
 > make debug
 > run < teste.txt
 
-(outros comandos: next, print (x), where)
+(outros comandos: next, print (x), **where**)
 
 Limpar:
 
@@ -28,9 +24,11 @@ Limpar:
 Entregar:
 
 > tar cvzf etapa5.tgz .
-> OU
+
+OU
+
 > make submit
 
 Unzip:
 
-> tar -xvzf -f etapa5.tgz
+> tar -xvzf etapa5.tgz

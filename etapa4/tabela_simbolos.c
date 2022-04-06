@@ -4,12 +4,12 @@ PilhaHash *pilha_hash = NULL;
 ArgumentoFuncaoLst *global_parametros_sem_funcao = NULL; // para inserir uma lista de parametros nos atributos de uma função ainda não reconhecida pela gramática
 VariavelSemTipoLst *global_variaveis_sem_tipo = NULL; // para inserir e atualizar no escopo uma lista de declarações cujo tipo ainda não foi reconhecido pela gramática
 char *ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
-int E4_CHECK_FLAG = 1; // existe pra desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
+int E4_CHECK_FLAG = 1; // existe pra habilitar/desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
-int print_stuff = 0;
+extern int print_simbolos;
 
 /*
-TABELA HASH - a tabela hash usa open adressing. 
+TABELA HASH - a tabela hash usa open adressing.
               ela é um array de estruturas EntradaHash alocado dinamicamente (não confundir com linked lists).
               isso nos dá a opção de expandir o tamanho da tabela se ficar mt densa. é necessário guardar o tamanho do array alocado assim.
 CONFLITOS   - o probing em caso de conflito pula pro endereço seguinte. por enquanto ele só dá um pulinho de cada vez. dá pra mudar.
@@ -210,6 +210,7 @@ void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
     _declara_em_escopo(NATUREZA_VETOR, TIPO_PENDENTE, valor_lexico, 0);
 }
 
+// identificador = variavel ou vetor
 void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
 
     VariavelSemTipoLst *nova_vst;
@@ -243,7 +244,7 @@ void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
             busca->conteudo.tipo = tipo;
             busca->conteudo.tamanho = _tamanho(busca->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
 
-            if(print_stuff) print_pilha();
+            if(print_simbolos) print_pilha();
         }
 
         VariavelSemTipoLst *antigo_vst = vst;
@@ -349,7 +350,7 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
 
     EntradaHash *resposta = _insere_topo_pilha(chave_malloc, pilha, conteudo);
 
-    if(print_stuff) {
+    if(print_simbolos) {
         printf("\n>> OP: DECLARAÇÃO\n");
         print_pilha();
     }
@@ -420,7 +421,7 @@ void empilha()
 
     pilha_hash = pilha_aux;
 
-    if(print_stuff) printf("\n>> OP: EMPILHANDO\n");
+    if(print_simbolos) printf("\n>> OP: EMPILHANDO\n");
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
@@ -469,7 +470,7 @@ void desempilha()
 
     pilha_hash = nova_pilha;
 
-    if(print_stuff) printf("\n>> OP: DESEMPILHANDO\n");
+    if(print_simbolos) printf("\n>> OP: DESEMPILHANDO\n");
 }
 
 // função que libera a tabela hash e tudo que há dentro dela
@@ -697,7 +698,6 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
     } else _verifica_tamanho_maximo_string(tipo_dir, esq, dir, inicializacao);
 }
  
-
 void _verifica_tamanho_maximo_string(Tipo tipo_dir, ValorLexico esq, ValorLexico dir, int inicializacao) {
 
      if(tipo_dir == TIPO_STRING) {
@@ -713,7 +713,7 @@ void _verifica_tamanho_maximo_string(Tipo tipo_dir, ValorLexico esq, ValorLexico
             if(inicializacao) { //senao é atribuicao
                 busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
 
-                if(print_stuff) print_pilha();
+                if(print_simbolos) print_pilha();
 
             } else if(busca_esq->conteudo.tamanho < busca_dir->conteudo.tamanho) {
                 throwStringSizeError(busca_dir->conteudo.valor_lexico.linha, busca_dir->conteudo.valor_lexico.label, busca_esq->conteudo.linha);

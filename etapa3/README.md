@@ -6,24 +6,24 @@ Em etapa3, para compilar as files:
 
 > ./etapa3 < teste.txt
 
-Checar mem leaks com teste.txt:
-
-(instalar o valgrind)
+Checar leaks de memória com teste.txt **(instalar o valgrind)**:
 
 > make checkleak
 
-Debugar:
-
-(instalar o gdb)
+Debugar **(instalar o gdb)**:
 
 > make debug
 > run < teste.txt
 
-(outros comandos: next, print (x), where)
+(outros comandos: next, print (x), **where**)
+
+Executar casos de testes (converter `\eof` para UNIX):
+
+> sh teste.sh
 
 Limpar:
 
-> make clear
+> make clean
 
 Entregar:
 
@@ -33,4 +33,4 @@ Entregar:
 
 Unzip:
 
-> tar -xvzf -f etapa3.tgz
+> tar -xvzf etapa3.tgz

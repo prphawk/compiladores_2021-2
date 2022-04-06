@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void *arvore = NULL;
+
 extern char*_tipo_str(Tipo tipo);
 
 Tipo _get_tipo_nodo(ValorLexico valor_lexico) {
@@ -99,10 +101,9 @@ void adiciona_filho(Nodo *nodo, Nodo *filho)
            _adiciona_ultimo_irmao(_acha_ultimo_irmao(nodo->filho), filho);
        }
    }
-   return;
 }
 
-void imprime_arvore(Nodo *nodo, int profundidade)
+void _imprime_arvore(Nodo *nodo, int profundidade)
 {
     int i = 0;
 
@@ -126,11 +127,9 @@ void imprime_arvore(Nodo *nodo, int profundidade)
     Nodo *nodo_f = nodo->filho;
     while(nodo_f!=NULL)
     {
-        imprime_arvore(nodo_f, profundidade+1);
+        _imprime_arvore(nodo_f, profundidade+1);
         nodo_f = nodo_f->irmao;
     }
-    
-    return;
 }
 
 Nodo *_acha_ultimo_irmao(Nodo *nodo_irmao)
@@ -156,62 +155,76 @@ void adiciona_irmao(Nodo *nodo, Nodo *novo_irmao)
     nodo->irmao = novo_irmao;
 }
 
-void libera(void *pai)
+void libera_arvore() {
+    _libera(arvore);
+    arvore = NULL;
+}
+
+void exporta_arvore() {
+    _exporta(arvore);
+}
+
+void print_arvore() {
+    _imprime_arvore(arvore, 0);
+}
+
+void _libera(void *pai)
 {
     if(pai == NULL) return;
 
     Nodo *pai_arvore = pai;
 
-    libera(pai_arvore->filho);
+    _libera(pai_arvore->filho);
 
-    libera(pai_arvore->irmao);
+    _libera(pai_arvore->irmao);
 
     libera_vlex(pai_arvore->valor_lexico);
 
     free(pai_arvore);
 }
 
-void _imprime_nodo(Nodo *nodo)
+char* _get_label_nodo(Nodo *nodo) {
+    if(nodo->valor_lexico.tipo_vlex_literal == VLEX_LITERAL_STRING)
+        return nodo->valor_lexico.valor_string; 
+     
+    return nodo->valor_lexico.label;
+}
+
+void _imprime_label_nodo(Nodo *nodo)
 {
-    if (nodo == NULL)
-        return;
     printf("%p [label=\"", nodo);
-    printf("%s", nodo->valor_lexico.label);
+    printf("%s", _get_label_nodo(nodo));
     printf("\"];\n");
-
-    Nodo *nodo_f;
-    nodo_f = nodo->filho;
-    while(nodo_f!=NULL)
-    {
-        _imprime_nodo(nodo_f);
-        nodo_f = nodo_f->irmao;
-    }
-    
-    return;
 }
 
-void _imprime_arestas(Nodo *nodo)
+void _exporta(void *arvore)
 {
-    if (nodo == NULL)
-        return;
+    Nodo *nodo = arvore;
+   
+    if (nodo == NULL) return;
 
-    Nodo *nodo_f;
-    nodo_f = nodo->filho;
+    _imprime_label_nodo(nodo);
+
+    _imprime_filhos(nodo);
+
+    Nodo *nodo_f = nodo->filho;
+
     while(nodo_f!=NULL)
     {
+        _exporta(nodo_f);
+        nodo_f = nodo_f->irmao;
+    }
+
+}
+
+void _imprime_filhos(Nodo *nodo) {
+
+    Nodo *nodo_f = nodo->filho;
+
+    while(nodo_f != NULL) {
+
         printf("%p, %p\n", nodo, nodo_f);
-        _imprime_arestas(nodo_f);
+
         nodo_f = nodo_f->irmao;
     }
-    
-    return;
-}
-
-void exporta(void *arvore)
-{
-    Nodo *nodo_arvore;
-    nodo_arvore =  arvore;
-    _imprime_nodo(nodo_arvore);
-    _imprime_arestas(nodo_arvore);
-    return;
 }
