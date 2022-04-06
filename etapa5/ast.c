@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void *arvore = NULL;
+
 extern char*_tipo_str(Tipo tipo);
 
 Tipo _get_tipo_nodo(ValorLexico valor_lexico) {
@@ -101,7 +103,7 @@ void adiciona_filho(Nodo *nodo, Nodo *filho)
    }
 }
 
-void imprime_arvore(Nodo *nodo, int profundidade)
+void _imprime_arvore(Nodo *nodo, int profundidade)
 {
     int i = 0;
 
@@ -125,7 +127,7 @@ void imprime_arvore(Nodo *nodo, int profundidade)
     Nodo *nodo_f = nodo->filho;
     while(nodo_f!=NULL)
     {
-        imprime_arvore(nodo_f, profundidade+1);
+        _imprime_arvore(nodo_f, profundidade+1);
         nodo_f = nodo_f->irmao;
     }
 }
@@ -153,15 +155,28 @@ void adiciona_irmao(Nodo *nodo, Nodo *novo_irmao)
     nodo->irmao = novo_irmao;
 }
 
-void libera(void *pai)
+void libera_arvore() {
+    _libera(arvore);
+    arvore = NULL;
+}
+
+void exporta_arvore() {
+    _exporta(arvore);
+}
+
+void print_arvore() {
+    _imprime_arvore(arvore, 0);
+}
+
+void _libera(void *pai)
 {
     if(pai == NULL) return;
 
     Nodo *pai_arvore = pai;
 
-    libera(pai_arvore->filho);
+    _libera(pai_arvore->filho);
 
-    libera(pai_arvore->irmao);
+    _libera(pai_arvore->irmao);
 
     libera_vlex(pai_arvore->valor_lexico);
 
@@ -182,7 +197,7 @@ void _imprime_label_nodo(Nodo *nodo)
     printf("\"];\n");
 }
 
-void exporta(void *arvore)
+void _exporta(void *arvore)
 {
     Nodo *nodo = arvore;
    
@@ -196,7 +211,7 @@ void exporta(void *arvore)
 
     while(nodo_f!=NULL)
     {
-        exporta(nodo_f);
+        _exporta(nodo_f);
         nodo_f = nodo_f->irmao;
     }
 
