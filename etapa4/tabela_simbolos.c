@@ -107,16 +107,37 @@ int _probing(int indice, int tamanho_tabela) {
     return indice;
 }
 
-// TODO expandir tamanho da tabela quando atinge 70% da capacidade
-PilhaHash *_malloc_expande_tabela(PilhaHash *pilha)
-{
-   return NULL;        
+void _verifica_ocupacao_tabela(PilhaHash *pilha) {
+    float percent = (float)pilha->quantidade_atual/(float)pilha->tamanho_tabela;
+    if(percent >= .6) 
+        _malloc_expande_tabela(pilha);
+}
+
+void _malloc_expande_tabela(PilhaHash *pilha) {
+
+    EntradaHash *tabela = pilha->topo;
+
+    int novo_tamanho = pilha->tamanho_tabela + TAMANHO_INICIAL_HASH;
+
+    tabela = (EntradaHash *) realloc(tabela, sizeof(EntradaHash) * (novo_tamanho));
+
+    for (int i = pilha->tamanho_tabela; i < novo_tamanho; i++) {
+        EntradaHash* entrada = &tabela[i];
+        entrada->chave = NULL;
+        entrada->conteudo.tipo = -1;
+        entrada->conteudo.natureza = -1;
+        entrada->conteudo.linha = -1;
+        entrada->conteudo.tamanho = -1;
+        entrada->conteudo.argumentos = NULL;
+    }
+
+    pilha->topo = tabela;
+    pilha->tamanho_tabela = novo_tamanho;
 }
 
 Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor) {
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
-    conteudo.coluna = -1; //TODO botar coluna?
     conteudo.tamanho = _tamanho(valor_lexico, tipo, tamanho_vetor);
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
@@ -128,7 +149,6 @@ Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo nat
 Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
-    conteudo.coluna = -1;
     conteudo.tamanho = _tamanho(valor_lexico, tipo, 0);
     conteudo.tipo = tipo;
     conteudo.natureza = NATUREZA_LITERAL;
@@ -164,16 +184,14 @@ EntradaHash *_busca_topo_pilha(char *chave, PilhaHash *pilha) {
 
     EntradaHash *tabela = pilha->topo;
 
-    int tamanho_tabela = pilha->tamanho_tabela;
-
-    int indice = _indice_hash(chave) % tamanho_tabela;  
+    int indice = _indice_hash(chave) % TAMANHO_INICIAL_HASH;  
 
     while(tabela[indice].chave != NULL) {
 
         if(compare_eq_str(tabela[indice].chave, chave))
             return &tabela[indice]; 
             
-        indice = _probing(indice, tamanho_tabela);
+        indice = _probing(indice, pilha->tamanho_tabela);
     }
 
     return NULL;
@@ -388,7 +406,7 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
 
     int tamanho_tabela = pilha->tamanho_tabela;
 
-    int indice = _indice_hash(chave) % tamanho_tabela;  
+    int indice = _indice_hash(chave) % TAMANHO_INICIAL_HASH; //o primeiro indice sempre tem q ser com o tamanho inicial da tabela!
 
     while(tabela != NULL) {
 
@@ -397,7 +415,9 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
             tabela[indice].chave = chave;
             tabela[indice].conteudo = conteudo;
 
-            pilha->quantidade_atual++; 
+            pilha->quantidade_atual++;
+            
+            _verifica_ocupacao_tabela(pilha);
 
             return &tabela[indice]; 
         }
@@ -435,7 +455,6 @@ EntradaHash *_malloc_tabela() {
         entrada->conteudo.tipo = -1;
         entrada->conteudo.natureza = -1;
         entrada->conteudo.linha = -1;
-        entrada->conteudo.coluna = -1;
         entrada->conteudo.tamanho = -1;
         entrada->conteudo.argumentos = NULL;
     }

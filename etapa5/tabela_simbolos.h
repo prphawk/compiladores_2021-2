@@ -7,7 +7,7 @@
 #include "errors.h"
 #include "ast.h"
 
-#define TAMANHO_INICIAL_HASH 500
+#define TAMANHO_INICIAL_HASH 389
 #define TAMANHO_CHAR 1 
 #define TAMANHO_INT 4
 #define TAMANHO_FLOAT 8
@@ -67,7 +67,7 @@ char *_chave(ValorLexico valor_lexico);
 char *_chave_label(char *label);
 unsigned long _indice_hash(char *chave);
 int _probing(int indice, int capacidade_hash);
-PilhaHash *_malloc_expande_tabela(PilhaHash *pilha);
+void _malloc_expande_tabela(PilhaHash *pilha);
 Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor);
 Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo);
 EntradaHash *_busca_pilha(char *chave);
