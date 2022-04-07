@@ -18,6 +18,10 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 
 //#region Auxiliares
 
+int _eh_escopo_global(PilhaHash *pilha) {
+    return pilha->resto == NULL;
+}
+
 int _conta_tabelas(PilhaHash *pilha, int count) {
     
     PilhaHash *aux_pilha = pilha;
@@ -206,7 +210,7 @@ void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
 
     char* chave = _chave(valor_lexico);
 
-    _insere_identificador_sem_tipo_pilha(chave, 0);
+    _adiciona_identificador_sem_tipo(chave, 0);
     _declara_em_escopo(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
 }
 
@@ -214,12 +218,12 @@ void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
 
     char* chave = _chave(valor_lexico);
 
-    _insere_identificador_sem_tipo_pilha(chave, tamanho_vetor);
+    _adiciona_identificador_sem_tipo(chave, tamanho_vetor);
     _declara_em_escopo(NATUREZA_VETOR, TIPO_PENDENTE, valor_lexico, 0);
 }
 
 // identificador = variavel ou vetor
-void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
+void _adiciona_identificador_sem_tipo(char* chave, int tamanho_vetor) {
 
     VariavelSemTipoLst *nova_vst;
     nova_vst = malloc(sizeof(VariavelSemTipoLst));
@@ -251,6 +255,8 @@ void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
 
             busca->conteudo.tipo = tipo;
             busca->conteudo.tamanho = _tamanho(busca->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
+            busca->deslocamento = pilha->deslocamento;
+            _atualiza_deslocamento_topo(busca->conteudo.tamanho);
 
             if(print_simbolos) print_pilha();
         }
@@ -335,6 +341,11 @@ ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
     return new_vlex;
 }
 
+void _atualiza_deslocamento_topo(int tamanho) {
+    PilhaHash *pilha = global_pilha_hash;
+    pilha->deslocamento += tamanho; 
+}
+
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
 
@@ -357,11 +368,6 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
     Conteudo conteudo = _novo_conteudo(valor_lexico, tipo, natureza, tamanho_vetor);
 
     EntradaHash *resposta = _insere_topo_pilha(chave_malloc, pilha, conteudo);
-
-    if(print_simbolos) {
-        printf("\n>> OP: DECLARAÇÃO\n");
-        print_pilha();
-    }
 
     return resposta;
 }
@@ -404,10 +410,18 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
 
             tabela[indice].chave = chave;
             tabela[indice].conteudo = conteudo;
-
             pilha->quantidade_atual++;
-            
+
+            if(conteudo.tipo != TIPO_PENDENTE) {
+                tabela[indice].deslocamento = pilha->deslocamento;
+                _atualiza_deslocamento_topo(conteudo.tamanho);
+            }
             _verifica_ocupacao_tabela(pilha);
+
+            if(print_simbolos) {
+                printf("\n>> OP: DECLARAÇÃO\n");
+                print_pilha();
+            }
 
             return &tabela[indice]; 
         }
@@ -419,8 +433,13 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
 // função que "empilha" uma nova hash em cima da atual
 void empilha()
 {
-    PilhaHash *pilha_aux;
-    pilha_aux = malloc(sizeof(PilhaHash));
+    PilhaHash *pilha_aux = malloc(sizeof(PilhaHash));
+
+    if(global_pilha_hash == NULL) {
+        pilha_aux->deslocamento = 0;
+    } else {
+        pilha_aux->deslocamento = global_pilha_hash->deslocamento;
+    }
 
     pilha_aux->quantidade_atual = 0;
     pilha_aux->tamanho_tabela = TAMANHO_INICIAL_HASH;
@@ -449,6 +468,7 @@ EntradaHash *_malloc_tabela() {
 
 void _inicializa_entrada(EntradaHash *entrada) {
     entrada->chave = NULL;
+    entrada->deslocamento = -1;
     entrada->conteudo.tipo = -1;
     entrada->conteudo.natureza = -1;
     entrada->conteudo.linha = -1;
@@ -478,13 +498,20 @@ void desempilha()
 
     PilhaHash *antiga_pilha = global_pilha_hash;
 
+    if(nova_pilha != NULL) {
+        nova_pilha->deslocamento = antiga_pilha->deslocamento; //TODO ver se eh isso mesmo, ou entao fazer uma subtração.
+    }
+
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
 
     free(antiga_pilha);
 
     global_pilha_hash = nova_pilha;
 
-    if(print_simbolos) printf("\n>> OP: DESEMPILHANDO\n");
+    if(print_simbolos) {
+        printf("\n>> OP: DESEMPILHANDO\n");
+        print_pilha();
+    }
 }
 
 // função que libera a tabela hash e tudo que há dentro dela
@@ -862,8 +889,8 @@ void print_pilha() {
 
         int capacidade = aux_pilha->tamanho_tabela;
 
-        printf("\n\n - ESCOPO Nº%02i DA PILHA - | CAPACIDADE: %i | OCUPAÇÃO: %03i\n", (total-profundidade), capacidade, aux_pilha->quantidade_atual);
-        char* str = " -------------------------------------------------------------------------------------------------------------------";
+        printf("\n\n - ESCOPO Nº%02i %sDA PILHA - | DESLOCAMENTO: %03i | CAPACIDADE: %i | OCUPAÇÃO: %03i |\n", (total-profundidade), eh_escopo_global_str(aux_pilha), aux_pilha->deslocamento, capacidade, aux_pilha->quantidade_atual);
+        char* str = " -----------------------------------------------------------------------------------------------------------------------------------------";
         printf("%s\n", str);
         _print_tabela(aux_pilha->topo, capacidade);
         printf("%s\n\n", str);
@@ -874,6 +901,11 @@ void print_pilha() {
     }
 }
 
+char* eh_escopo_global_str(PilhaHash *pilha) {
+    if(_eh_escopo_global(pilha)) return "(GLOBAL) ";
+    return "";
+}
+
 //printa pilha com tabela e seus valores
 void _print_tabela(EntradaHash *tabela, int tamanho) {
 
@@ -881,12 +913,14 @@ void _print_tabela(EntradaHash *tabela, int tamanho) {
 
         char* chave = tabela[i].chave;
 
+        int deslocamento = tabela[i].deslocamento;
+
         if(chave == NULL) continue;
 
         Conteudo conteudo = tabela[i].conteudo;
 
-        printf(" | ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | CHAVE: %20s |", 
-                i+1, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, chave
+        printf(" | ITEM %03i |  DESLOCAMENTO: %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | CHAVE: %20s |", 
+                i+1, deslocamento, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, chave
         );
 
         _print_argumentos(conteudo.argumentos);

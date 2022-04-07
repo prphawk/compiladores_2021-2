@@ -49,6 +49,7 @@ typedef struct conteudo {
 typedef struct entradaHash
 {
     char *chave;
+    int deslocamento;
     Conteudo conteudo;
 } EntradaHash;
 
@@ -56,9 +57,11 @@ typedef struct PilhaHash {
     EntradaHash *topo;
     int tamanho_tabela;
     int quantidade_atual;
+    int deslocamento;
     struct PilhaHash *resto;
 } PilhaHash;
 
+int _eh_escopo_global(PilhaHash *pilha);
 int _conta_tabelas(PilhaHash *pilha, int count);
 int _conta_argumentos(ArgumentoFuncaoLst *args);
 int _conta_argumentos_nodo(Nodo *nodo);
@@ -78,12 +81,13 @@ void insere_variavel_pilha(TipoSimbolo tipo, ValorLexico valor_lexico, int taman
 void insere_funcao_pilha(TipoSimbolo tipo, ValorLexico valor_lexico);
 void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico);
 void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor);
-void _insere_identificador_sem_tipo_pilha(char *chave, int tamanho_vetor);
+void _adiciona_identificador_sem_tipo(char *chave, int tamanho_vetor);
 void insere_tipo_identificador_pilha(TipoSimbolo tipo);
 void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico);
 void adiciona_parametros_escopo_anterior(Nodo *nodo_funcao);
 ArgumentoFuncaoLst* reverse_args(ArgumentoFuncaoLst* head);
 ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico);
+void _atualiza_deslocamento_topo(int tamanho);
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor);
 EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexico);
 EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo);
@@ -120,6 +124,7 @@ void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_de
 
 void print_pilha();
 void _print_tabela(EntradaHash *tabela, int tamanho_tabela);
+char* eh_escopo_global_str(PilhaHash *pilha);
 char* _tipo_str(TipoSimbolo tipo);
 char* _natureza_str(NaturezaSimbolo natureza);
 void _print_argumentos(ArgumentoFuncaoLst *argLst);
