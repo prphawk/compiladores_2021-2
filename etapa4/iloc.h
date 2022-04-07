@@ -63,7 +63,6 @@ typedef enum Operacao
 
 typedef struct CodigoILOC
 {
-    char *label;
     char *origem1;
     char *origem2;
     Operacao operacao;
