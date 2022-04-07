@@ -70,5 +70,4 @@ typedef struct CodigoILOC
     char *destino1;
     char *destino2;
     CodigoILOC *anterior;
-    CodigoILOC *proximo;
 } CodigoILOC;
