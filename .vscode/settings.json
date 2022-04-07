@@ -4,7 +4,8 @@
 		"ast.h": "c",
 		"tabela_simbolos.h": "c",
 		"kal54": "cpp",
-		"abc12": "cpp"
+		"abc12": "cpp",
+		"cmath": "c"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }
