@@ -39,7 +39,6 @@ typedef struct VariavelSemTipoLst
 
 typedef struct conteudo {
     int linha;
-    int coluna; //opcional, posição da linha, -1 quando n aplicável 
     int tamanho;
     TipoSimbolo tipo;
     NaturezaSimbolo natureza;

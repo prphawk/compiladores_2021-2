@@ -116,7 +116,6 @@ PilhaHash *_malloc_expande_tabela(PilhaHash *pilha)
 Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo natureza, int tamanho_vetor) {
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
-    conteudo.coluna = -1; //TODO botar coluna?
     conteudo.tamanho = _tamanho(valor_lexico, tipo, tamanho_vetor);
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
@@ -128,7 +127,6 @@ Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo nat
 Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
     Conteudo conteudo;
     conteudo.linha = valor_lexico.linha;
-    conteudo.coluna = -1;
     conteudo.tamanho = _tamanho(valor_lexico, tipo, 0);
     conteudo.tipo = tipo;
     conteudo.natureza = NATUREZA_LITERAL;
@@ -435,7 +433,6 @@ EntradaHash *_malloc_tabela() {
         entrada->conteudo.tipo = -1;
         entrada->conteudo.natureza = -1;
         entrada->conteudo.linha = -1;
-        entrada->conteudo.coluna = -1;
         entrada->conteudo.tamanho = -1;
         entrada->conteudo.argumentos = NULL;
     }
@@ -542,7 +539,7 @@ void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
 
     _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
 
-    operador->tipo = esq->tipo = dir->tipo;
+    operador->tipo = esq->tipo;
 }
 
 void verifica_return(Nodo *operador, Nodo *expr1) {
@@ -652,9 +649,7 @@ void verifica_inicializacao(Tipo tipo, Nodo *nodos_inicializados) {
 
         _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
 
-        nodo_esq->tipo = nodo_dir->tipo;   
-
-        nodo_operacao->tipo = tipo;
+        nodo_operacao->tipo = nodo_esq->tipo = tipo;
 
         nodo_operacao = nodo_dir->irmao;
     }

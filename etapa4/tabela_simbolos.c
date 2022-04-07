@@ -542,7 +542,7 @@ void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
 
     _verifica_conversao_implicita(esq->tipo, esq->valor_lexico, dir->tipo, dir->valor_lexico, 0);
 
-    operador->tipo = esq->tipo = dir->tipo;
+    operador->tipo = esq->tipo;
 }
 
 void verifica_return(Nodo *operador, Nodo *expr1) {
@@ -652,9 +652,7 @@ void verifica_inicializacao(Tipo tipo, Nodo *nodos_inicializados) {
 
         _verifica_conversao_implicita(tipo, nodo_esq->valor_lexico, nodo_dir->tipo, nodo_dir->valor_lexico, 1);
 
-        nodo_esq->tipo = nodo_dir->tipo;   
-
-        nodo_operacao->tipo = tipo;
+        nodo_operacao->tipo = nodo_esq->tipo = tipo;
 
         nodo_operacao = nodo_dir->irmao;
     }
