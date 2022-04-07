@@ -1,5 +1,15 @@
 #pragma once
 
+#include <string.h>
+
+#define RFP "rfp"
+#define RSP "rsp"
+#define RBSS "rbss"
+#define RPC "rpc"
+
+int num_rotulos = 1;
+int num_registradores = 1;
+
 typedef enum Operacao
 {
     NOP,
