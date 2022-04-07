@@ -30,3 +30,13 @@ char *gera_nome(int eh_rotulo)
     snprintf(numero, 11, "%c%d", c, n);
     return numero;
 }
+
+CodigoILOC cria_codigo(char *origem1, char *origem2, Operacao operacao, char *destino1, char *destino2)
+{
+    CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
+    codigo->origem1 = origem1 ? origem1 : NULL;
+    codigo->origem2 = origem2 ? origem2 : NULL;
+    codigo->operacao = operacao;
+    codigo->destino1 = destino1 ? destino1 : NULL;
+    codigo->destino2 = destino2 ? destino2 : NULL;
+}
