@@ -144,7 +144,7 @@ Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo nat
 }
 
 Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
-    return _novo_conteudo(valor_lexico, tipo, NATUREZA_LITERAL, 0)
+    return _novo_conteudo(valor_lexico, tipo, NATUREZA_LITERAL, 0);
 }
 
 //#endregion Auxiliares
