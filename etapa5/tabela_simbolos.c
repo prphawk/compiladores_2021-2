@@ -144,14 +144,7 @@ Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo nat
 }
 
 Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
-    Conteudo conteudo;
-    conteudo.linha = valor_lexico.linha;
-    conteudo.tamanho = _tamanho(valor_lexico, tipo, 0);
-    conteudo.tipo = tipo;
-    conteudo.natureza = NATUREZA_LITERAL;
-    conteudo.argumentos = NULL;
-    conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
-    return conteudo;
+    return _novo_conteudo(valor_lexico, tipo, NATUREZA_LITERAL, 0)
 }
 
 //#endregion Auxiliares
