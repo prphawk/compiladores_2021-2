@@ -89,6 +89,7 @@ EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexi
 EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo);
 void empilha();
 EntradaHash *_malloc_tabela();
+void _inicializa_entrada(EntradaHash *entrada);
 
 void libera_pilha();
 void desempilha();

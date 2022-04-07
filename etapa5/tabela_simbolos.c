@@ -1,9 +1,9 @@
 #include "tabela_simbolos.h"
 
-PilhaHash *pilha_hash = NULL;
+PilhaHash *global_pilha_hash = NULL;
 ArgumentoFuncaoLst *global_parametros_sem_funcao = NULL; // para inserir uma lista de parametros nos atributos de uma função ainda não reconhecida pela gramática
 VariavelSemTipoLst *global_variaveis_sem_tipo = NULL; // para inserir e atualizar no escopo uma lista de declarações cujo tipo ainda não foi reconhecido pela gramática
-char *ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
+char *global_ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
 int E4_CHECK_FLAG = 1; // existe pra habilitar/desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
 extern int print_simbolos;
@@ -117,18 +117,15 @@ void _malloc_expande_tabela(PilhaHash *pilha) {
 
     EntradaHash *tabela = pilha->topo;
 
-    int novo_tamanho = pilha->tamanho_tabela + TAMANHO_INICIAL_HASH;
+    int antigo_tamanho = pilha->tamanho_tabela;
+
+    int novo_tamanho = antigo_tamanho + TAMANHO_INICIAL_HASH;
 
     tabela = (EntradaHash *) realloc(tabela, sizeof(EntradaHash) * (novo_tamanho));
 
-    for (int i = pilha->tamanho_tabela; i < novo_tamanho; i++) {
+    for (int i = antigo_tamanho; i < novo_tamanho; i++) {
         EntradaHash* entrada = &tabela[i];
-        entrada->chave = NULL;
-        entrada->conteudo.tipo = -1;
-        entrada->conteudo.natureza = -1;
-        entrada->conteudo.linha = -1;
-        entrada->conteudo.tamanho = -1;
-        entrada->conteudo.argumentos = NULL;
+        _inicializa_entrada(entrada);
     }
 
     pilha->topo = tabela;
@@ -164,7 +161,7 @@ Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
 //  função que retorna uma entrada específica da hash a partir de sua chave
 EntradaHash *_busca_pilha(char *chave) {
 
-    PilhaHash *pilha = pilha_hash; 
+    PilhaHash *pilha = global_pilha_hash; 
 
     EntradaHash *busca = NULL;
 
@@ -209,7 +206,7 @@ void insere_funcao_pilha(TipoSimbolo tipo, ValorLexico valor_lexico) {
     if(tipo == TIPO_STRING) throwFunctionStringError(valor_lexico.linha, valor_lexico.label);
 
     EntradaHash *resposta = _declara_em_escopo(NATUREZA_FUNCAO, tipo, valor_lexico, 0);
-    ultima_funcao = resposta->conteudo.valor_lexico.label;
+    global_ultima_funcao = resposta->conteudo.valor_lexico.label;
 }
 
 void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
@@ -243,9 +240,9 @@ void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
 
 void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
     
-    if(pilha_hash == NULL) empilha();
+    if(global_pilha_hash == NULL) empilha();
 
-    PilhaHash* pilha = pilha_hash;
+    PilhaHash* pilha = global_pilha_hash;
 
     VariavelSemTipoLst *vst = global_variaveis_sem_tipo;
 
@@ -283,7 +280,7 @@ void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
     novo_arg_lst = malloc(sizeof(ArgumentoFuncaoLst));
     novo_arg_lst->tipo = tipo;
 
-    if(pilha_hash == NULL) throwUnexpectedError(valor_lexico.linha, ">> Não tá empilhando antes dos parâmetros.");
+    if(global_pilha_hash == NULL) throwUnexpectedError(valor_lexico.linha, ">> Não tá empilhando antes dos parâmetros.");
 
     //novo ArgumentoFuncaoLst no inicio da lista de argumentos sem funcao do escopo
     ArgumentoFuncaoLst *antigo_arg_lst = global_parametros_sem_funcao;
@@ -294,7 +291,7 @@ void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 // função que adiciona um argumento à lista de argumentos de uma função
 void adiciona_parametros_escopo_anterior(Nodo *nodo_funcao) {
 
-    PilhaHash *pilha = pilha_hash;
+    PilhaHash *pilha = global_pilha_hash;
 
     if(pilha == NULL) {
         throwUnexpectedError(nodo_funcao->valor_lexico.linha, ">> Sem escopo anterior para adicionar os parâmetros.");
@@ -348,9 +345,9 @@ ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
 
-    if(pilha_hash == NULL) empilha();
+    if(global_pilha_hash == NULL) empilha();
 
-    PilhaHash* pilha = pilha_hash;
+    PilhaHash* pilha = global_pilha_hash;
 
     if(pilha == NULL) return NULL;
 
@@ -359,8 +356,8 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
     EntradaHash *busca = _busca_topo_pilha(chave_malloc, pilha);
 
     if(busca != NULL) {
-        throwDeclaredError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
         free(chave_malloc);
+        throwDeclaredError(valor_lexico.linha, valor_lexico.label, busca->conteudo.linha);
         return NULL;
     }
 
@@ -376,12 +373,12 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
     return resposta;
 }
 
-// se já existir não insere dnv, mas tbm n dá erro
+// se já existir não insere dnv, mas tbm n dá erro. dá pra botar todos literais no escopo global se quiser.
 EntradaHash *_declara_literal_em_escopo(TipoSimbolo tipo, ValorLexico valor_lexico) {
 
-    if(pilha_hash == NULL) empilha();
+    if(global_pilha_hash == NULL) empilha();
 
-    PilhaHash* pilha = pilha_hash;
+    PilhaHash* pilha = global_pilha_hash;
 
     if(pilha == NULL) return NULL;
 
@@ -437,9 +434,9 @@ void empilha()
 
     EntradaHash *tabela = _malloc_tabela();
     pilha_aux->topo = tabela;
-    pilha_aux->resto = (struct PilhaHash*)pilha_hash;
+    pilha_aux->resto = global_pilha_hash;
 
-    pilha_hash = pilha_aux;
+    global_pilha_hash = pilha_aux;
 
     if(print_simbolos) printf("\n>> OP: EMPILHANDO\n");
 }
@@ -451,16 +448,21 @@ EntradaHash *_malloc_tabela() {
 
     for (int i = 0; i < TAMANHO_INICIAL_HASH; i++) {
         EntradaHash* entrada = &tabela[i];
-        entrada->chave = NULL;
-        entrada->conteudo.tipo = -1;
-        entrada->conteudo.natureza = -1;
-        entrada->conteudo.linha = -1;
-        entrada->conteudo.tamanho = -1;
-        entrada->conteudo.argumentos = NULL;
+        _inicializa_entrada(entrada);
     }
 
     return tabela;
 }
+
+void _inicializa_entrada(EntradaHash *entrada) {
+    entrada->chave = NULL;
+    entrada->conteudo.tipo = -1;
+    entrada->conteudo.natureza = -1;
+    entrada->conteudo.linha = -1;
+    entrada->conteudo.tamanho = -1;
+    entrada->conteudo.argumentos = NULL;
+}
+
 //#endregion Insere
 
 //#region Libera 
@@ -469,7 +471,7 @@ void libera_pilha() {
 
     _libera_vsts();
 
-    while(pilha_hash != NULL) {
+    while(global_pilha_hash != NULL) {
         desempilha();
     }
 }
@@ -477,17 +479,17 @@ void libera_pilha() {
 // função que "desempilha" (elimina) a hash e suas informações no topo da pilha
 void desempilha()
 {
-    if(pilha_hash == NULL) return;
+    if(global_pilha_hash == NULL) return;
 
-    PilhaHash *nova_pilha = pilha_hash->resto;
+    PilhaHash *nova_pilha = global_pilha_hash->resto;
 
-    PilhaHash *antiga_pilha = pilha_hash;
+    PilhaHash *antiga_pilha = global_pilha_hash;
 
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
 
     free(antiga_pilha);
 
-    pilha_hash = nova_pilha;
+    global_pilha_hash = nova_pilha;
 
     if(print_simbolos) printf("\n>> OP: DESEMPILHANDO\n");
 }
@@ -514,7 +516,7 @@ void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
 
 // só aponta mesmo. o conteúdo vai ser desalocado ao liberar todas as chaves das tabelas
 void libera_ultima_funcao() {
-    ultima_funcao = NULL;
+    global_ultima_funcao = NULL;
 }
 
 // libera a head da lista global de variáveis sem tipo (também chamada quando encontramos o tipo)
@@ -566,11 +568,11 @@ void verifica_atribuicao(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void verifica_return(Nodo *operador, Nodo *expr1) {
 
-    if(ultima_funcao != NULL) {
+    if(global_ultima_funcao != NULL) {
 
-        char* chave = _chave_label(ultima_funcao);
+        char* chave = _chave_label(global_ultima_funcao);
 
-        EntradaHash *busca_funcao = _busca_topo_pilha(chave, pilha_hash->resto);
+        EntradaHash *busca_funcao = _busca_topo_pilha(chave, global_pilha_hash->resto);
 
         free(chave);
 
@@ -857,7 +859,7 @@ void _verifica_tipos_argumentos(Nodo *args_passados, ArgumentoFuncaoLst *args_de
 //#region Prints
 void print_pilha() {
 
-    PilhaHash *aux_pilha = pilha_hash;
+    PilhaHash *aux_pilha = global_pilha_hash;
 
     int profundidade = 1;
 
