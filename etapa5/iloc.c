@@ -18,13 +18,13 @@ char *gera_nome(int eh_rotulo)
     {
         n = num_rotulos;
         num_rotulos++;
-        c = "L";
+        c = 'L';
     }
     else
     {
         n = num_registradores;
         num_registradores++;
-        c = "r";
+        c = 'r';
     }
     char *numero = calloc(sizeof(char), 10); // +1 for null
     snprintf(numero, 11, "%c%d", c, n);
