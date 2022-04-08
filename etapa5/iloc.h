@@ -65,8 +65,8 @@ typedef enum TipoOperando {
 
     REGISTRADOR, 
     LABEL,
-    IMEDIATO
-    //registerPointer,
+    IMEDIATO,
+    REGISTRADOR_ESPECIAL,
     //patchworkTrue,
     //patchworkFalse,
 
