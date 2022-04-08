@@ -9,9 +9,6 @@
 #define RBSS "rbss"
 #define RPC "rpc"
 
-int num_rotulos = 1;
-int num_registradores = 1;
-
 typedef enum Operacao
 {
     NOP,
@@ -64,17 +61,33 @@ typedef enum Operacao
     //TODO halt?
 } Operacao;
 
+typedef enum {
+
+    REGISTRADOR, 
+    LABEL,
+    IMEDIATO,
+    //registerPointer,
+    //patchworkTrue,
+    //patchworkFalse,
+
+} TipoOperando;
+
+typedef struct OperandoCodigo
+{
+    char *nome;
+    TipoOperando tipo;
+    int valor;
+    struct OperandoCodigo *proximo;
+} OperandoCodigo;
+
 typedef struct CodigoILOC
 {
-    char *origem1;
-    char *origem2;
+    OperandoCodigo *origem;
     Operacao operacao;
-    char *destino1;
-    char *destino2;
+    OperandoCodigo *destino;
     struct CodigoILOC *anterior;
 } CodigoILOC;
 
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
 char *gera_nome(int eh_rotulo);
-CodigoILOC cria_codigo(char *origem1, char *origem2, Operacao operacao, char *destino1, char *destino2);
