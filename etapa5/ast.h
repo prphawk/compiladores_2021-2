@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "valor_lexico.h"
-
+#include "iloc.h"
 typedef enum tipo
 {
     TIPO_INT,
@@ -18,6 +18,9 @@ typedef struct Nodo {
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
+
+    CodigoILOC *codigo;
+    OperandoCodigo *resultado;
 } Nodo;
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico);
