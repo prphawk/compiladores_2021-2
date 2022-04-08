@@ -61,11 +61,11 @@ typedef enum Operacao
     //TODO halt?
 } Operacao;
 
-typedef enum {
+typedef enum TipoOperando {
 
     REGISTRADOR, 
     LABEL,
-    IMEDIATO,
+    IMEDIATO
     //registerPointer,
     //patchworkTrue,
     //patchworkFalse,

@@ -30,6 +30,7 @@ OperandoCodigo *cria_operando_registrador(char* nome) {
    return cria_operando(nome, 0, REGISTRADOR);
 }
 
+// loadI c1 => r2 // r2 = c1
 void codigo_literal(Nodo *nodo) {
 
     int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
