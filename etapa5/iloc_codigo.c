@@ -91,11 +91,25 @@ void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_b
     OperandoCodigo *operando_label_true = operando_bloco_if;
 
     //where it jumps in case expNode is false
-    OperandoCodigo *operando_label_false = (nodo_bloco_else == NULL) ? operando_fim : operando_bloco_else;
+    OperandoCodigo *operando_label_false = nodo_bloco_else == NULL ? operando_fim : operando_bloco_else;
     
     CodigoILOC *jump_fim = instrucao_jump(operando_fim);
     
     //TODO resolveLogical(ifNode, expNode, operando_label_true, operando_label_false);
+
+   //      if (nodeExp->hasPatchworks) {
+
+   //      coverPatchworks(nodeExp, labelTrue, true);
+   //      coverPatchworks(nodeExp, labelFalse, false);
+   //      appendCode(rootNode, nodeExp);
+        
+   //  } else {
+
+        OperandoCodigo r1Operand = nodeExp->resultRegister;
+        list<InstructionCode> compareCode = makeCompare(r1Operand, labelTrue, labelFalse);
+        appendCode(rootNode, nodeExp);
+        appendCode(rootNode, compareCode);
+    //}
 
    _append_codigo(nodo_if, nop_com_label_bloco_if);
    _append_codigo_de_nodo(nodo_if, nodo_bloco_if);
@@ -107,9 +121,17 @@ void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_b
       _append_codigo_de_nodo(nodo_if, nodo_bloco_else);
       
    }
-   
+
    _append_codigo(ifNode, {nop_com_label_fim});
 }
+
+// cbr r1 -> l2_true, l3_false // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
+CodigoILOC* instrucao_cbr(OperandoCodigo *operando_registrador, OperandoCodigo *operando_label_true, OperandoCodigo *operando_label_false) {
+
+   liga_operandos(operando_label_true, operando_label_false);
+   return _cria_codigo(operando_registrador, CBR, operando_label_true);
+}
+
 
 CodigoILOC *instrucao_nop(char* label) {
    return _cria_codigo_com_label(label, NULL, NOP, NULL);
