@@ -263,7 +263,7 @@ comando_atribuicao: variavel_ou_vetor '=' expressao
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
                         if(E4_CHECK_FLAG) verifica_atribuicao($1, novo_nodo, $3);
-                        codigo_atribuicao($$);
+                        codigo_atribuicao($1, $$, $3);
                     };
 
 comando_entrada: TK_PR_INPUT variavel

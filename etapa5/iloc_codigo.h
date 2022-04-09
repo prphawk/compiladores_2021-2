@@ -7,7 +7,7 @@ CodigoILOC *instrucao_loadI(int valor);
 
 void _append_codigo_global(CodigoILOC *codigo);
 void cria_codigo_e_append(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino);
-void codigo_atribuicao(Nodo *nodo);
+void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_carrega_variavel(Nodo *nodo);
 void codigo_carrega_literal(Nodo *nodo);
 void codigo_logico(Nodo *nodo);

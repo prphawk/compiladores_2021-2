@@ -22,6 +22,7 @@ typedef struct Nodo {
     CodigoILOC *codigo;
     OperandoCodigo *resultado;
     Operacao operacao;
+    int com_curto_circuito;
 } Nodo;
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico);

@@ -69,24 +69,29 @@ void codigo_carrega_literal(Nodo *nodo) {
 }
 
 // storeAI r0 => r1 (rfp ou rbss), deslocamento
-void codigo_atribuicao(Nodo *nodo) {
+void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
-    if (nodo->tipo != TIPO_INT) return;
+    //if (variavel->tipo != TIPO_INT) return;
 
-	int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
+	OperandoCodigo *origem = NULL;
 
-	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
+	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
 	
-	OperandoCodigo *origem = cria_operando_registrador(gera_nome_registrador()); 
-
 	OperandoCodigo *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
 	OperandoCodigo *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
+
+	if(expressao->com_curto_circuito) {
+		OperandoCodigo *origem = expressao->resultado; 
+	}
+	else { //TODO botar curto circuito de expressoes!
+
+	}
 
 	liga_operandos(destino_1_ponteiro, destino_2_deslocamento);
 
 	cria_codigo_e_append(origem, STOREAI, destino_1_ponteiro);
 	
-	nodo->codigo = global_codigo;
+	variavel->codigo = global_codigo;
 	//nodo->resultado = destino;
 }
 
@@ -145,13 +150,13 @@ void codigo_sub(Nodo *nodo_operacao, Nodo *nodo) {
 
     // resolveArithmetic(symbolNode, expressionNode, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
 
-	OperandoCodigo *origem = nodo_operacao->resultado;
+	OperandoCodigo *origem_1 = nodo_operacao->resultado;
 	OperandoCodigo *origem_2 = cria_operando_imediato(0);
-	liga_operandos(origem, origem_2);
+	liga_operandos(origem_1, origem_2);
 
 	OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
 
-	cria_codigo_e_append(origem, RSUBI, destino);
+	cria_codigo_e_append(origem_1, RSUBI, destino);
 
     nodo_operacao->resultado = destino;
 }
