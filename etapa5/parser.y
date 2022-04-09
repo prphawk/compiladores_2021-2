@@ -475,6 +475,7 @@ expr_unaria_aritmetica: expr_parenteses_aritmetica
 					adiciona_filho($1, $2);
 					$$ = $1;
                     if(E4_CHECK_FLAG) verifica_expr_unaria($1, $2);
+                    codigo_expr_unaria($1, $2);
 				}
 				| operador_asterisco expr_unaria_aritmetica
 				{

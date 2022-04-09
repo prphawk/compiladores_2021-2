@@ -52,24 +52,23 @@ void codigo_carrega_literal(Nodo *nodo) {
 // storeAI r0 => r1 (rfp ou rbss), deslocamento
 void codigo_atribuicao(Nodo *nodo) {
 
-    if (nodo->tipo == TIPO_INT) {
+    if (nodo->tipo != TIPO_INT) return;
 
-        int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
+	int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
 
-		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
-        
-        OperandoCodigo *origem = cria_operando_registrador(gera_nome_registrador()); 
+	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
+	
+	OperandoCodigo *origem = cria_operando_registrador(gera_nome_registrador()); 
 
-        OperandoCodigo *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
-		OperandoCodigo *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
+	OperandoCodigo *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
+	OperandoCodigo *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
 
-        liga_operandos(destino_1_ponteiro, destino_2_deslocamento);
+	liga_operandos(destino_1_ponteiro, destino_2_deslocamento);
 
-        cria_codigo(origem, STOREAI, destino_1_ponteiro);
-        
-        nodo->codigo = global_codigo;
-        //nodo->resultado = destino;
-    }
+	cria_codigo(origem, STOREAI, destino_1_ponteiro);
+	
+	nodo->codigo = global_codigo;
+	//nodo->resultado = destino;
 }
 
 /* 
@@ -109,6 +108,33 @@ void codigo_logico(Nodo *nodo)
    cria_codigo(NULL, JUMPI, destino_jump_false);
    //TODO COLOQUE AQUI A LABEL FIM
    nodo->codigo = global_codigo;
+}
+
+void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
+
+	if(nodo_operacao->operacao == SUB) codigo_sub(nodo_operacao, nodo);
+	else {
+        //appendCode(operacao, nodo); TODO
+		nodo_operacao->resultado = nodo->resultado;
+    }
+}
+
+// rsubI r1, 0 => r3 // r3 = 0 - r1
+void codigo_sub(Nodo *nodo_operacao, Nodo *nodo) {
+
+    //int nextInstructionLabel = this->getLabel();
+
+    // resolveArithmetic(symbolNode, expressionNode, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
+
+	OperandoCodigo *origem = nodo_operacao->resultado;
+	OperandoCodigo *origem_2 = cria_operando_imediato(0);
+	liga_operandos(origem, origem_2);
+
+	OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
+
+	cria_codigo(origem, RSUBI, destino);
+
+    nodo_operacao->resultado = destino;
 }
 
 
@@ -207,7 +233,7 @@ void codigo_logico_operacoes(Operacao operacao, char* label_true, char* label_fa
 }
 
 // ex: jumpI -> l1 // PC = endereço(l1)
-CodigoILOC *_codigo_jump(char* label_destino) {
+CodigoILOC *instrucao_jump(char* label_destino) {
 
    OperandoCodigo *destino = cria_operando_label(label_destino);
 
