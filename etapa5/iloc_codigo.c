@@ -1,18 +1,39 @@
 #include "iloc_codigo.h"
 #include "tabela_simbolos.h"
 
+#define FALSE = 0
+#define TRUE = 1
+
 CodigoILOC *global_codigo = NULL;
 
-void cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+//#region Principais Código 
+
+void cria_codigo_e_append(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino) 
+{
+	CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
+    _append_codigo_global(codigo);
+}
+
+void _append_codigo_global(CodigoILOC *codigo) 
+{
+	codigo->anterior = global_codigo;
+    global_codigo = codigo;
+}
+
+CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
 {
     CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
     codigo->origem = origem;
     codigo->operacao = operacao;
     codigo->destino = destino;
 
-    codigo->anterior = global_codigo;
-    global_codigo = codigo;
+    return codigo;
 }
+
+//#endregion Principais Código 
+
+
+//#region Código 
 
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
 void codigo_carrega_variavel(Nodo *nodo) {
@@ -28,7 +49,7 @@ void codigo_carrega_variavel(Nodo *nodo) {
 
    OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
 
-   cria_codigo(origem_1_registrador, LOADAI, destino);
+   cria_codigo_e_append(origem_1_registrador, LOADAI, destino);
 
    //TODO e o codigo de nodo? n tem na referencia nodo->codigo = global_codigo;
    nodo->resultado = destino;
@@ -39,14 +60,12 @@ void codigo_carrega_literal(Nodo *nodo) {
 
    int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
 
-   OperandoCodigo *origem = cria_operando_imediato(valor);
+   CodigoILOC *codigo = instrucao_loadI(valor);
 
-   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
-
-   cria_codigo(origem, LOADI, destino);
+   _append_codigo_global(codigo);
    
-   nodo->codigo = global_codigo;
-   nodo->resultado = destino;
+   nodo->codigo = codigo;
+   nodo->resultado = codigo->destino;
 }
 
 // storeAI r0 => r1 (rfp ou rbss), deslocamento
@@ -65,7 +84,7 @@ void codigo_atribuicao(Nodo *nodo) {
 
 	liga_operandos(destino_1_ponteiro, destino_2_deslocamento);
 
-	cria_codigo(origem, STOREAI, destino_1_ponteiro);
+	cria_codigo_e_append(origem, STOREAI, destino_1_ponteiro);
 	
 	nodo->codigo = global_codigo;
 	//nodo->resultado = destino;
@@ -90,22 +109,22 @@ void codigo_logico(Nodo *nodo)
 
    OperandoCodigo *destino_load_true = cria_operando_registrador(registrador_result);
 
-   cria_codigo(origem_load_true, LOADI, destino_load_true);
+   cria_codigo_e_append(origem_load_true, LOADI, destino_load_true);
 
    OperandoCodigo *destino_jump_true = cria_operando_label(label_fim);
 
-   cria_codigo(NULL, JUMPI, destino_jump_true);
+   cria_codigo_e_append(NULL, JUMPI, destino_jump_true);
     
    //TODO COLOQUE AQUI A LABEL FALSE
    OperandoCodigo *origem_load_false = cria_operando_imediato(0);
 
    OperandoCodigo *destino_load_false = cria_operando_registrador(registrador_result);
 
-   cria_codigo(origem_load_false, LOADI, destino_load_false);
+   cria_codigo_e_append(origem_load_false, LOADI, destino_load_false);
 
    OperandoCodigo *destino_jump_false = cria_operando_label(label_fim);
 
-   cria_codigo(NULL, JUMPI, destino_jump_false);
+   cria_codigo_e_append(NULL, JUMPI, destino_jump_false);
    //TODO COLOQUE AQUI A LABEL FIM
    nodo->codigo = global_codigo;
 }
@@ -132,7 +151,7 @@ void codigo_sub(Nodo *nodo_operacao, Nodo *nodo) {
 
 	OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
 
-	cria_codigo(origem, RSUBI, destino);
+	cria_codigo_e_append(origem, RSUBI, destino);
 
     nodo_operacao->resultado = destino;
 }
@@ -222,20 +241,38 @@ void codigo_logico_operacoes(Operacao operacao, char* label_true, char* label_fa
    liga_operandos(op_origem,op_origem2);
    OperandoCodigo *op_destino = cria_operando_registrador(registradorCC1);
 
-   cria_codigo(op_origem, operacao, op_destino);
+   cria_codigo_e_append(op_origem, operacao, op_destino);
 
    OperandoCodigo *cbr_origem = cria_operando_registrador(registradorCC1);
    OperandoCodigo *cbr_destino = cria_operando_registrador(label_true);
    OperandoCodigo *cbr_destino2 = cria_operando_registrador(label_false);
    liga_operandos(cbr_destino,cbr_destino2);
 
-   cria_codigo(cbr_origem, CMP_EQ, cbr_destino);
+   cria_codigo_e_append(cbr_origem, CMP_EQ, cbr_destino);
 }
+//#endregion Código 
+
+//#region Instrução 
+
+// loadI c1 => r2 // r2 = c1
+CodigoILOC *instrucao_loadI(int valor) {
+
+   OperandoCodigo *origem = cria_operando_imediato(valor);
+
+   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
+
+   CodigoILOC *codigo = _cria_codigo(origem, LOADI, destino);
+
+   return codigo;
+}
+
 
 // ex: jumpI -> l1 // PC = endereço(l1)
 CodigoILOC *instrucao_jump(char* label_destino) {
 
    OperandoCodigo *destino = cria_operando_label(label_destino);
 
-   cria_codigo(NULL, JUMPI, destino);
+   cria_codigo_e_append(NULL, JUMPI, destino);
 }
+
+//#endregion Instrução 
