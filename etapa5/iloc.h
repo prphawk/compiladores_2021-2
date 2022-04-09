@@ -74,7 +74,7 @@ typedef enum TipoOperando {
 
 typedef struct OperandoCodigo
 {
-    char *nome;
+    char *nome; //TODO ver se precisa?
     TipoOperando tipo;
     int valor;
     struct OperandoCodigo *proximo;
@@ -82,6 +82,7 @@ typedef struct OperandoCodigo
 
 typedef struct CodigoILOC
 {
+    char *label;
     OperandoCodigo *origem;
     Operacao operacao;
     OperandoCodigo *destino;

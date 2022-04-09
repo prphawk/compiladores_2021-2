@@ -2,15 +2,14 @@
 
 CodigoILOC *global_codigo = NULL;
 
-void cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+CodigoILOC *cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
 {
     CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
     codigo->origem = origem;
     codigo->operacao = operacao;
     codigo->destino = destino;
 
-    codigo->anterior = global_codigo;
-    global_codigo = codigo;
+   return codigo;
 }
 
 OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo) {
@@ -30,19 +29,31 @@ OperandoCodigo *cria_operando_registrador(char* nome) {
    return cria_operando(nome, 0, REGISTRADOR);
 }
 
+OperandoCodigo *cria_operando_label(char* nome) {
+   return cria_operando(nome, 0, LABEL);
+}
+
 // loadI c1 => r2 // r2 = c1
-void codigo_literal(Nodo *nodo) {
+void nodo_loadI(Nodo *nodo) {
 
-    int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
+   int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
 
-    char* registrador = gera_nome_registrador();
+   char* registrador = gera_nome_registrador();
 
-    OperandoCodigo *origem = cria_operando_imediato(valor);
+   OperandoCodigo *origem = cria_operando_imediato(valor);
 
-    OperandoCodigo *destino = cria_operando_registrador(registrador);
+   OperandoCodigo *destino = cria_operando_registrador(registrador);
 
-    cria_codigo(origem, LOADI, destino);
-    
-    nodo->codigo = global_codigo;
-    nodo->resultado = destino;
+   CodigoILOC *codigo = cria_codigo(origem, LOADI, destino);
+   
+   nodo->codigo = codigo;
+   nodo->resultado = destino;
+}
+
+// ex: jumpI -> l1 // PC = endereço(l1)
+CodigoILOC *codigo_jumpI(char* label_destino) {
+
+   OperandoCodigo *destino = cria_operando_label(label_destino);
+
+   return cria_codigo(NULL, JUMPI, destino);
 }
