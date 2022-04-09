@@ -31,16 +31,12 @@ CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodi
     return codigo;
 }
 
-void cria_codigo_com_label(char *label, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+void cria_codigo_com_label_e_append(char *label, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
 {
-   CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
+   CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
    codigo->label = label;
-   codigo->origem = origem;
-   codigo->operacao = operacao;
-   codigo->destino = destino;
 
-   codigo->anterior = global_codigo;
-   global_codigo = codigo;
+   _append_codigo_global(codigo);
 }
 
 //#endregion Principais Código 
@@ -93,10 +89,9 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	OperandoCodigo *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
 	OperandoCodigo *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
 
-	if(expressao->com_curto_circuito) {
+	//if(expressao->com_curto_circuito) {
 		OperandoCodigo *origem = expressao->resultado; 
-	}
-	else { //TODO botar curto circuito de expressoes!
+	//} else { //TODO botar curto circuito de expressoes!
 
 	}
 
@@ -127,7 +122,7 @@ void codigo_logico(Nodo *nodo)
 
    OperandoCodigo *destino_load_true = cria_operando_registrador(registrador_result);
 
-   cria_codigo_com_label(label_true, origem_load_true, LOADI, destino_load_true);
+   cria_codigo_com_label_e_append(label_true, origem_load_true, LOADI, destino_load_true);
 
    OperandoCodigo *destino_jump_true = cria_operando_label(label_fim);
 
@@ -137,12 +132,12 @@ void codigo_logico(Nodo *nodo)
 
    OperandoCodigo *destino_load_false = cria_operando_registrador(registrador_result);
 
-   cria_codigo_com_label(label_false, origem_load_false, LOADI, destino_load_false);
+   cria_codigo_com_label_e_append(label_false, origem_load_false, LOADI, destino_load_false);
 
    OperandoCodigo *destino_jump_false = cria_operando_label(label_fim);
 
    cria_codigo_e_append(NULL, JUMPI, destino_jump_false);
-   cria_codigo_com_label(label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra?
+   cria_codigo_com_label_e_append(label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra?
    nodo->codigo = global_codigo;
 }
 
@@ -256,7 +251,7 @@ void codigo_logico_operacoes(char *label, Operacao operacao, char* label_true, c
    liga_operandos(op_origem,op_origem2);
    OperandoCodigo *op_destino = cria_operando_registrador(registradorCC1);
 
-   cria_codigo_com_label(label, op_origem, operacao, op_destino);
+   cria_codigo_com_label_e_append(label, op_origem, operacao, op_destino);
 
    OperandoCodigo *cbr_origem = cria_operando_registrador(registradorCC1);
    OperandoCodigo *cbr_destino = cria_operando_registrador(label_true);
