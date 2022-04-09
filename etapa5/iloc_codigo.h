@@ -4,6 +4,7 @@
 void codigo_literal(Nodo *nodo);
 OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
 OperandoCodigo *cria_operando_imediato(int valor);
+OperandoCodigo *cria_operando_label(char *nome, int valor);
 OperandoCodigo *cria_operando_registrador(char* nome);
 OperandoCodigo *cria_operando_registrador_especial(char* nome);
 OperandoCodigo *cria_rfp();
