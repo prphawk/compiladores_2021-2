@@ -111,31 +111,39 @@ L3:loadI false => r5
 */
 void codigo_logico(Nodo *nodo)
 {
-   char *registradorResult = gera_nome_registrador();
-   char *labelTrue = gera_nome_rotulo();
-   char *labelFalse = gera_nome_rotulo();
-   char *labelFim = gera_nome_rotulo();
+   char *registrador_result = gera_nome_registrador();
+   char *label_true = gera_nome_rotulo();
+   char *label_false = gera_nome_rotulo();
+   char *label_fim = gera_nome_rotulo();
 
-   codigo_logico_auxiliar(nodo, labelTrue, labelFalse);
+   codigo_logico_auxiliar(nodo, label_true, label_fim);
    //TODO COLOQUE AQUI A LABEL TRUE
-   OperandoCodigo *origemTrue = cria_operando_imediato(1);
+   OperandoCodigo *origem_load_true = cria_operando_imediato(1);
 
-   OperandoCodigo *destinoTrue = cria_operando_registrador(registradorResult);
+   OperandoCodigo *destino_load_true = cria_operando_registrador(registrador_result);
 
-   cria_codigo(origemTrue, LOADI, destinoTrue);
+   cria_codigo(origem_load_true, LOADI, destino_load_true);
+
+   OperandoCodigo *destino_jump_true = cria_operando_label(label_fim);
+
+   cria_codigo(NULL, JUMPI, destino_jump_true);
     
    //TODO COLOQUE AQUI A LABEL FALSE
-   OperandoCodigo *origemFalse = cria_operando_imediato(1);
+   OperandoCodigo *origem_load_false = cria_operando_imediato(0);
 
-   OperandoCodigo *destinoFalse = cria_operando_registrador(registradorResult);
+   OperandoCodigo *destino_load_false = cria_operando_registrador(registrador_result);
 
-   cria_codigo(origemFalse, LOADI, destinoFalse);
+   cria_codigo(origem_load_false, LOADI, destino_load_false);
+
+   OperandoCodigo *destino_jump_false = cria_operando_label(label_fim);
+
+   cria_codigo(NULL, JUMPI, destino_jump_false);
    //TODO COLOQUE AQUI A LABEL FIM
    nodo->codigo = global_codigo;
 }
 
 
-void codigo_logico_auxiliar(Nodo *nodo, char* labelTrue, char* labelFalse) {
+void codigo_logico_auxiliar(Nodo *nodo, char* label_true, char* label_false) {
    char *label1 = gera_nome_rotulo();
    switch(nodo->operacao)
    {
@@ -148,27 +156,27 @@ void codigo_logico_auxiliar(Nodo *nodo, char* labelTrue, char* labelFalse) {
          jumpI -> L3
       */
       case CMP_EQ:
-         codigo_logico_operacoes(CMP_EQ, labelTrue, labelFalse);
+         codigo_logico_operacoes(CMP_EQ, label_true, label_false);
       break;
 
       case CMP_NE:
-         codigo_logico_operacoes(CMP_NE, labelTrue, labelFalse);
+         codigo_logico_operacoes(CMP_NE, label_true, label_false);
       break;
 
       case CMP_LE:
-         codigo_logico_operacoes(CMP_LE, labelTrue, labelFalse);
+         codigo_logico_operacoes(CMP_LE, label_true, label_false);
       break;
 
       case CMP_GE:
-         codigo_logico_operacoes(CMP_GE, labelTrue, labelFalse);
+         codigo_logico_operacoes(CMP_GE, label_true, label_false);
       break;
 
       case CMP_GT:
-         codigo_logico_operacoes(CMP_GT, labelTrue, labelFalse);
+         codigo_logico_operacoes(CMP_GT, label_true, label_false);
       break;
 
       case CMP_LT:
-         codigo_logico_operacoes(CMP_LT, labelTrue, labelFalse);
+         codigo_logico_operacoes(CMP_LT, label_true, label_false);
       break;
       
       /* [A<B||C>B]
@@ -182,9 +190,9 @@ void codigo_logico_auxiliar(Nodo *nodo, char* labelTrue, char* labelFalse) {
          jumpI -> L5
       */
       case OR:
-         codigo_logico_auxiliar(nodo->filho, labelTrue, label1);
+         codigo_logico_auxiliar(nodo->filho, label_true, label1);
          //TODO COLOCA AQUI O LABEL 1
-         codigo_logico_auxiliar(nodo->filho->irmao, labelTrue, labelFalse);
+         codigo_logico_auxiliar(nodo->filho->irmao, label_true, label_false);
       break;
 
       /* [A<B&&C>B]
@@ -198,9 +206,9 @@ void codigo_logico_auxiliar(Nodo *nodo, char* labelTrue, char* labelFalse) {
          jumpI -> L5
       */
       case AND:
-         codigo_logico_auxiliar(nodo->filho, label1, labelFalse);
+         codigo_logico_auxiliar(nodo->filho, label1, label_false);
          //TODO COLOCA AQUI O LABEL 1
-         codigo_logico_auxiliar(nodo->filho->irmao, labelTrue, labelFalse);
+         codigo_logico_auxiliar(nodo->filho->irmao, label_true, label_false);
       break;
       
       default:
@@ -208,7 +216,7 @@ void codigo_logico_auxiliar(Nodo *nodo, char* labelTrue, char* labelFalse) {
    }
 }
 
-void codigo_logico_operacoes(Operacao operacao, char* labelTrue, char* labelFalse)
+void codigo_logico_operacoes(Operacao operacao, char* label_true, char* label_false)
 {
    char *registradorA = gera_nome_registrador();
    char *registradorB = gera_nome_registrador();
@@ -222,8 +230,8 @@ void codigo_logico_operacoes(Operacao operacao, char* labelTrue, char* labelFals
    cria_codigo(op_origem, operacao, op_destino);
 
    OperandoCodigo *cbr_origem = cria_operando_registrador(registradorCC1);
-   OperandoCodigo *cbr_destino = cria_operando_registrador(labelTrue);
-   OperandoCodigo *cbr_destino2 = cria_operando_registrador(labelFalse);
+   OperandoCodigo *cbr_destino = cria_operando_registrador(label_true);
+   OperandoCodigo *cbr_destino2 = cria_operando_registrador(label_false);
    liga_operandos(cbr_destino,cbr_destino2);
 
    cria_codigo(cbr_origem, CMP_EQ, cbr_destino);
