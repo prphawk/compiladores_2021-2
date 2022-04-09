@@ -50,6 +50,29 @@ void nodo_loadI(Nodo *nodo) {
    nodo->resultado = destino;
 }
 
+//loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
+void nodo_declaracao(Nodo *nodo) {
+
+   DeslocamentoEscopo deslocamento_escopo = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
+
+   char* registrador = deslocamento_escopo.eh_escopo_global ? RBSS : RFP;
+   int deslocamento = deslocamento_escopo.deslocamento;
+
+   int resultRegister = this->getRegister();
+
+   OperandoCodigo origem_1_registrador // TODO botar o tipo de registrador especial;
+   OperandoCodigo origem_2_deslocamento = cria_operando_imediato(deslocamento);
+
+   origem_1_registrador->proximo = origem_2_deslocamento;
+
+   OperandoCodigo destino = cria_operando_registrador(registrador);
+
+   cria_codigo(origem_1_registrador, LOADAI, destino);
+
+   //TODO e o codigo de nodo?
+   nodo->resultado = destino;
+}
+
 // ex: jumpI -> l1 // PC = endereço(l1)
 CodigoILOC *codigo_jumpI(char* label_destino) {
 

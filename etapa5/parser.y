@@ -363,8 +363,8 @@ literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_
          ;
 
 operador_binario_prec1: '^'     { $$ = adiciona_nodo($1); };
-operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->operacao = MULT; } 
-                        | '/'   { $$ = adiciona_nodo($1); $$->operacao = DIV;  } 
+operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->operacao = MULT; }
+                        | '/'   { $$ = adiciona_nodo($1); $$->operacao = DIV;  }
                         | '%'   { $$ = adiciona_nodo($1); }
                         ;
 operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->operacao = ADD; } 
