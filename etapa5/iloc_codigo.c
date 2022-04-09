@@ -14,57 +14,6 @@ void cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *dest
     global_codigo = codigo;
 }
 
-OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo) {
-    OperandoCodigo *operando = malloc(sizeof(OperandoCodigo));
-    operando->nome = nome;
-    operando->valor = valor;
-    operando->tipo = tipo;
-    operando->proximo = NULL;
-    return operando;
-}
-
-OperandoCodigo *cria_operando_imediato(int valor) {
-   return cria_operando(NULL, valor, IMEDIATO);
-}
-
-OperandoCodigo *cria_operando_registrador(char* nome) {
-   return cria_operando(nome, 0, REGISTRADOR);
-}
-
-OperandoCodigo *cria_operando_label(char* nome) {
-   return cria_operando(nome, 0, LABEL);
-}
-
-OperandoCodigo *cria_operando_registrador_especial(char* nome) {
-   return cria_operando(nome, 0, REGISTRADOR_ESPECIAL);
-}
-
-OperandoCodigo *cria_rfp() {
-   return cria_operando_registrador(RFP);
-}
-
-OperandoCodigo *cria_rsp() {
-   return cria_operando_registrador(RSP);
-}
-
-OperandoCodigo *cria_rbss() {
-   return cria_operando_registrador(RBSS);
-}
-
-OperandoCodigo *cria_rpc() {
-   return cria_operando_registrador(RPC);
-}
-
-void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo) 
-{
-    primeiro->proximo = segundo;
-}
-
-void desliga_operando(OperandoCodigo *primeiro)
-{
-    primeiro->proximo = NULL;
-}
-
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
 void codigo_carrega_variavel(Nodo *nodo) {
 
@@ -90,11 +39,9 @@ void codigo_carrega_literal(Nodo *nodo) {
 
    int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
 
-   char* registrador = gera_nome_registrador();
-
    OperandoCodigo *origem = cria_operando_imediato(valor);
 
-   OperandoCodigo *destino = cria_operando_registrador(registrador);
+   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
 
    cria_codigo(origem, LOADI, destino);
    
@@ -102,7 +49,7 @@ void codigo_carrega_literal(Nodo *nodo) {
    nodo->resultado = destino;
 }
 
-// storeAI r0 => r1 (rfp ou rbss),deslocamento
+// storeAI r0 => r1 (rfp ou rbss), deslocamento
 void codigo_atribuicao(Nodo *nodo) {
 
     if (nodo->tipo == TIPO_INT) {

@@ -92,3 +92,16 @@ typedef struct CodigoILOC
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
 char *gera_nome(int eh_rotulo);
+OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
+void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo) ;
+OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
+OperandoCodigo *cria_operando_imediato(int valor);
+OperandoCodigo *cria_operando_label(char *nome);
+OperandoCodigo *cria_operando_registrador(char* nome);
+CodigoILOC *_codigo_jump(char* label_destino);
+
+OperandoCodigo *cria_operando_registrador_especial(char* nome);
+OperandoCodigo *cria_rfp();
+OperandoCodigo *cria_rsp();
+OperandoCodigo *cria_rbss();
+OperandoCodigo *cria_rpc();
