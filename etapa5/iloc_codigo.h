@@ -15,3 +15,6 @@ void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo) ;
 void cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino);
 void codigo_literal(Nodo *nodo);
 void codigo_atribuicao(Nodo *nodo, int deslocamento, int eh_escopo_global);
+void codigo_logico(Nodo *nodo);
+void codigo_logico_auxiliar(Nodo *nodo, char* labelTrue, char* labelFalse);
+void codigo_logico_operacoes(Operacao operacao, char* labelTrue, char* labelFalse);
