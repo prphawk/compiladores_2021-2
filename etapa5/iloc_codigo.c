@@ -1,8 +1,8 @@
 #include "iloc_codigo.h"
 #include "tabela_simbolos.h"
 
-#define FALSE = 0
-#define TRUE = 1
+#define FALSE 0
+#define TRUE 1
 
 CodigoILOC *global_codigo = NULL;
 
@@ -209,6 +209,7 @@ void codigo_logico_auxiliar(Nodo *nodo, char* label_true, char* label_false) {
          jumpI -> L5
       */
       case OR:
+	  	nodo->com_curto_circuito = TRUE;
          codigo_logico_auxiliar(nodo->filho, label_true, label1);
          //TODO COLOCA AQUI O LABEL 1
          codigo_logico_auxiliar(nodo->filho->irmao, label_true, label_false);
@@ -225,6 +226,7 @@ void codigo_logico_auxiliar(Nodo *nodo, char* label_true, char* label_false) {
          jumpI -> L5
       */
       case AND:
+	  nodo->com_curto_circuito = TRUE;
          codigo_logico_auxiliar(nodo->filho, label1, label_false);
          //TODO COLOCA AQUI O LABEL 1
          codigo_logico_auxiliar(nodo->filho->irmao, label_true, label_false);

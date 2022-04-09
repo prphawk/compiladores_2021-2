@@ -60,6 +60,7 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     nodo->codigo = NULL;
     nodo->resultado = NULL;
     nodo->operacao = NOP;
+    nodo->com_curto_circuito = 0;
 
     return nodo;
 }
@@ -91,6 +92,7 @@ Nodo *adiciona_nodo_label(char *label)
     nodo->codigo = NULL;
     nodo->resultado = NULL;
     nodo->operacao = NOP;
+    nodo->com_curto_circuito = 0;
 
     return nodo;
 }
