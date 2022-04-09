@@ -53,6 +53,12 @@ typedef struct entradaHash
     Conteudo conteudo;
 } EntradaHash;
 
+typedef struct DeslocamentoEscopo
+{
+    int deslocamento;
+    int eh_escopo_global;
+} DeslocamentoEscopo;
+
 typedef struct PilhaHash {
     EntradaHash *topo;
     int tamanho_tabela;
@@ -128,3 +134,5 @@ char* eh_escopo_global_str(PilhaHash *pilha);
 char* _tipo_str(TipoSimbolo tipo);
 char* _natureza_str(NaturezaSimbolo natureza);
 void _print_argumentos(ArgumentoFuncaoLst *argLst);
+
+DeslocamentoEscopo busca_deslocamento_e_escopo(char *chave);

@@ -155,6 +155,33 @@ Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
 
 //#region Busca
 
+DeslocamentoEscopo busca_deslocamento_e_escopo(char *label) {
+
+    PilhaHash *pilha = global_pilha_hash; 
+
+    EntradaHash *busca = NULL;
+
+    char* chave_malloc = _chave_label(label);
+
+    DeslocamentoEscopo resposta;
+
+    while(pilha != NULL) {
+
+        busca = _busca_topo_pilha(chave_malloc, pilha);
+
+        if(busca != NULL) {
+            resposta.deslocamento = busca->deslocamento;
+            resposta.eh_escopo_global = _eh_escopo_global(pilha);
+            free(chave_malloc);
+            return resposta;
+        }
+        
+        pilha = pilha->resto;
+    }
+    free(chave_malloc);
+    //TODO throwUnexpectedError
+}
+
 //  função que retorna uma entrada específica da hash a partir de sua chave
 EntradaHash *_busca_pilha(char *chave) {
 
