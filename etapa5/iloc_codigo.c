@@ -17,7 +17,7 @@ void cria_codigo_e_append(OperandoCodigo *origem, Operacao operacao, OperandoCod
 void _append_codigo_global(CodigoILOC *codigo) 
 {
 	codigo->anterior = global_codigo;
-    global_codigo = codigo;
+   global_codigo = codigo;
 }
 
 CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
@@ -65,9 +65,9 @@ void codigo_carrega_variavel(Nodo *nodo) {
 }
 
 // loadI c1 => r2 // r2 = c1
-void codigo_carrega_literal(Nodo *nodo) {
+void codigo_carrega_literal(Nodo *nodo, int valor) {
 
-   int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
+   //int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
 
    CodigoILOC *codigo = instrucao_loadI(valor);
 

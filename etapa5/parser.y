@@ -520,6 +520,8 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_logico_relacional($1, $2, $3);
+
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_logica 
                 {
@@ -527,6 +529,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_logico_relacional($1, $2, $3);
                 }
                 | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica
                 {
@@ -534,6 +537,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_logico_relacional($1, $2, $3);
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica
                 {
@@ -541,12 +545,13 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_logico_relacional($1, $2, $3);
                 };
 
 expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
 
-operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); } 
-                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); };
+operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_literal($$, 1); } 
+                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_literal($$, 0); };
 
 %%
 int yyerror (char const *s) {
