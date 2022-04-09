@@ -17,7 +17,7 @@ void cria_codigo_e_append(OperandoCodigo *origem, Operacao operacao, OperandoCod
 void _append_codigo_global(CodigoILOC *codigo) 
 {
 	codigo->anterior = global_codigo;
-    global_codigo = codigo;
+   global_codigo = codigo;
 }
 
 CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
@@ -31,11 +31,16 @@ CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodi
     return codigo;
 }
 
-void cria_codigo_com_label_e_append(char *label, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+CodigoILOC *_cria_codigo_com_label(char *label, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
 {
    CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
    codigo->label = label;
+   return codigo;
+}
 
+void cria_codigo_com_label_e_append(char *label, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+{
+   CodigoILOC *codigo = _cria_codigo_com_label(label, origem, operacao, destino);
    _append_codigo_global(codigo);
 }
 
@@ -43,6 +48,65 @@ void cria_codigo_com_label_e_append(char *label, OperandoCodigo *origem, Operaca
 
 
 //#region Código 
+
+//exp code
+//x:nop
+//ifblocknode code
+//jump z
+//y:nop
+//elseBlockNode code
+//z:nop
+
+//ou
+
+//exp code
+//x:nop
+//ifblocknode code
+//z:nop
+void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_bloco_else) {
+
+//TODO mudar nomes e retirar comentario acima
+    char* label_bloco_if = gera_nome_rotulo();
+    char* label_bloco_else = gera_nome_rotulo();
+    char* label_fim = gera_nome_rotulo();
+    
+    OperandoCodigo *operando_bloco_if = cria_operando_label(label_bloco_if);
+    OperandoCodigo *operando_bloco_else = cria_operando_label(label_bloco_else);
+   // OperandoCodigo *operando_fim = cria_operando_label(label_fim);
+
+   //  CodigoILOC *nop_com_label_bloco_if = instrucao_nop(label_bloco_if);
+   //  CodigoILOC *nop_com_label_bloco_else = instrucao_nop(label_bloco_else);
+    CodigoILOC *nop_com_label_fim = instrucao_nop(label_fim);
+
+    //where it jumps in case expNode is true
+    OperandoCodigo *operando_label_true = operando_bloco_if;
+
+    //where it jumps in case expNode is false
+    OperandoCodigo *operando_label_false = (nodo_bloco_else == NULL) ? operando_fim : operando_bloco_else;
+    
+    CodigoILOC *jump_fim = instrucao_jump(operando_fim);
+    
+    //TODO resolveLogical(ifNode, expNode, operando_label_true, operando_label_false);
+
+   nodo_if->codigo
+   appendCode(ifNode, {nop_com_label_bloco_if});
+   appendCode(ifNode, ifBlockNode);
+   
+   if (nodo_bloco_else != NULL) {
+      
+      appendCode(ifNode, {jump_fim});
+      appendCode(ifNode, {nop_com_label_bloco_else});
+      appendCode(ifNode, nodo_bloco_else);
+      
+   }
+
+   appendCode(ifNode, {nop_com_label_fim});
+
+}
+
+CodigoILOC *instrucao_nop(char* label) {
+   return _cria_codigo_com_label(label, NULL, NOP, NULL);
+} 
 
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
 void codigo_carrega_variavel(Nodo *nodo) {
@@ -278,11 +342,9 @@ CodigoILOC *instrucao_loadI(int valor) {
 
 
 // ex: jumpI -> l1 // PC = endereço(l1)
-CodigoILOC *instrucao_jump(char* label_destino) {
+CodigoILOC *instrucao_jump(OperandoCodigo* destino) {
 
-   OperandoCodigo *destino = cria_operando_label(label_destino);
-
-   cria_codigo_e_append(NULL, JUMPI, destino);
+   return _cria_codigo(NULL, JUMPI, destino);
 }
 
 //#endregion Instrução 
