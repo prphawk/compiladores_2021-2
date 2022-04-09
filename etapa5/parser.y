@@ -4,6 +4,7 @@
 #include "main.h"
 #include "ast.h"
 #include "tabela_simbolos.h"
+#include "iloc_codigo.h"
 int yylex(void);
 int yyerror (char const *s);
 extern int get_line_number (void);
@@ -262,6 +263,7 @@ comando_atribuicao: variavel_ou_vetor '=' expressao
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
                         if(E4_CHECK_FLAG) verifica_atribuicao($1, novo_nodo, $3);
+                        codigo_atribuicao($$);
                     };
 
 comando_entrada: TK_PR_INPUT variavel
@@ -498,6 +500,7 @@ variavel: TK_IDENTIFICADOR
             Nodo *novo_nodo = adiciona_nodo($1); 
             if(E4_CHECK_FLAG) verifica_variavel_no_escopo(novo_nodo); 
             $$ = novo_nodo;
+            codigo_carrega_variavel($$);
         };
 
 vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'

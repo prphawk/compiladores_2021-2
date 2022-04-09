@@ -65,8 +65,28 @@ void desliga_operando(OperandoCodigo *primeiro)
     primeiro->proximo = NULL;
 }
 
+//loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
+void codigo_carrega_variavel(Nodo *nodo) {
+
+   DeslocamentoEscopo busca = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
+
+   int deslocamento = busca.deslocamento;
+
+   OperandoCodigo *origem_1_registrador = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
+   OperandoCodigo *origem_2_deslocamento = cria_operando_imediato(deslocamento);
+
+   origem_1_registrador->proximo = origem_2_deslocamento;
+
+   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
+
+   cria_codigo(origem_1_registrador, LOADAI, destino);
+
+   //TODO e o codigo de nodo? n tem na referencia nodo->codigo = global_codigo;
+   nodo->resultado = destino;
+}
+
 // loadI c1 => r2 // r2 = c1
-void nodo_loadI(Nodo *nodo) {
+void codigo_carrega_literal(Nodo *nodo) {
 
    int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
 
@@ -83,20 +103,22 @@ void nodo_loadI(Nodo *nodo) {
 }
 
 // storeAI r0 => r1 (rfp ou rbss),deslocamento
-void codigo_atribuicao(Nodo *nodo, int deslocamento, int eh_escopo_global) {
-    if (nodo->tipo == TIPO_INT)
-    {
+void codigo_atribuicao(Nodo *nodo) {
+
+    if (nodo->tipo == TIPO_INT) {
+
         int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
+
+		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
         
-        char* registrador = gera_nome_registrador();
+        OperandoCodigo *origem = cria_operando_registrador(gera_nome_registrador()); 
 
-        OperandoCodigo *origem = eh_escopo_global ? cria_rbss() : cria_rfp();
+        OperandoCodigo *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
+		OperandoCodigo *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
 
-        OperandoCodigo *destino = cria_operando_registrador(registrador);
-        OperandoCodigo *destino2 = cria_operando_registrador(registrador);
-        liga_operandos(destino, destino2);
+        liga_operandos(destino_1_ponteiro, destino_2_deslocamento);
 
-        cria_codigo(origem, STOREAI, destino);
+        cria_codigo(origem, STOREAI, destino_1_ponteiro);
         
         nodo->codigo = global_codigo;
         //nodo->resultado = destino;
@@ -237,29 +259,8 @@ void codigo_logico_operacoes(Operacao operacao, char* label_true, char* label_fa
    cria_codigo(cbr_origem, CMP_EQ, cbr_destino);
 }
 
-//loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
-void codigo_declaracao(Nodo *nodo) {
-
-   DeslocamentoEscopo deslocamento_escopo = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
-
-   char* registrador = deslocamento_escopo.eh_escopo_global ? RBSS : RFP;
-   int deslocamento = deslocamento_escopo.deslocamento;
-
-   OperandoCodigo *origem_1_registrador = deslocamento_escopo.eh_escopo_global ? cria_rbss() : cria_rfp();
-   OperandoCodigo *origem_2_deslocamento = cria_operando_imediato(deslocamento);
-
-   origem_1_registrador->proximo = origem_2_deslocamento;
-
-   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
-
-   cria_codigo(origem_1_registrador, LOADAI, destino);
-
-   //TODO e o codigo de nodo? n tem na referencia nodo->codigo = global_codigo;
-   nodo->resultado = destino;
-}
-
 // ex: jumpI -> l1 // PC = endereço(l1)
-CodigoILOC *codigo_jumpI(char* label_destino) {
+CodigoILOC *_codigo_jump(char* label_destino) {
 
    OperandoCodigo *destino = cria_operando_label(label_destino);
 
