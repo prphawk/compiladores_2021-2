@@ -57,6 +57,10 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     nodo->valor_lexico = valor_lexico;
     nodo->tipo = _get_tipo_nodo(valor_lexico);
 
+    nodo->codigo = NULL;
+    nodo->resultado = NULL;
+    nodo->operacao = NOP;
+
     return nodo;
 }
 
@@ -83,6 +87,10 @@ Nodo *adiciona_nodo_label(char *label)
     nodo->filho = NULL;
     nodo->irmao = NULL;
     nodo->tipo = TIPO_OUTRO;
+
+    nodo->codigo = NULL;
+    nodo->resultado = NULL;
+    nodo->operacao = NOP;
 
     return nodo;
 }
