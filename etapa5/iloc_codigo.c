@@ -4,8 +4,6 @@
 #define FALSE 0
 #define TRUE 1
 
-CodigoILOC *global_codigo = NULL;
-
 //#region Principais Código 
 
 void cria_codigo_e_append(Nodo* nodo, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino) 
@@ -163,7 +161,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
 	cria_codigo_e_append(atribuicao, origem, STOREAI, destino_1_ponteiro);
 	
-	variavel->codigo = global_codigo;
+	//variavel->codigo = global_codigo;
 	//nodo->resultado = destino;
 }
 
@@ -202,7 +200,7 @@ void codigo_logico(Nodo *nodo)
 
    cria_codigo_e_append(nodo, NULL, JUMPI, destino_jump_false);
    cria_codigo_com_label_e_append(nodo, label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra?
-   nodo->codigo = global_codigo;
+   //nodo->codigo = global_codigo;
 }
 
 void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
