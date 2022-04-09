@@ -18,6 +18,17 @@ void _append_codigo(Nodo *nodo, CodigoILOC *codigo)
    nodo->codigo = codigo;
 }
 
+void _append_codigo_de_nodo(Nodo *nodo, Nodo *nodo_append) {
+   CodigoILOC *codigo_append = nodo_append->codigo;
+
+   while(codigo_append->anterior != NULL) { //subo até o topo da instrução
+      codigo_append = codigo_append->anterior;
+   }
+
+   codigo_append->anterior = nodo->codigo; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
+   nodo->codigo = codigo_append; //codigo inteiro no primeiro nodo
+}
+
 CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
 {
     CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
@@ -70,10 +81,10 @@ void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_b
     
     OperandoCodigo *operando_bloco_if = cria_operando_label(label_bloco_if);
     OperandoCodigo *operando_bloco_else = cria_operando_label(label_bloco_else);
-   // OperandoCodigo *operando_fim = cria_operando_label(label_fim);
+    OperandoCodigo *operando_fim = cria_operando_label(label_fim);
 
-   //  CodigoILOC *nop_com_label_bloco_if = instrucao_nop(label_bloco_if);
-   //  CodigoILOC *nop_com_label_bloco_else = instrucao_nop(label_bloco_else);
+    CodigoILOC *nop_com_label_bloco_if = instrucao_nop(label_bloco_if);
+    CodigoILOC *nop_com_label_bloco_else = instrucao_nop(label_bloco_else);
     CodigoILOC *nop_com_label_fim = instrucao_nop(label_fim);
 
     //where it jumps in case expNode is true
@@ -86,20 +97,18 @@ void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_b
     
     //TODO resolveLogical(ifNode, expNode, operando_label_true, operando_label_false);
 
-   nodo_if->codigo
-   appendCode(ifNode, {nop_com_label_bloco_if});
-   appendCode(ifNode, ifBlockNode);
+   _append_codigo(nodo_if, nop_com_label_bloco_if);
+   _append_codigo_de_nodo(nodo_if, nodo_bloco_if);
    
    if (nodo_bloco_else != NULL) {
       
-      appendCode(ifNode, {jump_fim});
-      appendCode(ifNode, {nop_com_label_bloco_else});
-      appendCode(ifNode, nodo_bloco_else);
+      _append_codigo(nodo_if, {jump_fim});
+      _append_codigo(nodo_if, {nop_com_label_bloco_else});
+      _append_codigo_de_nodo(nodo_if, nodo_bloco_else);
       
    }
-
-   appendCode(ifNode, {nop_com_label_fim});
-
+   
+   _append_codigo(ifNode, {nop_com_label_fim});
 }
 
 CodigoILOC *instrucao_nop(char* label) {
