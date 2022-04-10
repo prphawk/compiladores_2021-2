@@ -39,8 +39,188 @@ void cria_codigo_com_label_e_append(char *label, OperandoCodigo *origem, Operaca
    _append_codigo_global(codigo);
 }
 
-//#endregion Principais Código 
+void imprime_codigo_global()
+{
+   imprime_codigo(global_codigo);
+}
 
+void imprime_codigo(CodigoILOC *codigo)
+{
+   if(codigo!=NULL)
+   {
+      imprime_codigo(codigo->anterior);
+      
+      switch(codigo->operacao)
+      {
+         case NOP:
+            printf("nop");
+            break;
+         case ADD:
+            printf("add");
+            break;
+         case SUB:
+            printf("sub");
+            break;
+         case MULT:
+            printf("mult");
+            break;
+         case DIV:
+            printf("div");
+            break;
+         case ADDI:
+            printf("addi");
+            break;
+         case SUBI:
+            printf("subi");
+            break;
+         case RSUBI:
+            printf("rsubi");
+            break;
+         case MULTI:
+            printf("multi");
+            break;
+         case DIVI:
+            printf("divi");
+            break;
+         case RDIVI:
+            printf("rdivi");
+            break;
+         case LSHIFT:
+            printf("lshift");
+            break;
+         case LSHIFTI:
+            printf("lshifti");
+            break;
+         case RSHIFT:
+            printf("rshifti");
+            break;
+         case RSHIFTI:
+            printf("rshifti");
+            break;
+         case AND:
+            printf("and");
+            break;
+         case ANDI:
+            printf("andi");
+            break;
+         case OR:
+            printf("or");
+            break;
+         case ORI:
+            printf("ori");
+            break;
+         case XOR:
+            printf("xor");
+            break;
+         case XORI:
+            printf("xori");
+            break;
+         case LOAD:
+            printf("load");
+            break;
+         case LOADAI:
+            printf("loadai");
+            break;
+         case LOADA0:
+            printf("loada0");
+            break;
+         case CLOAD:
+            printf("cload");
+            break;
+         case CLOADAI:
+            printf("cloadai");
+            break;
+         case CLOADA0:
+            printf("cloada0");
+            break;
+         case LOADI:
+            printf("loadi");
+            break;
+         case STORE:
+            printf("store");
+            break;
+         case STOREAI:
+            printf("storeai");
+            break;
+         case STOREA0:
+            printf("storea0");
+            break;
+         case CSTORE:
+            printf("cstore");
+            break;
+         case CSTOREAI:
+            printf("cstoreai");
+            break;
+         case CSTOREA0:
+            printf("cstorea0");
+            break;
+         case I2I:
+            printf("i2i");
+            break;
+         case C2C:
+            printf("c2c");
+            break;
+         case C2I:
+            printf("c2i");
+            break;
+         case I2C:
+            printf("i2c");
+            break;
+         case CMP_LT:
+            printf("cmp_lt");
+            break;
+         case CMP_LE:
+            printf("cmp_le");
+            break;
+         case CMP_EQ:
+            printf("cmp_eq");
+            break;
+         case CMP_GE:
+            printf("cmp_ge");
+            break;
+         case CMP_GT:
+            printf("cmp_gt");
+            break;
+         case CMP_NE:
+            printf("cmp_ne");
+            break;
+         case CBR:
+            printf("cbr");
+            break;
+         case JUMPI:
+            printf("jumpi");
+            break;
+         case JUMP:
+            printf("jump");
+            break;
+         default:
+            break;
+      }
+
+      printf(" ");
+
+      imprime_operando(codigo->origem);
+
+      printf(" => ");
+
+      imprime_operando(codigo->destino);
+
+      printf("\n");
+
+   }
+}
+
+void imprime_operando(OperandoCodigo *operando)
+{
+   if(operando!=NULL)
+   {
+      printf("%s", operando->nome);
+      if(operando->proximo!=NULL)
+         printf(", %s", operando->proximo->nome);
+   }
+}
+
+//#endregion Principais Código 
 
 //#region Código 
 
