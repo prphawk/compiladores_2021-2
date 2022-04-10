@@ -82,7 +82,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
     //if (variavel->tipo != TIPO_INT) return;
 
-	OperandoCodigo *origem = NULL;
+	//OperandoCodigo *origem = NULL;
 
 	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
 	
@@ -93,7 +93,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 		OperandoCodigo *origem = expressao->resultado; 
 	//} else { //TODO botar curto circuito de expressoes!
 
-	}
+	//}
 
 	liga_operandos(destino_1_ponteiro, destino_2_deslocamento);
 
@@ -139,6 +139,8 @@ void codigo_logico(Nodo *nodo)
    cria_codigo_e_append(NULL, JUMPI, destino_jump_false);
    cria_codigo_com_label_e_append(label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra?
    nodo->codigo = global_codigo;
+
+   nodo->resultado = cria_operando_registrador(registrador_result);
 }
 
 void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
@@ -181,7 +183,7 @@ void codigo_logico_auxiliar(char *label, Nodo *nodo, char* label_true, char* lab
       L2:loadI false => r1
          jumpI -> L3
       */
-      case CMP_EQ:
+      case CMP_EQ: //TODO ajeitar os tipos disso aqui
          codigo_logico_operacoes(label, CMP_EQ, label_true, label_false);
       break;
 
