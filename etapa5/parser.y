@@ -428,7 +428,8 @@ expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
+                    codigo_logico($1, $2, $3);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2
@@ -545,7 +546,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
-                    codigo_logico_relacional($1, $2, $3);
+                    codigo_logico($1, $2, $3);
                 };
 
 expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };

@@ -48,6 +48,12 @@ void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo)
     primeiro->proximo = segundo;
 }
 
+void lista(OperandoCodigo *primeiro, OperandoCodigo *segundo) 
+{
+    liga_operandos(primeiro, segundo);
+    return primeiro;
+}
+
 //TODO n é usada
 void desliga_operando(OperandoCodigo *primeiro)
 {

@@ -12,10 +12,14 @@ void cria_codigo_e_append(Nodo* nodo, OperandoCodigo *origem, Operacao operacao,
     _append_codigo(nodo, codigo);
 }
 
-void _append_codigo(Nodo *nodo, CodigoILOC *codigo) 
+void _append_codigo(Nodo *nodo, CodigoILOC *fim_codigo)
 {
-	codigo->anterior = nodo->codigo;
-   nodo->codigo = codigo;
+   CodigoILOC *aux = fim_codigo; //fim_Codigo é o ponteiro que aponta para o FINAL de lista de codigo 
+   while(aux->anterior != NULL) {
+      aux = aux->anterior; 
+   } //chega no inicio do codigo a ser adicionado
+   aux->anterior = nodo->codigo;
+   nodo->codigo = fim_codigo;
 }
 
 void _append_codigo_de_nodo(Nodo *nodo, Nodo *nodo_append) {
@@ -125,12 +129,12 @@ void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_b
    _append_codigo(ifNode, {nop_com_label_fim});
 }
 
-// cbr r1 -> l2_true, l3_false // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
-CodigoILOC* instrucao_cbr(OperandoCodigo *operando_registrador, OperandoCodigo *operando_label_true, OperandoCodigo *operando_label_false) {
+// // cbr r1 -> l2_true, l3_false // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
+// CodigoILOC* codigo_verifica_expr(OperandoCodigo *operando_registrador, OperandoCodigo *operando_label_true, OperandoCodigo *operando_label_false) {
 
-   liga_operandos(operando_label_true, operando_label_false);
-   return _cria_codigo(operando_registrador, CBR, operando_label_true);
-}
+//    liga_operandos(operando_label_true, operando_label_false);
+//    return _cria_codigo(operando_registrador, CBR, operando_label_true);
+// }
 
 
 CodigoILOC *instrucao_nop(char* label) {
@@ -234,6 +238,48 @@ void codigo_logico(Nodo *nodo)
    //nodo->codigo = global_codigo;
 }
 
+void codigo_logico_relacional(Nodo *expr1, Nodo *operador, Nodo *expr2) {
+   if(operador->operacao == AND) {
+
+      codigo_and(expr1, operador, expr2);
+
+
+
+   }
+}
+
+void codigo_and(Nodo *expr1, Nodo *operador, Nodo *expr2) {
+
+   OperandoCodigo *r1 = expr1->resultado;
+
+   CodigoILOC *codigo_lst = codigo_verifica_expr(r1, labelTrue, labelFalse);
+   _append_codigo_de_nodo(operador, expr1);
+   _append_codigo(operador, codigo_lst);
+}
+
+//load 0 -> r2
+//cmp_NE r1, r2 -> r3 // r3 = true se r1 >= r2, senão r3 = false
+//cbr r3 -> labelTrue, labelFalse 
+CodigoILOC* codigo_verifica_expr(OperandoCodigo *r1, OperandoCodigo *label_true, OperandoCodigo *label_false) {
+
+   OperandoCodigo *r3 = cria_operando_registrador(gera_nome_registrador());
+   OperandoCodigo *r2 = cria_operando_registrador(gera_nome_registrador());
+
+   CodigoILOC *codigo_r2_zerado = instrucao_loadI(r2, 0);
+
+   CodigoILOC *codigo_cmp_ne = _cria_codigo(operador, lista(r1, r2), CMP_NE, r3);
+   
+   codigo_cmp_ne->anterior = codigo_r2_zerado;
+
+   CodigoILOC *codigo_cbr = _cria_codigo(operador, r1, CBR, lista(label_true, label_false));
+
+   codigo_cbr->anterior = codigo_cmp_ne;
+
+   return codigo_cmp_ne;
+}
+
+
+
 void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
 
 	if(nodo_operacao->operacao == SUB) codigo_sub(nodo_operacao, nodo);
@@ -258,7 +304,7 @@ void codigo_sub(Nodo *nodo_operacao, Nodo *nodo) {
 
 	cria_codigo_e_append(nodo_operacao, origem_1, RSUBI, destino);
 
-    nodo_operacao->resultado = destino;
+   nodo_operacao->resultado = destino;
 }
 
 
@@ -323,9 +369,7 @@ void codigo_logico_auxiliar(char *label, Nodo *nodo, char* label_true, char* lab
       LF:loadI false => r5
          jumpI -> L5
       */
-      case AND:
-         codigo_logico_auxiliar(label, nodo->filho, label1, label_false);
-         codigo_logico_auxiliar(label1, nodo->filho->irmao, label_true, label_false);
+
       break;
       
       default:
@@ -358,13 +402,11 @@ void codigo_logico_operacoes(Nodo *nodo, char *label, Operacao operacao, char* l
 //#region Instrução 
 
 // loadI c1 => r2 // r2 = c1
-CodigoILOC *instrucao_loadI(int valor) {
+CodigoILOC *instrucao_loadI(OperandoCodigo *r, int c1) {
 
-   OperandoCodigo *origem = cria_operando_imediato(valor);
+   OperandoCodigo *origem = cria_operando_imediato(c1);
 
-   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
-
-   CodigoILOC *codigo = _cria_codigo(origem, LOADI, destino);
+   CodigoILOC *codigo = _cria_codigo(origem, LOADI, r);
 
    return codigo;
 }
