@@ -62,46 +62,43 @@ typedef enum Operacao
 } Operacao;
 
 typedef enum TipoOperando {
-
     REGISTRADOR, 
     LABEL,
     IMEDIATO,
-    REGISTRADOR_ESPECIAL,
-    //patchworkTrue,
-    //patchworkFalse,
-
+    REGISTRADOR_PONTEIRO,
+    REMENDO_TRUE,
+    REMENDO_FALSE
 } TipoOperando;
 
-typedef struct OperandoCodigo
+typedef struct OperandoILOC
 {
-    char *nome; //TODO ver se precisa?
+    char *nome;
     TipoOperando tipo;
     int valor;
-    struct OperandoCodigo *proximo;
-} OperandoCodigo;
+    struct OperandoILOC *proximo;
+} OperandoILOC;
 
 typedef struct CodigoILOC
 {
     char *label;
-    OperandoCodigo *origem;
+    OperandoILOC *origem;
     Operacao operacao;
-    OperandoCodigo *destino;
+    OperandoILOC *destino;
     struct CodigoILOC *anterior;
 } CodigoILOC;
 
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
-char *gera_nome(int eh_rotulo);
-OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
-void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo) ;
-OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
-OperandoCodigo *cria_operando_imediato(int valor);
-OperandoCodigo *cria_operando_label(char *nome);
-OperandoCodigo *cria_operando_registrador(char* nome);
-OperandoCodigo *lista(OperandoCodigo *primeiro, OperandoCodigo *segundo);
+char *_gera_nome(int eh_rotulo);
+void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) ;
+OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo);
+OperandoILOC *cria_operando_imediato(int valor);
+OperandoILOC *cria_operando_label(char *nome);
+OperandoILOC *cria_operando_registrador(char* nome);
+OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
 
-OperandoCodigo *cria_operando_registrador_especial(char* nome);
-OperandoCodigo *cria_rfp();
-OperandoCodigo *cria_rsp();
-OperandoCodigo *cria_rbss();
-OperandoCodigo *cria_rpc();
+OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
+OperandoILOC *cria_rfp();
+OperandoILOC *cria_rsp();
+OperandoILOC *cria_rbss();
+OperandoILOC *cria_rpc();

@@ -6,7 +6,7 @@
 
 //#region Principais Código 
 
-void cria_codigo_e_append(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino) 
+void cria_codigo_e_append(OperandoILOC *origem, Operacao operacao, OperandoILOC *destino) 
 {
 	CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
     //_append_codigo(codigo);
@@ -33,7 +33,7 @@ void _append_codigo_de_nodo(Nodo *nodo, Nodo *nodo_append) {
    nodo->codigo = codigo_append; //codigo inteiro no primeiro nodo
 }
 
-CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+CodigoILOC *_cria_codigo(OperandoILOC *origem, Operacao operacao, OperandoILOC *destino)
 {
     CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
     codigo->label = NULL;
@@ -44,14 +44,14 @@ CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodi
     return codigo;
 }
 
-CodigoILOC *_cria_codigo_com_label(char *label, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, Operacao operacao, OperandoILOC *destino)
 {
    CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
    codigo->label = label;
    return codigo;
 }
 
-void cria_codigo_com_label_e_append(char *label, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino)
+void cria_codigo_com_label_e_append(char *label, OperandoILOC *origem, Operacao operacao, OperandoILOC *destino)
 {
    CodigoILOC *codigo = _cria_codigo_com_label(label, origem, operacao, destino);
    //_append_codigo(codigo);
@@ -228,7 +228,7 @@ void imprime_codigo(CodigoILOC *codigo)
    }
 }
 
-void imprime_operando(OperandoCodigo *operando)
+void imprime_operando(OperandoILOC *operando)
 {
    if(operando!=NULL)
    {
@@ -330,17 +330,17 @@ void codigo_carrega_variavel(Nodo *nodo) {
 
    int deslocamento = busca.deslocamento;
 
-   OperandoCodigo *origem_1_registrador = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
-   OperandoCodigo *origem_2_deslocamento = cria_operando_imediato(deslocamento);
+   OperandoILOC *origem_1_registrador = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
+   OperandoILOC *origem_2_deslocamento = cria_operando_imediato(deslocamento);
 
    origem_1_registrador->proximo = origem_2_deslocamento;
 
-   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
+   OperandoILOC *destino = cria_operando_registrador(gera_nome_registrador());
 
    cria_codigo_e_append(origem_1_registrador, LOADAI, destino);
 
    //TODO e o codigo de nodo? n tem na referencia nodo->codigo = global_codigo;
-   nodo->resultado = destino;
+   nodo->reg_resultado = destino;
 }
 
 // loadI c1 => r2 // r2 = c1
@@ -353,7 +353,7 @@ void codigo_carrega_literal(Nodo *nodo, int valor) {
    _append_codigo(nodo, codigo);
    
    nodo->codigo = codigo;
-   nodo->resultado = codigo->destino;
+   nodo->reg_resultado = codigo->destino;
 }
 
 // storeAI r0 => r1 (rfp ou rbss), deslocamento
@@ -365,11 +365,11 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
 	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
 	
-	OperandoCodigo *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
-	OperandoCodigo *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
+	OperandoILOC *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
+	OperandoILOC *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
 
 	//if(expressao->com_curto_circuito) {
-		OperandoCodigo *origem = expressao->resultado; 
+		OperandoILOC *origem = expressao->reg_resultado; 
 	//} else { //TODO botar curto circuito de expressoes!
 
 	//}
@@ -395,29 +395,29 @@ void codigo_logico(Nodo *operador)
 
    codigo_logico_auxiliar(NULL, operador, label_true, label_fim);
    
-   OperandoCodigo *origem_load_true = cria_operando_imediato(1);
+   OperandoILOC *origem_load_true = cria_operando_imediato(1);
 
-   OperandoCodigo *destino_load_true = cria_operando_registrador(registrador_result);
+   OperandoILOC *destino_load_true = cria_operando_registrador(registrador_result);
 
    cria_codigo_com_label_e_append(label_true, origem_load_true, LOADI, destino_load_true);
 
-   OperandoCodigo *destino_jump_true = cria_operando_label(label_fim);
+   OperandoILOC *destino_jump_true = cria_operando_label(label_fim);
 
    cria_codigo_e_append(NULL, JUMPI, destino_jump_true);
     
-   OperandoCodigo *origem_load_false = cria_operando_imediato(0);
+   OperandoILOC *origem_load_false = cria_operando_imediato(0);
 
-   OperandoCodigo *destino_load_false = cria_operando_registrador(registrador_result);
+   OperandoILOC *destino_load_false = cria_operando_registrador(registrador_result);
 
    cria_codigo_com_label_e_append(label_false, origem_load_false, LOADI, destino_load_false);
 
-   OperandoCodigo *destino_jump_false = cria_operando_label(label_fim);
+   OperandoILOC *destino_jump_false = cria_operando_label(label_fim);
 
    cria_codigo_e_append(NULL, JUMPI, destino_jump_false);
    cria_codigo_com_label_e_append(label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra?
    //nodo->codigo = global_codigo;
 
-   operador->resultado = cria_operando_registrador(registrador_result);
+   operador->reg_resultado = cria_operando_registrador(registrador_result);
 }
 
 void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
@@ -425,7 +425,7 @@ void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
 	if(nodo_operacao->operacao == SUB) codigo_sub(nodo_operacao, nodo);
 	else {
         //appendCode(operacao, nodo); TODO
-		nodo_operacao->resultado = nodo->resultado;
+		nodo_operacao->reg_resultado = nodo->reg_resultado;
     }
 }
 
@@ -436,14 +436,14 @@ void codigo_sub(Nodo *nodo_operacao, Nodo *nodo) {
 
     // resolveArithmetic(symbolNode, expressionNode, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
 
-	OperandoCodigo *origem_1 = nodo_operacao->resultado;
-	OperandoCodigo *origem_2 = cria_operando_imediato(0);
+	OperandoILOC *origem_1 = nodo_operacao->reg_resultado;
+	OperandoILOC *origem_2 = cria_operando_imediato(0);
 	
-	OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
+	OperandoILOC *destino = cria_operando_registrador(gera_nome_registrador());
 
 	cria_codigo_e_append(lista(origem_1, origem_2), RSUBI, destino);
 
-   nodo_operacao->resultado = destino;
+   nodo_operacao->reg_resultado = destino;
 }
 
 
@@ -522,15 +522,15 @@ void codigo_logico_operacoes(char *label, Operacao operacao, char* label_true, c
    char *registradorB = gera_nome_registrador();
    char *registradorCC1 = gera_nome_registrador();
 
-   OperandoCodigo *op_origem = cria_operando_registrador(registradorA);
-   OperandoCodigo *op_origem2 = cria_operando_registrador(registradorB);
-   OperandoCodigo *op_destino = cria_operando_registrador(registradorCC1);
+   OperandoILOC *op_origem = cria_operando_registrador(registradorA);
+   OperandoILOC *op_origem2 = cria_operando_registrador(registradorB);
+   OperandoILOC *op_destino = cria_operando_registrador(registradorCC1);
 
    cria_codigo_com_label_e_append(label, lista(op_origem,op_origem2), operacao, op_destino);
 
-   OperandoCodigo *cbr_origem = cria_operando_registrador(registradorCC1);
-   OperandoCodigo *cbr_destino = cria_operando_registrador(label_true);
-   OperandoCodigo *cbr_destino2 = cria_operando_registrador(label_false);
+   OperandoILOC *cbr_origem = cria_operando_registrador(registradorCC1);
+   OperandoILOC *cbr_destino = cria_operando_registrador(label_true);
+   OperandoILOC *cbr_destino2 = cria_operando_registrador(label_false);
 
    cria_codigo_e_append(cbr_origem, CMP_EQ, lista(cbr_destino,cbr_destino2));
 }
@@ -541,9 +541,9 @@ void codigo_logico_operacoes(char *label, Operacao operacao, char* label_true, c
 // loadI c1 => r2 // r2 = c1
 CodigoILOC *instrucao_loadI(int valor) {
 
-   OperandoCodigo *origem = cria_operando_imediato(valor);
+   OperandoILOC *origem = cria_operando_imediato(valor);
 
-   OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
+   OperandoILOC *destino = cria_operando_registrador(gera_nome_registrador());
 
    CodigoILOC *codigo = _cria_codigo(origem, LOADI, destino); //TODO tem q retornar o registrador de alguma formaaaa
 
@@ -552,7 +552,7 @@ CodigoILOC *instrucao_loadI(int valor) {
 
 
 // ex: jumpI -> l1 // PC = endereço(l1)
-CodigoILOC *instrucao_jump(OperandoCodigo* destino) {
+CodigoILOC *instrucao_jump(OperandoILOC* destino) {
 
    return _cria_codigo(NULL, JUMPI, destino);
 }

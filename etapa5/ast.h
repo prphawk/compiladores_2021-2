@@ -20,8 +20,9 @@ typedef struct Nodo {
     struct Nodo *filho;
 
     CodigoILOC *codigo;
-    OperandoCodigo *resultado;
+    OperandoILOC *reg_resultado;
     Operacao operacao;
+    int tem_remendo;
 } Nodo;
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico);

@@ -5,15 +5,15 @@ int global_num_registradores = 1;
 
 char *gera_nome_rotulo()
 {
-    return gera_nome(1);
+    return _gera_nome(1);
 }
 
 char *gera_nome_registrador()
 {
-    return gera_nome(0);
+    return _gera_nome(0);
 }
 
-char *gera_nome(int eh_rotulo)
+char *_gera_nome(int eh_rotulo)
 {
     int n;
     char c;
@@ -34,8 +34,8 @@ char *gera_nome(int eh_rotulo)
     return numero;
 }
 
-OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo) {
-    OperandoCodigo *operando = malloc(sizeof(OperandoCodigo));
+OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo) {
+    OperandoILOC *operando = malloc(sizeof(OperandoILOC));
     operando->nome = nome;
     operando->valor = valor;
     operando->tipo = tipo;
@@ -43,47 +43,47 @@ OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo) {
     return operando;
 }
 
-void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo) 
+void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) 
 {
     primeiro->proximo = segundo;
 }
 
-OperandoCodigo *lista(OperandoCodigo *primeiro, OperandoCodigo *segundo) 
+OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo) 
 {
-    liga_operandos(primeiro, segundo);
+    _liga_operandos(primeiro, segundo);
     return primeiro;
 }
 
 //TODO n é usada
-void desliga_operando(OperandoCodigo *primeiro)
+void desliga_operando(OperandoILOC *primeiro)
 {
     primeiro->proximo = NULL;
 }
 
-OperandoCodigo *cria_operando_imediato(int valor) {
-   return cria_operando(NULL, valor, IMEDIATO);
+OperandoILOC *cria_operando_imediato(int valor) {
+   return _cria_operando(NULL, valor, IMEDIATO);
 }
 
-OperandoCodigo *cria_operando_registrador(char* nome) {
-   return cria_operando(nome, 0, REGISTRADOR);
+OperandoILOC *cria_operando_registrador(char* nome) {
+   return _cria_operando(nome, 0, REGISTRADOR);
 }
 
-OperandoCodigo *cria_operando_label(char* nome) {
-   return cria_operando(nome, 0, LABEL);
+OperandoILOC *cria_operando_label(char* nome) {
+   return _cria_operando(nome, 0, LABEL);
 }
 
-OperandoCodigo *cria_rfp() {
-   return cria_operando(RFP, 0, REGISTRADOR_ESPECIAL);
+OperandoILOC *cria_rfp() {
+   return _cria_operando(RFP, 0, REGISTRADOR_PONTEIRO);
 }
 
-OperandoCodigo *cria_rsp() {
-   return cria_operando(RSP, 0, REGISTRADOR_ESPECIAL);
+OperandoILOC *cria_rsp() {
+   return _cria_operando(RSP, 0, REGISTRADOR_PONTEIRO);
 }
 
-OperandoCodigo *cria_rbss() {
-   return cria_operando(RBSS, 0, REGISTRADOR_ESPECIAL);
+OperandoILOC *cria_rbss() {
+   return _cria_operando(RBSS, 0, REGISTRADOR_PONTEIRO);
 }
 
-OperandoCodigo *cria_rpc() {
-   return cria_operando(RPC, 0, REGISTRADOR_ESPECIAL);
+OperandoILOC *cria_rpc() {
+   return _cria_operando(RPC, 0, REGISTRADOR_PONTEIRO);
 }

@@ -1,15 +1,15 @@
 #include "ast.h"
 #include "iloc.h"
 
-CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino);
+CodigoILOC *_cria_codigo(OperandoILOC *origem, Operacao operacao, OperandoILOC *destino);
 CodigoILOC *instrucao_loadI(int valor);
-CodigoILOC *instrucao_jump(OperandoCodigo* destino);
+CodigoILOC *instrucao_jump(OperandoILOC* destino);
 
 void _append_codigo_global(Nodo *nodo, CodigoILOC *codigo);
-void cria_codigo_e_append(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino);
+void cria_codigo_e_append(OperandoILOC *origem, Operacao operacao, OperandoILOC *destino);
 void imprime_codigo_global();
 void imprime_codigo(CodigoILOC *codigo);
-void imprime_operando(OperandoCodigo *operando);
+void imprime_operando(OperandoILOC *operando);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_carrega_variavel(Nodo *nodo);
 void codigo_carrega_literal(Nodo *nodo, int valor);
