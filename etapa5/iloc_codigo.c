@@ -6,7 +6,7 @@
 
 //#region Principais Código 
 
-void cria_codigo_e_append(Nodo *nodo, OperandoILOC *origem, Operacao operacao, OperandoILOC *destino) 
+void cria_codigo_e_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino) 
 {
 	CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
     _append_codigo(nodo, codigo);
@@ -22,7 +22,7 @@ void _append_codigo(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
    nodo->codigo = codigo_fim_ptr; //codigo inteiro no primeiro nodo
 }
 
-CodigoILOC *_cria_codigo(OperandoILOC *origem, Operacao operacao, OperandoILOC *destino)
+CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
 {
     CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
     codigo->label = NULL;
@@ -33,14 +33,14 @@ CodigoILOC *_cria_codigo(OperandoILOC *origem, Operacao operacao, OperandoILOC *
     return codigo;
 }
 
-CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, Operacao operacao, OperandoILOC *destino)
+CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
 {
    CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
    codigo->label = label;
    return codigo;
 }
 
-void cria_codigo_com_label_e_append(Nodo *nodo, char *label, OperandoILOC *origem, Operacao operacao, OperandoILOC *destino)
+void cria_codigo_com_label_e_append(Nodo *nodo, char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
 {
    CodigoILOC *codigo = _cria_codigo_com_label(label, origem, operacao, destino);
    _append_codigo(nodo, codigo);
@@ -319,7 +319,7 @@ void codigo_carrega_variavel(Nodo *nodo) {
 
    int deslocamento = busca.deslocamento;
 
-   OperandoILOC *origem_1_registrador = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
+   OperandoILOC *origem_1_registrador = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
    OperandoILOC *origem_2_deslocamento = cria_operando_imediato(deslocamento);
 
    origem_1_registrador->proximo = origem_2_deslocamento;
@@ -328,7 +328,6 @@ void codigo_carrega_variavel(Nodo *nodo) {
 
    cria_codigo_e_append(nodo, origem_1_registrador, LOADAI, destino);
 
-   //TODO e o codigo de nodo? n tem na referencia nodo->codigo = global_codigo;
    nodo->reg_resultado = destino;
 }
 
@@ -353,7 +352,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
 	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
 	
-	OperandoILOC *destino_1_ponteiro = busca.eh_escopo_global ? cria_rbss() : cria_rfp();
+	OperandoILOC *destino_1_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
 	OperandoILOC *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
 
 	//if(expressao->com_curto_circuito) {
@@ -410,9 +409,11 @@ void codigo_logico(Nodo *operador)
 
 void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
 
-	if(nodo_operacao->operacao == SUB) codigo_sub(nodo_operacao, nodo);
+	if(nodo_operacao->operador == nodo_sub) {
+      codigo_sub(nodo_operacao, nodo);
+   }
 	else {
-        //appendCode(operacao, nodo); TODO
+      _append_codigo(nodo_operacao, nodo->codigo);
 		nodo_operacao->reg_resultado = nodo->reg_resultado;
     }
 }
@@ -435,9 +436,9 @@ void codigo_sub(Nodo *operador, Nodo *nodo) {
 }
 
 
-void codigo_logico_auxiliar(char *label, Nodo *operador, char* label_true, char* label_false) {
+void codigo_logico_auxiliar(char *label, Nodo *nodo_operador, char* label_true, char* label_false) {
    char *label1 = gera_nome_rotulo();
-   switch(operador->operacao)
+   switch(nodo_operador->operador)
    {
       /* [A<B]
          cmp_LT ra, rb => cc1
@@ -447,28 +448,28 @@ void codigo_logico_auxiliar(char *label, Nodo *operador, char* label_true, char*
       L2:loadI false => r1
          jumpI -> L3
       */
-      case CMP_EQ: //TODO ajeitar os tipos disso aqui
-         codigo_logico_operacoes(operador, label, CMP_EQ, label_true, label_false);
+      case nodo_EQ: //TODO ajeitar os tipos disso aqui
+         codigo_logico_operacoes(nodo_operador, label, CMP_EQ, label_true, label_false);
       break;
 
-      case CMP_NE:
-         codigo_logico_operacoes(operador, label, CMP_NE, label_true, label_false);
+      case nodo_NE:
+         codigo_logico_operacoes(nodo_operador, label, CMP_NE, label_true, label_false);
       break;
 
-      case CMP_LE:
-         codigo_logico_operacoes(operador, label, CMP_LE, label_true, label_false);
+      case nodo_LE:
+         codigo_logico_operacoes(nodo_operador, label, CMP_LE, label_true, label_false);
       break;
 
-      case CMP_GE:
-         codigo_logico_operacoes(operador, label, CMP_GE, label_true, label_false);
+      case nodo_GE:
+         codigo_logico_operacoes(nodo_operador, label, CMP_GE, label_true, label_false);
       break;
 
-      case CMP_GT:
-         codigo_logico_operacoes(operador, label, CMP_GT, label_true, label_false);
+      case nodo_GT:
+         codigo_logico_operacoes(nodo_operador, label, CMP_GT, label_true, label_false);
       break;
 
-      case CMP_LT:
-         codigo_logico_operacoes(operador, label, CMP_LT, label_true, label_false);
+      case nodo_LT:
+         codigo_logico_operacoes(nodo_operador, label, CMP_LT, label_true, label_false);
       break;
       
       /* [A<B||C>B]
@@ -481,9 +482,9 @@ void codigo_logico_auxiliar(char *label, Nodo *operador, char* label_true, char*
       LF:loadI false => r5
          jumpI -> L5
       */
-      case OR:
-         codigo_logico_auxiliar(label, operador->filho, label_true, label1);
-         codigo_logico_auxiliar(label1, operador->filho->irmao, label_true, label_false);
+      case nodo_or:
+         codigo_logico_auxiliar(label, nodo_operador->filho, label_true, label1);
+         codigo_logico_auxiliar(label1, nodo_operador->filho->irmao, label_true, label_false);
       break;
 
       /* [A<B&&C>B]
@@ -496,7 +497,9 @@ void codigo_logico_auxiliar(char *label, Nodo *operador, char* label_true, char*
       LF:loadI false => r5
          jumpI -> L5
       */
-
+     case nodo_and:
+         codigo_logico_auxiliar(label, nodo_operador->filho, label1, label_false);
+         codigo_logico_auxiliar(label1, nodo_operador->filho->irmao, label_true, label_false);
       break;
       
       default:
@@ -504,7 +507,7 @@ void codigo_logico_auxiliar(char *label, Nodo *operador, char* label_true, char*
    }
 }
 
-void codigo_logico_operacoes(Nodo *operador, char *label, Operacao operacao, char* label_true, char* label_false)
+void codigo_logico_operacoes(Nodo *operador, char *label, OperacaoILOC operacao, char* label_true, char* label_false)
 {
    char *registradorA = gera_nome_registrador();
    char *registradorB = gera_nome_registrador();

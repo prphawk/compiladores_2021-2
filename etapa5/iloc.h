@@ -9,7 +9,7 @@
 #define RBSS "rbss"
 #define RPC "rpc"
 
-typedef enum Operacao
+typedef enum OperacaoILOC
 {
     NOP,
     ADD, // ex: add r1, r2 => r3 // r3 = r1 + r2
@@ -59,7 +59,7 @@ typedef enum Operacao
     JUMPI, // ex: jumpI -> l1 // PC = endereço(l1)
     JUMP  // ex: jump -> r1 // PC = r1
     //TODO halt?
-} Operacao;
+} OperacaoILOC;
 
 typedef enum TipoOperando {
     REGISTRADOR, 
@@ -82,7 +82,7 @@ typedef struct CodigoILOC
 {
     char *label;
     OperandoILOC *origem;
-    Operacao operacao;
+    OperacaoILOC operacao;
     OperandoILOC *destino;
     struct CodigoILOC *anterior;
 } CodigoILOC;
@@ -101,7 +101,7 @@ void libera_codigo(CodigoILOC *codigo);
 char* copy_nome_operando(OperandoILOC *operando);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
-OperandoILOC *cria_rfp();
-OperandoILOC *cria_rsp();
-OperandoILOC *cria_rbss();
-OperandoILOC *cria_rpc();
+OperandoILOC *reg_rfp();
+OperandoILOC *reg_rsp();
+OperandoILOC *reg_rbss();
+OperandoILOC *reg_rpc();
