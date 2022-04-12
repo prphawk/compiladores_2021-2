@@ -5,8 +5,11 @@ CodigoILOC *instrucao_jump(char* label_destino);
 CodigoILOC *_cria_codigo(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino);
 CodigoILOC *instrucao_loadI(int valor);
 
-void _append_codigo(Nodo* nodo, CodigoILOC *codigo);
-void cria_codigo_e_append(Nodo* nodo, OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino);
+void _append_codigo_global(CodigoILOC *codigo);
+void cria_codigo_e_append(OperandoCodigo *origem, Operacao operacao, OperandoCodigo *destino);
+void imprime_codigo_global();
+void imprime_codigo(CodigoILOC *codigo);
+void imprime_operando(OperandoCodigo *operando);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_carrega_variavel(Nodo *nodo);
 void codigo_carrega_literal(Nodo *nodo, int valor);
