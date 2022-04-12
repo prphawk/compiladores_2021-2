@@ -343,28 +343,24 @@ void codigo_carrega_literal(Nodo *nodo, int valor) {
    nodo->reg_resultado = codigo->destino;
 }
 
-// storeAI r0 => r1 (rfp ou rbss), deslocamento TODO n passar o load
+// storeAI r0 => r1 (rfp ou rbss), deslocamento // TODO: n passar o load da variavel
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
-
-    //if (variavel->tipo != TIPO_INT) return;
-
-	//OperandoCodigo *origem = NULL;
 
 	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
 	
 	OperandoILOC *destino_1_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
 	OperandoILOC *destino_2_deslocamento = cria_operando_imediato(busca.deslocamento);
 
+   _append_codigo(atribuicao, expressao->codigo);
+
 	//if(expressao->com_curto_circuito) {
-		OperandoILOC *origem = expressao->reg_resultado; 
+		OperandoILOC *origem = expressao->reg_resultado;
 	//} else { //TODO botar curto circuito de expressoes!
 
 	//}
-
 	cria_codigo_e_append(atribuicao, origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
 	
-	//variavel->codigo = global_codigo;
-	//nodo->resultado = destino;
+	//atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs?
 }
 
 /* 
@@ -412,6 +408,9 @@ void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
 	if(nodo_operacao->operador == nodo_sub) {
       codigo_sub(nodo_operacao, nodo);
    }
+   else if(nodo_operacao->operador == nodo_not) {
+      codigo_not(nodo_operacao, nodo);
+   }
 	else {
       _append_codigo(nodo_operacao, nodo->codigo);
 		nodo_operacao->reg_resultado = nodo->reg_resultado;
@@ -433,6 +432,18 @@ void codigo_sub(Nodo *operador, Nodo *nodo) {
 	cria_codigo_e_append(operador, lista(origem_1, origem_2), RSUBI, destino);
 
    operador->reg_resultado = destino;
+}
+
+// TODO precisa resolver como lógica e trocar a ordem dos labels de true e false
+void codigo_not(Nodo *operador, Nodo *nodo) {
+
+	 OperandoILOC remendo_true = cria_operando_remendo_true();
+    OperandoILOC remendo_false = cria_operando_remendo_false();
+    
+    //make compare with inverted labels 
+    //resolveLogical(operador, nodo, remendo_false, remendo_true);
+    
+    operador->tem_remendo = TRUE;
 }
 
 
