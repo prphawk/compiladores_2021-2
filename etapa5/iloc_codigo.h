@@ -16,5 +16,6 @@ void codigo_carrega_literal(Nodo *nodo, int valor);
 void codigo_logico(Nodo *nodo);
 void codigo_logico_auxiliar(char *label, Nodo *nodo, char* labelTrue, char* labelFalse);
 void codigo_logico_operacoes(Nodo *nodo, char *label, OperacaoILOC operacao, char* labelTrue, char* labelFalse);
-void codigo_expr_unaria(Nodo *operacao, Nodo *nodo);
-void codigo_sub(Nodo *operacao, Nodo *nodo);
+void codigo_expr_unaria(Nodo *operador, Nodo *expr);
+void codigo_sub(Nodo *operador, Nodo *expr);
+void codigo_not(Nodo *operador, Nodo *expr);

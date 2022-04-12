@@ -397,32 +397,32 @@ void codigo_logico(Nodo *operador)
    OperandoILOC *destino_jump_false = cria_operando_label(label_fim);
 
    cria_codigo_e_append(operador, NULL, JUMPI, destino_jump_false);
-   cria_codigo_com_label_e_append(operador, label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra?
-   //nodo->codigo = global_codigo;
+   cria_codigo_com_label_e_append(operador, label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra? botar o remendo
 
    operador->reg_resultado = cria_operando_registrador(registrador_result);
+   operador->tem_remendo = TRUE;
 }
 
-void codigo_expr_unaria(Nodo *nodo_operacao, Nodo *nodo) {
+void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 
-	if(nodo_operacao->operador == nodo_sub) {
-      codigo_sub(nodo_operacao, nodo);
+	if(operador->operador == nodo_sub) {
+      codigo_sub(operador, expr);
    }
-   else if(nodo_operacao->operador == nodo_not) {
-      codigo_not(nodo_operacao, nodo);
+   else if(operador->operador == nodo_not) {
+      codigo_not(operador, expr);
    }
 	else {
-      _append_codigo(nodo_operacao, nodo->codigo);
-		nodo_operacao->reg_resultado = nodo->reg_resultado;
+      _append_codigo(operador, expr->codigo);
+		operador->reg_resultado = expr->reg_resultado;
     }
 }
 
 // rsubI r1, 0 => r3 // r3 = 0 - r1
-void codigo_sub(Nodo *operador, Nodo *nodo) {
+void codigo_sub(Nodo *operador, Nodo *expr) {
 
     //int nextInstructionLabel = this->getLabel();
 
-    // resolveArithmetic(symbolNode, expressionNode, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
+    // resolveArithmetic(operador, expr, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
 
 	OperandoILOC *origem_1 = operador->reg_resultado;
 	OperandoILOC *origem_2 = cria_operando_imediato(0);
@@ -435,13 +435,13 @@ void codigo_sub(Nodo *operador, Nodo *nodo) {
 }
 
 // TODO precisa resolver como lógica e trocar a ordem dos labels de true e false
-void codigo_not(Nodo *operador, Nodo *nodo) {
+void codigo_not(Nodo *operador, Nodo *expr) {
 
-	 OperandoILOC remendo_true = cria_operando_remendo_true();
-    OperandoILOC remendo_false = cria_operando_remendo_false();
+	 OperandoILOC *remendo_true = cria_operando_remendo_true();
+    OperandoILOC *remendo_false = cria_operando_remendo_false();
     
     //make compare with inverted labels 
-    //resolveLogical(operador, nodo, remendo_false, remendo_true);
+    //resolveLogical(operador, expr, remendo_false, remendo_true);
     
     operador->tem_remendo = TRUE;
 }

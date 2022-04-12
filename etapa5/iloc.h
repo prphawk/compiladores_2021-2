@@ -101,6 +101,9 @@ void libera_codigo(CodigoILOC *codigo);
 char* copy_nome_operando(OperandoILOC *operando);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
+OperandoILOC *cria_operando_remendo_true();
+OperandoILOC *cria_operando_remendo_false();
+
 OperandoILOC *reg_rfp();
 OperandoILOC *reg_rsp();
 OperandoILOC *reg_rbss();
