@@ -29,7 +29,7 @@ char *gera_nome(int eh_rotulo)
         global_num_registradores++;
         c = 'r';
     }
-    char *numero = calloc(sizeof(char), 10); // +1 for null
+    char *numero = calloc(sizeof(char), 10); // +1 for null //TODO sor disse pra checar qnd 10 nao eh o bastante
     snprintf(numero, 11, "%c%d", c, n);
     return numero;
 }
@@ -48,7 +48,7 @@ void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo)
     primeiro->proximo = segundo;
 }
 
-void lista(OperandoCodigo *primeiro, OperandoCodigo *segundo) 
+OperandoCodigo *lista(OperandoCodigo *primeiro, OperandoCodigo *segundo) 
 {
     liga_operandos(primeiro, segundo);
     return primeiro;

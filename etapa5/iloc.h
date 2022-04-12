@@ -98,8 +98,7 @@ OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
 OperandoCodigo *cria_operando_imediato(int valor);
 OperandoCodigo *cria_operando_label(char *nome);
 OperandoCodigo *cria_operando_registrador(char* nome);
-CodigoILOC *instrucao_jump(char* label_destino);
-void lista(OperandoCodigo *primeiro, OperandoCodigo *segundo);
+OperandoCodigo *lista(OperandoCodigo *primeiro, OperandoCodigo *segundo);
 
 OperandoCodigo *cria_operando_registrador_especial(char* nome);
 OperandoCodigo *cria_rfp();

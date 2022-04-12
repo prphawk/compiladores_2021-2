@@ -429,7 +429,7 @@ expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
-                    codigo_logico($1, $2, $3);
+                    codigo_logico($$);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2
