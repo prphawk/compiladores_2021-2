@@ -90,12 +90,14 @@ typedef struct CodigoILOC
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
 char *_gera_nome(int eh_rotulo);
-void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) ;
+void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo);
 OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo);
 OperandoILOC *cria_operando_imediato(int valor);
 OperandoILOC *cria_operando_label(char *nome);
 OperandoILOC *cria_operando_registrador(char* nome);
 OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
+void libera_operando(OperandoILOC *operando);
+char* copy_nome_operando(OperandoILOC *operando);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
 OperandoILOC *cria_rfp();

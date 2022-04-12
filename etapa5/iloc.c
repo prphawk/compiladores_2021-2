@@ -43,6 +43,18 @@ OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo) {
     return operando;
 }
 
+void libera_operando(OperandoILOC *operando) {
+   free(operando->nome);
+   operando->nome = NULL;
+   free(operando);
+   operando = NULL;
+}
+
+char* copy_nome_operando(OperandoILOC *operando) {
+    return strdup(operando->nome);
+}
+
+
 void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) 
 {
     primeiro->proximo = segundo;
@@ -72,7 +84,7 @@ OperandoILOC *cria_operando_label(char* nome) {
    return _cria_operando(nome, 0, LABEL);
 }
 
-OperandoILOC *cria_rfp() {
+OperandoILOC *cria_rfp() { //TODO só chamar UMA VEZ pq esses ponteiros sao pra ser unicos!
    return _cria_operando(RFP, 0, REGISTRADOR_PONTEIRO);
 }
 
