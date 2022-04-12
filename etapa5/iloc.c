@@ -43,11 +43,31 @@ OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo) {
     return operando;
 }
 
+void libera_codigo(CodigoILOC *codigo) {
+    if(codigo == NULL) return;
+
+    libera_codigo(codigo->anterior);
+
+    free(codigo->label);
+    codigo->label = NULL;
+
+    libera_operando(codigo->origem);
+    libera_operando(codigo->destino);
+
+    free(codigo);
+    codigo = NULL;
+}
+
 void libera_operando(OperandoILOC *operando) {
-   free(operando->nome);
-   operando->nome = NULL;
-   free(operando);
-   operando = NULL;
+    if(operando->proximo == NULL) return;
+
+    libera_operando(operando->proximo);
+
+    free(operando->nome);
+    operando->nome = NULL;
+
+    free(operando);
+    operando = NULL;
 }
 
 char* copy_nome_operando(OperandoILOC *operando) {

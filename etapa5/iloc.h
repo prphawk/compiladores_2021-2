@@ -97,6 +97,7 @@ OperandoILOC *cria_operando_label(char *nome);
 OperandoILOC *cria_operando_registrador(char* nome);
 OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
 void libera_operando(OperandoILOC *operando);
+void libera_codigo(CodigoILOC *codigo);
 char* copy_nome_operando(OperandoILOC *operando);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);

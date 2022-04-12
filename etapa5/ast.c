@@ -176,6 +176,8 @@ void _libera(void *pai)
 
     libera_vlex(pai_arvore->valor_lexico);
 
+    libera_codigo(pai_arvore->codigo);
+
     free(pai_arvore);
 }
 
