@@ -374,9 +374,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
 	//}
 
-	liga_operandos(destino_1_ponteiro, destino_2_deslocamento);
-
-	cria_codigo_e_append(origem, STOREAI, destino_1_ponteiro);
+	cria_codigo_e_append(origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
 	
 	//variavel->codigo = global_codigo;
 	//nodo->resultado = destino;
@@ -440,11 +438,10 @@ void codigo_sub(Nodo *nodo_operacao, Nodo *nodo) {
 
 	OperandoCodigo *origem_1 = nodo_operacao->resultado;
 	OperandoCodigo *origem_2 = cria_operando_imediato(0);
-	liga_operandos(origem_1, origem_2);
-
+	
 	OperandoCodigo *destino = cria_operando_registrador(gera_nome_registrador());
 
-	cria_codigo_e_append(origem_1, RSUBI, destino);
+	cria_codigo_e_append(lista(origem_1, origem_2), RSUBI, destino);
 
    nodo_operacao->resultado = destino;
 }
@@ -527,17 +524,15 @@ void codigo_logico_operacoes(char *label, Operacao operacao, char* label_true, c
 
    OperandoCodigo *op_origem = cria_operando_registrador(registradorA);
    OperandoCodigo *op_origem2 = cria_operando_registrador(registradorB);
-   liga_operandos(op_origem,op_origem2);
    OperandoCodigo *op_destino = cria_operando_registrador(registradorCC1);
 
-   cria_codigo_com_label_e_append(label, op_origem, operacao, op_destino);
+   cria_codigo_com_label_e_append(label, lista(op_origem,op_origem2), operacao, op_destino);
 
    OperandoCodigo *cbr_origem = cria_operando_registrador(registradorCC1);
    OperandoCodigo *cbr_destino = cria_operando_registrador(label_true);
    OperandoCodigo *cbr_destino2 = cria_operando_registrador(label_false);
-   liga_operandos(cbr_destino,cbr_destino2);
 
-   cria_codigo_e_append(cbr_origem, CMP_EQ, cbr_destino);
+   cria_codigo_e_append(cbr_origem, CMP_EQ, lista(cbr_destino,cbr_destino2));
 }
 //#endregion Código 
 
