@@ -67,3 +67,5 @@ void _imprime_filhos(Nodo *nodo);
 void print_arvore();
 void exporta_arvore();
 void libera_arvore();
+
+void imprime_codigo_ILOC();

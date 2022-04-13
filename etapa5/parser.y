@@ -359,7 +359,7 @@ literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_
          | TK_LIT_TRUE      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL,   $1);}
          | TK_LIT_FALSE     { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL,   $1);}
          | TK_LIT_FLOAT     { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT,  $1);}
-         | TK_LIT_INT       { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT,    $1);}
+         | TK_LIT_INT       { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT,    $1); codigo_carrega_literal($$); }
          ;
 
 operador_binario_prec1: '^'     { $$ = adiciona_nodo($1); };
@@ -394,7 +394,7 @@ operador_unario: '-' { $$ = adiciona_nodo($1); $$->operador = nodo_neg; }
 
 operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->operador = nodo_and; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->operador = nodo_or; };
 
-expressao: expr_ternaria        { $$ = $1; } //fazer escadinha? pra evitar a repetição ali do ternario. v
+expressao: expr_ternaria        { $$ = $1; }
         | expr_bin_aritmetica   { $$ = $1; }
         | expr_bin_logica       { $$ = $1; }
         ;
@@ -427,7 +427,7 @@ expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
-                    codigo_logico($$);
+                    codigo_expr_aritmetica($1, $2, $3);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2
@@ -436,6 +436,7 @@ expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_aritmetica($1, $2, $3);
                 }
 			    ;
 expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
@@ -445,6 +446,7 @@ expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_aritmetica($1, $2, $3);
                 }
 				;
 expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
@@ -454,6 +456,7 @@ expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
 						adiciona_filho($2, $3);
 						$$ = $2;
                         if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                        codigo_expr_aritmetica($1, $2, $3);
 					}
 					;
 expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
@@ -463,6 +466,7 @@ expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
 						adiciona_filho($2, $3);
 						$$ = $2;
                         if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                        codigo_expr_aritmetica($1, $2, $3);
 					}
 					;            
 expr_unaria_aritmetica: expr_parenteses_aritmetica 
@@ -481,8 +485,7 @@ expr_unaria_aritmetica: expr_parenteses_aritmetica
 					adiciona_filho($1, $2);
 					$$ = $1;
                     if(E4_CHECK_FLAG) verifica_expr_unaria($1, $2);
-				}
-				;
+				};
 
 expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; } 
                         | '(' expr_bin_aritmetica ')'   { $$ = $2; }
@@ -491,8 +494,8 @@ expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; }
 operando_aritmetico: variavel           { $$ = $1; }
                     | vetor             { $$ = $1; }
                     | chamada_funcao    { $$ = $1; }
-                    | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); }
-                    | TK_LIT_INT        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT, $1); }
+                    | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); codigo_carrega_literal($$); }
+                    | TK_LIT_INT        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT, $1);   codigo_carrega_literal($$); }
                     ;
 
 variavel: TK_IDENTIFICADOR 
@@ -549,8 +552,8 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
 
 expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
 
-operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_literal($$, 1); } 
-                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_literal($$, 0); };
+operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_booleano($$, 1); } 
+                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_booleano($$, 0); };
 
 %%
 int yyerror (char const *s) {

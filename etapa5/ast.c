@@ -176,7 +176,7 @@ void _libera(void *pai)
 
     libera_vlex(pai_arvore->valor_lexico);
 
-    libera_codigo(pai_arvore->codigo);
+    //libera_codigo(pai_arvore->codigo);
 
     free(pai_arvore);
 }
@@ -225,4 +225,11 @@ void _imprime_filhos(Nodo *nodo) {
 
         nodo_f = nodo_f->irmao;
     }
+}
+
+void imprime_codigo_ILOC()
+{
+    Nodo *root = arvore;
+   _imprime_arvore(root, 0);
+   imprime_codigo(root->codigo);
 }

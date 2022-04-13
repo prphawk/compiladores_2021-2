@@ -92,13 +92,13 @@ char *gera_nome_registrador();
 char *_gera_nome(int eh_rotulo);
 void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo);
 OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo);
-OperandoILOC *cria_operando_imediato(int valor);
-OperandoILOC *cria_operando_label(char *nome);
-OperandoILOC *cria_operando_registrador(char* nome);
+OperandoILOC *operando_imediato(int valor);
+OperandoILOC *operando_label(char *nome);
+OperandoILOC *operando_registrador(char* nome);
 OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
 void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
-char* copy_nome_operando(OperandoILOC *operando);
+char* copy_nome_operando(char *operando);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
 OperandoILOC *cria_operando_remendo_true();
@@ -108,3 +108,7 @@ OperandoILOC *reg_rfp();
 OperandoILOC *reg_rsp();
 OperandoILOC *reg_rbss();
 OperandoILOC *reg_rpc();
+
+void imprime_codigo(CodigoILOC *codigo);
+void imprime_operandos(OperandoILOC *operando);
+void imprime_operando(OperandoILOC *operando);
