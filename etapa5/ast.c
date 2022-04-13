@@ -58,8 +58,9 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     nodo->tipo = _get_tipo_nodo(valor_lexico);
 
     nodo->codigo = NULL;
-    nodo->resultado = NULL;
-    nodo->operacao = NOP;
+    nodo->reg_resultado = NULL;
+    nodo->operador = nodo_null;
+    nodo->tem_remendo = 0;
 
     return nodo;
 }
@@ -80,19 +81,7 @@ Nodo *adiciona_nodo_label(char *label)
     valor_lexico.label = strdup(label);
     valor_lexico.valor_string = NULL;
 
-    Nodo *nodo;
-    nodo = malloc(sizeof(Nodo));
-
-    nodo->valor_lexico = valor_lexico;
-    nodo->filho = NULL;
-    nodo->irmao = NULL;
-    nodo->tipo = TIPO_OUTRO;
-
-    nodo->codigo = NULL;
-    nodo->resultado = NULL;
-    nodo->operacao = NOP;
-
-    return nodo;
+    return adiciona_nodo(valor_lexico);
 }
 
 void adiciona_filho(Nodo *nodo, Nodo *filho) 
@@ -186,6 +175,8 @@ void _libera(void *pai)
     _libera(pai_arvore->irmao);
 
     libera_vlex(pai_arvore->valor_lexico);
+
+    libera_codigo(pai_arvore->codigo);
 
     free(pai_arvore);
 }

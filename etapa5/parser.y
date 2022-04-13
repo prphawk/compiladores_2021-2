@@ -345,8 +345,6 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                   }
                   ;
 
-/* mudança de lista de filhos para lista de irmãos para poder corretamente contabilizar o número e 
-verificar o tipo de argumentos formados por expressões passados em uma função ex: foo(10+30,40+2) */
 argumentos: expressao',' argumentos 
             {
                 adiciona_irmao($1, $3);
@@ -365,36 +363,36 @@ literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_
          ;
 
 operador_binario_prec1: '^'     { $$ = adiciona_nodo($1); };
-operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->operacao = MULT; }
-                        | '/'   { $$ = adiciona_nodo($1); $$->operacao = DIV;  }
+operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->operador = nodo_mult; }
+                        | '/'   { $$ = adiciona_nodo($1); $$->operador = nodo_div;  }
                         | '%'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->operacao = ADD; } 
-                        | '-'   { $$ = adiciona_nodo($1); $$->operacao = SUB; }
+operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->operador = nodo_add; } 
+                        | '-'   { $$ = adiciona_nodo($1); $$->operador = nodo_sub; }
                         ;
 operador_binario_prec4: '&'     { $$ = adiciona_nodo($1); } 
                         | '|'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_prec5: '<'         { $$ = adiciona_nodo($1); $$->operacao = CMP_LT; } 
-                        | '>'       { $$ = adiciona_nodo($1); $$->operacao = CMP_GT; } 
-                        | TK_OC_LE  { $$ = adiciona_nodo($1); $$->operacao = CMP_LE; }
-                        | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->operacao = CMP_EQ; }
-                        | TK_OC_GE  { $$ = adiciona_nodo($1); $$->operacao = CMP_GE; }
-                        | TK_OC_NE  { $$ = adiciona_nodo($1); $$->operacao = CMP_NE; }
+operador_binario_prec5: '<'         { $$ = adiciona_nodo($1); $$->operador = nodo_LT; } 
+                        | '>'       { $$ = adiciona_nodo($1); $$->operador = nodo_GT; } 
+                        | TK_OC_LE  { $$ = adiciona_nodo($1); $$->operador = nodo_LE; }
+                        | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->operador = nodo_EQ; }
+                        | TK_OC_GE  { $$ = adiciona_nodo($1); $$->operador = nodo_GE; }
+                        | TK_OC_NE  { $$ = adiciona_nodo($1); $$->operador = nodo_NE; }
                         | operador_binario_logico { $$ = $1; }
                         ;
 
 operador_asterisco: '*' { $$ = adiciona_nodo($1); } 
 
-operador_unario: '-' { $$ = adiciona_nodo($1); $$->operacao = SUB; }
+operador_unario: '-' { $$ = adiciona_nodo($1); $$->operador = nodo_neg; }
                | '+' { $$ = adiciona_nodo($1); } 
-               | '!' { $$ = adiciona_nodo($1); }// TODO nao tem not? perguntar. $$->operacao = NOT; } 
+               | '!' { $$ = adiciona_nodo($1); $$->operador = nodo_not; }
                | '&' { $$ = adiciona_nodo($1); } 
                | '?' { $$ = adiciona_nodo($1); }
                | '#' { $$ = adiciona_nodo($1); }
                ;
 
-operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->operacao = AND; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->operacao = OR; };
+operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->operador = nodo_and; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->operador = nodo_or; };
 
 expressao: expr_ternaria        { $$ = $1; } //fazer escadinha? pra evitar a repetição ali do ternario. v
         | expr_bin_aritmetica   { $$ = $1; }
@@ -428,7 +426,8 @@ expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
+                    codigo_logico($$);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2

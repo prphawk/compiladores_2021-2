@@ -9,7 +9,7 @@
 #define RBSS "rbss"
 #define RPC "rpc"
 
-typedef enum Operacao
+typedef enum OperacaoILOC
 {
     NOP,
     ADD, // ex: add r1, r2 => r3 // r3 = r1 + r2
@@ -59,49 +59,52 @@ typedef enum Operacao
     JUMPI, // ex: jumpI -> l1 // PC = endereço(l1)
     JUMP  // ex: jump -> r1 // PC = r1
     //TODO halt?
-} Operacao;
+} OperacaoILOC;
 
 typedef enum TipoOperando {
-
     REGISTRADOR, 
     LABEL,
     IMEDIATO,
-    REGISTRADOR_ESPECIAL,
-    //patchworkTrue,
-    //patchworkFalse,
-
+    REGISTRADOR_PONTEIRO,
+    REMENDO_TRUE,
+    REMENDO_FALSE
 } TipoOperando;
 
-typedef struct OperandoCodigo
+typedef struct OperandoILOC
 {
-    char *nome; //TODO ver se precisa?
+    char *nome;
     TipoOperando tipo;
     int valor;
-    struct OperandoCodigo *proximo;
-} OperandoCodigo;
+    struct OperandoILOC *proximo;
+} OperandoILOC;
 
 typedef struct CodigoILOC
 {
     char *label;
-    OperandoCodigo *origem;
-    Operacao operacao;
-    OperandoCodigo *destino;
+    OperandoILOC *origem;
+    OperacaoILOC operacao;
+    OperandoILOC *destino;
     struct CodigoILOC *anterior;
 } CodigoILOC;
 
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
-char *gera_nome(int eh_rotulo);
-OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
-void liga_operandos(OperandoCodigo *primeiro, OperandoCodigo *segundo) ;
-OperandoCodigo *cria_operando(char* nome, int valor, TipoOperando tipo);
-OperandoCodigo *cria_operando_imediato(int valor);
-OperandoCodigo *cria_operando_label(char *nome);
-OperandoCodigo *cria_operando_registrador(char* nome);
-CodigoILOC *instrucao_jump(char* label_destino);
+char *_gera_nome(int eh_rotulo);
+void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo);
+OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo);
+OperandoILOC *cria_operando_imediato(int valor);
+OperandoILOC *cria_operando_label(char *nome);
+OperandoILOC *cria_operando_registrador(char* nome);
+OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
+void libera_operando(OperandoILOC *operando);
+void libera_codigo(CodigoILOC *codigo);
+char* copy_nome_operando(OperandoILOC *operando);
 
-OperandoCodigo *cria_operando_registrador_especial(char* nome);
-OperandoCodigo *cria_rfp();
-OperandoCodigo *cria_rsp();
-OperandoCodigo *cria_rbss();
-OperandoCodigo *cria_rpc();
+OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
+OperandoILOC *cria_operando_remendo_true();
+OperandoILOC *cria_operando_remendo_false();
+
+OperandoILOC *reg_rfp();
+OperandoILOC *reg_rsp();
+OperandoILOC *reg_rbss();
+OperandoILOC *reg_rpc();
