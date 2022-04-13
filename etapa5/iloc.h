@@ -109,6 +109,7 @@ OperandoILOC *reg_rbss();
 OperandoILOC *reg_rpc();
 
 char* copia_nome(char *operando);
+OperandoILOC *copia_operando(OperandoILOC *operando);
 CodigoILOC *copia_codigo(CodigoILOC *codigo);
 CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);

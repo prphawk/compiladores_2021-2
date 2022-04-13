@@ -79,11 +79,8 @@ void libera_operando(OperandoILOC *operando) {
 
 
    if(operando->nome != NULL && operando->tipo == REGISTRADOR) {
-   printf("\n>>");
-   imprime_operando(operando);
-   printf("\n");
       free(operando->nome);
-   //   operando->nome = NULL;
+      operando->nome = NULL;
    }
 
    free(operando);
@@ -358,7 +355,5 @@ void imprime_operando(OperandoILOC *operando)
         
     if(operando->tipo == IMEDIATO)
         printf("%i", operando->valor);
-    else if(operando->nome != NULL) {
-      printf("%s", operando->nome);
-    }
+    else printf("%s", operando->nome);
 }
