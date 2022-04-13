@@ -183,7 +183,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
    _append_nodo(atribuicao, expressao);
 
 	//if(expressao->com_curto_circuito) {
-		OperandoILOC *origem = expressao->reg_resultado;
+		OperandoILOC *origem = copia_operando(expressao->reg_resultado); //TODO CUIDAR!!!!!!!!!! TEM Q COPIAR
 
 	//} else { //TODO botar curto circuito de expressoes!
 
