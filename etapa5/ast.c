@@ -174,9 +174,11 @@ void _libera(void *pai)
 
     _libera(pai_arvore->irmao);
 
+    printf("NODO %s\n", pai_arvore->valor_lexico.label);
+
     libera_vlex(pai_arvore->valor_lexico);
 
-    //libera_codigo(pai_arvore->codigo);
+    libera_codigo(pai_arvore->codigo);
 
     free(pai_arvore);
 }

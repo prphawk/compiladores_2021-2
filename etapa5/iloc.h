@@ -98,7 +98,6 @@ OperandoILOC *operando_registrador(char* nome);
 OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
 void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
-char* copy_nome_operando(char *operando);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
 OperandoILOC *cria_operando_remendo_true();
@@ -108,6 +107,11 @@ OperandoILOC *reg_rfp();
 OperandoILOC *reg_rsp();
 OperandoILOC *reg_rbss();
 OperandoILOC *reg_rpc();
+
+char* copia_nome(char *operando);
+CodigoILOC *copia_codigo(CodigoILOC *codigo);
+CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
+CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 
 void imprime_codigo(CodigoILOC *codigo);
 void imprime_operandos(OperandoILOC *operando);

@@ -1,12 +1,12 @@
 #include "ast.h"
 #include "iloc.h"
+#include "tabela_simbolos.h"
 
-CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 CodigoILOC *instrucao_loadI(int valor);
 CodigoILOC *instrucao_jump(OperandoILOC* destino);
 
-void _append_codigo(Nodo *nodo, CodigoILOC *codigo);
-void cria_codigo_e_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
+void _append(Nodo *nodo, CodigoILOC *codigo);
+void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_carrega_variavel(Nodo *nodo);
 void codigo_carrega_booleano(Nodo *nodo, int valor);

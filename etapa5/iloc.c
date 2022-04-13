@@ -43,15 +43,27 @@ OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo) {
     return operando;
 }
 
+OperandoILOC *copia_operando(OperandoILOC *operando) {
+
+   if(operando == NULL) return NULL;
+
+    OperandoILOC *copia = malloc(sizeof(OperandoILOC));
+    copia->nome = copia_nome(operando->nome);
+    copia->valor = operando->valor;
+    copia->tipo = operando->tipo;
+    copia->proximo = copia_operando(operando->proximo);
+    return copia;
+}
+
 void libera_codigo(CodigoILOC *codigo) {
     if(codigo == NULL) return;
 
     libera_codigo(codigo->anterior);
 
-    // if(codigo->label != NULL) {
-    //     free(codigo->label);
-    //     codigo->label = NULL;
-    // }
+    if(codigo->label != NULL) {
+        free(codigo->label);
+        codigo->label = NULL;
+    }
 
     libera_operando(codigo->origem);
     libera_operando(codigo->destino);
@@ -63,19 +75,19 @@ void libera_codigo(CodigoILOC *codigo) {
 void libera_operando(OperandoILOC *operando) {
     if(operando == NULL) return;
 
-    if(operando->proximo != NULL) libera_operando(operando->proximo);
+    libera_operando(operando->proximo);
 
-    // if(operando->nome != NULL && operando->tipo != REGISTRADOR_PONTEIRO) {
-    //     free(operando->nome);
-    //     operando->nome = NULL;
-    // }
 
-    free(operando);
-    operando = NULL;
-}
+   if(operando->nome != NULL && operando->tipo == REGISTRADOR) {
+   printf("\n>>");
+   imprime_operando(operando);
+   printf("\n");
+      free(operando->nome);
+   //   operando->nome = NULL;
+   }
 
-char* copy_nome_operando(char *nome) {
-    return strdup(nome);
+   free(operando);
+   operando = NULL;
 }
 
 void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) 
@@ -102,11 +114,11 @@ OperandoILOC *operando_imediato(int valor) {
 }
 
 OperandoILOC *operando_registrador(char* nome) {
-   return _cria_operando(copy_nome_operando(nome), 0, REGISTRADOR);
+   return _cria_operando(copia_nome(nome), 0, REGISTRADOR);
 }
 
 OperandoILOC *operando_label(char* nome) {
-   return _cria_operando(copy_nome_operando(nome), 0, LABEL);
+   return _cria_operando(copia_nome(nome), 0, LABEL);
 }
 
 OperandoILOC *reg_rfp() {
@@ -123,6 +135,44 @@ OperandoILOC *reg_rbss() {
 
 OperandoILOC *reg_rpc() {
    return _cria_operando(RPC, 0, REGISTRADOR_PONTEIRO);
+}
+
+char* copia_nome(char *nome) {
+   if(nome == NULL) return NULL;
+   return strdup(nome);
+}
+
+CodigoILOC *copia_codigo(CodigoILOC *codigo) {
+
+	if(codigo == NULL) return NULL;
+
+	CodigoILOC *copia = malloc(sizeof(CodigoILOC));
+	copia->label = copia_nome(codigo->label);
+	copia->origem = copia_operando(codigo->origem);
+	copia->operacao = codigo->operacao;
+	copia->destino = copia_operando(codigo->destino);
+	copia->anterior = copia_codigo(codigo->anterior);
+
+   return copia;
+}
+
+CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
+{
+    CodigoILOC *codigo = malloc(sizeof(CodigoILOC));
+    codigo->label = NULL;
+    codigo->origem = origem;
+    codigo->operacao = operacao;
+    codigo->destino = destino;
+    codigo->anterior = NULL;
+
+    return codigo;
+}
+
+CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
+{
+   CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
+   codigo->label = strdup(label);
+   return codigo;
 }
 
 void imprime_codigo(CodigoILOC *codigo)
@@ -308,5 +358,7 @@ void imprime_operando(OperandoILOC *operando)
         
     if(operando->tipo == IMEDIATO)
         printf("%i", operando->valor);
-    else printf("%s", operando->nome);
+    else if(operando->nome != NULL) {
+      printf("%s", operando->nome);
+    }
 }
