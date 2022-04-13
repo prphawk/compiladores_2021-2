@@ -124,6 +124,8 @@ void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_b
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
 void codigo_carrega_variavel(Nodo *nodo) {
 
+	char* nome_malloc = gera_nome_registrador();
+
    DeslocamentoEscopo busca = busca_deslocamento_e_escopo(nodo->valor_lexico.label);
 
    int deslocamento = busca.deslocamento;
@@ -131,11 +133,13 @@ void codigo_carrega_variavel(Nodo *nodo) {
    OperandoILOC *origem_1_registrador = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
    OperandoILOC *origem_2_deslocamento = operando_imediato(deslocamento);
 
-   OperandoILOC *destino = operando_registrador(gera_nome_registrador());
+   OperandoILOC *destino = operando_registrador(nome_malloc);
 
    _cria_codigo_append(nodo, lista(origem_1_registrador, origem_2_deslocamento), LOADAI, destino);
 
    nodo->reg_resultado = destino;
+
+   free(nome_malloc);
 
 	if(print_stuff) {
 		printf("\n>> OP: carrega variavel\n");
@@ -183,7 +187,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
    _append_nodo(atribuicao, expressao);
 
 	//if(expressao->com_curto_circuito) {
-		OperandoILOC *origem = copia_operando(expressao->reg_resultado); //TODO CUIDAR!!!!!!!!!! TEM Q COPIAR
+		OperandoILOC *origem = copia_operando(expressao->reg_resultado); //TODO CUIDAR!!!!!!!!!! TEM Q COPIAR SE FOR USAR EM NOVA INSTRUÇAO
 
 	//} else { //TODO botar curto circuito de expressoes!
 
@@ -452,11 +456,15 @@ CodigoILOC *instrucao_nop(char* label) {
 // loadI c1 => r2 // r2 = c1
 CodigoILOC *instrucao_loadI(int valor) {
 
+	char* nome_malloc = gera_nome_registrador();
+
    OperandoILOC *origem = operando_imediato(valor);
 
-   OperandoILOC *destino = operando_registrador(gera_nome_registrador());
+   OperandoILOC *destino = operando_registrador(nome_malloc);
 
    CodigoILOC *codigo = _cria_codigo(origem, LOADI, destino);
+
+   free(nome_malloc);
 
    return codigo;
 }
