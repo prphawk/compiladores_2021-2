@@ -17,7 +17,7 @@ char *_gera_nome(int eh_rotulo)
 {
     int n;
     char c;
-    if (eh_rotulo == 0)
+    if (eh_rotulo)
     {
         n = global_num_rotulos;
         global_num_rotulos++;
@@ -48,8 +48,10 @@ void libera_codigo(CodigoILOC *codigo) {
 
     libera_codigo(codigo->anterior);
 
-    free(codigo->label);
-    codigo->label = NULL;
+    // if(codigo->label != NULL) {
+    //     free(codigo->label);
+    //     codigo->label = NULL;
+    // }
 
     libera_operando(codigo->origem);
     libera_operando(codigo->destino);
@@ -59,19 +61,21 @@ void libera_codigo(CodigoILOC *codigo) {
 }
 
 void libera_operando(OperandoILOC *operando) {
-    if(operando->proximo == NULL) return;
+    if(operando == NULL) return;
 
-    libera_operando(operando->proximo);
+    if(operando->proximo != NULL) libera_operando(operando->proximo);
 
-    free(operando->nome);
-    operando->nome = NULL;
+    // if(operando->nome != NULL && operando->tipo != REGISTRADOR_PONTEIRO) {
+    //     free(operando->nome);
+    //     operando->nome = NULL;
+    // }
 
     free(operando);
     operando = NULL;
 }
 
-char* copy_nome_operando(OperandoILOC *operando) {
-    return strdup(operando->nome);
+char* copy_nome_operando(char *nome) {
+    return strdup(nome);
 }
 
 void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) 
@@ -93,16 +97,16 @@ OperandoILOC *cria_operando_remendo_false() {
    return _cria_operando(NULL, 0, REMENDO_FALSE);
 }
 
-OperandoILOC *cria_operando_imediato(int valor) {
+OperandoILOC *operando_imediato(int valor) {
    return _cria_operando(NULL, valor, IMEDIATO);
 }
 
-OperandoILOC *cria_operando_registrador(char* nome) {
-   return _cria_operando(nome, 0, REGISTRADOR);
+OperandoILOC *operando_registrador(char* nome) {
+   return _cria_operando(copy_nome_operando(nome), 0, REGISTRADOR);
 }
 
-OperandoILOC *cria_operando_label(char* nome) {
-   return _cria_operando(nome, 0, LABEL);
+OperandoILOC *operando_label(char* nome) {
+   return _cria_operando(copy_nome_operando(nome), 0, LABEL);
 }
 
 OperandoILOC *reg_rfp() {
@@ -119,4 +123,190 @@ OperandoILOC *reg_rbss() {
 
 OperandoILOC *reg_rpc() {
    return _cria_operando(RPC, 0, REGISTRADOR_PONTEIRO);
+}
+
+void imprime_codigo(CodigoILOC *codigo)
+{
+   if(codigo!=NULL)
+   {
+      imprime_codigo(codigo->anterior);
+      
+      switch(codigo->operacao)
+      {
+         case NOP:
+            printf("nop");
+            break;
+         case ADD:
+            printf("add");
+            break;
+         case SUB:
+            printf("sub");
+            break;
+         case MULT:
+            printf("mult");
+            break;
+         case DIV:
+            printf("div");
+            break;
+         case ADDI:
+            printf("addi");
+            break;
+         case SUBI:
+            printf("subi");
+            break;
+         case RSUBI:
+            printf("rsubi");
+            break;
+         case MULTI:
+            printf("multi");
+            break;
+         case DIVI:
+            printf("divi");
+            break;
+         case RDIVI:
+            printf("rdivi");
+            break;
+         case LSHIFT:
+            printf("lshift");
+            break;
+         case LSHIFTI:
+            printf("lshifti");
+            break;
+         case RSHIFT:
+            printf("rshifti");
+            break;
+         case RSHIFTI:
+            printf("rshifti");
+            break;
+         case AND:
+            printf("and");
+            break;
+         case ANDI:
+            printf("andi");
+            break;
+         case OR:
+            printf("or");
+            break;
+         case ORI:
+            printf("ori");
+            break;
+         case XOR:
+            printf("xor");
+            break;
+         case XORI:
+            printf("xori");
+            break;
+         case LOAD:
+            printf("load");
+            break;
+         case LOADAI:
+            printf("loadai");
+            break;
+         case LOADA0:
+            printf("loada0");
+            break;
+         case CLOAD:
+            printf("cload");
+            break;
+         case CLOADAI:
+            printf("cloadai");
+            break;
+         case CLOADA0:
+            printf("cloada0");
+            break;
+         case LOADI:
+            printf("loadi");
+            break;
+         case STORE:
+            printf("store");
+            break;
+         case STOREAI:
+            printf("storeai");
+            break;
+         case STOREA0:
+            printf("storea0");
+            break;
+         case CSTORE:
+            printf("cstore");
+            break;
+         case CSTOREAI:
+            printf("cstoreai");
+            break;
+         case CSTOREA0:
+            printf("cstorea0");
+            break;
+         case I2I:
+            printf("i2i");
+            break;
+         case C2C:
+            printf("c2c");
+            break;
+         case C2I:
+            printf("c2i");
+            break;
+         case I2C:
+            printf("i2c");
+            break;
+         case CMP_LT:
+            printf("cmp_lt");
+            break;
+         case CMP_LE:
+            printf("cmp_le");
+            break;
+         case CMP_EQ:
+            printf("cmp_eq");
+            break;
+         case CMP_GE:
+            printf("cmp_ge");
+            break;
+         case CMP_GT:
+            printf("cmp_gt");
+            break;
+         case CMP_NE:
+            printf("cmp_ne");
+            break;
+         case CBR:
+            printf("cbr");
+            break;
+         case JUMPI:
+            printf("jumpi");
+            break;
+         case JUMP:
+            printf("jump");
+            break;
+         default:
+            break;
+      }
+
+      printf(" ");
+
+      imprime_operandos(codigo->origem);
+
+      printf(" => ");
+
+      imprime_operandos(codigo->destino);
+
+      printf("\n");
+
+   }
+}
+
+void imprime_operandos(OperandoILOC *operando)
+{
+    if(operando==NULL) return;
+    
+    imprime_operando(operando);
+    if(operando->proximo!=NULL) {
+        printf(", ");
+        imprime_operando(operando->proximo);
+    }
+}
+
+void imprime_operando(OperandoILOC *operando)
+{
+    if(operando==NULL) return; 
+        
+    if(operando->tipo == IMEDIATO)
+        printf("%i", operando->valor);
+    else printf("%s", operando->nome);
 }
