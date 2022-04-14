@@ -167,8 +167,6 @@ void codigo_carrega_literal(Nodo *nodo) {
 // loadI c1 => r2 // r2 = c1
 void codigo_carrega_booleano(Nodo *nodo, int valor) {
 
-   //int valor = nodo->valor_lexico.valor_int; //2.3: Simplificações para a Geração de Código
-
    CodigoILOC *codigo = instrucao_loadI(valor);
 
    _append(nodo, codigo);
@@ -194,9 +192,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	//}
 	_cria_codigo_append(atribuicao, origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
 	
-	//atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs?
-
-   //libera_codigo(variavel->codigo); //TODO fazer com q libere os nodos filhos tbm
+	//atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
 
    if(print_stuff) {
       printf("\n>> OP: codigo atribuicao\n");
@@ -228,7 +224,8 @@ void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
     operador->reg_resultado = r3;
     operador->tem_remendo = FALSE;
 
-   if(operacao_label_malloc) free(operacao_label_malloc); free(r1_nome_malloc); free(r2_nome_malloc); free(r3_nome_malloc);
+   if(operacao_label_malloc) free(operacao_label_malloc); 
+   free(r1_nome_malloc); free(r2_nome_malloc); free(r3_nome_malloc);
 
    if(print_stuff) {
       printf("\n>> OP: codigo expr aritmetica\n");
@@ -434,6 +431,8 @@ void codigo_logico_auxiliar(char *label, Nodo *nodo_operador, char* label_true, 
       default:
       break;
    }
+
+   free(label1);
 }
 
 void codigo_logico_operacoes(Nodo *operador, char *label, OperacaoILOC operacao, char* label_true, char* label_false)

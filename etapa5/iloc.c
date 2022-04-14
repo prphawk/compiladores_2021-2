@@ -177,6 +177,10 @@ void imprime_codigo(CodigoILOC *codigo)
    if(codigo!=NULL)
    {
       imprime_codigo(codigo->anterior);
+
+      if(codigo->label != NULL) {
+         printf("%s:\n", codigo->label);
+      }
       
       switch(codigo->operacao)
       {
