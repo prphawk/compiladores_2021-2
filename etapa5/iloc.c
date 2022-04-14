@@ -98,12 +98,8 @@ OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo)
     return primeiro;
 }
 
-OperandoILOC *cria_operando_remendo_true() {
-   return _cria_operando(NULL, 0, REMENDO_TRUE);
-}
-
-OperandoILOC *cria_operando_remendo_false() {
-   return _cria_operando(NULL, 0, REMENDO_FALSE);
+OperandoILOC *cria_operando_remendo() {
+   return _cria_operando(NULL, 0, REMENDO);
 }
 
 OperandoILOC *operando_imediato(int valor) {

@@ -550,7 +550,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     codigo_logico($$);
                 };
 
-expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
+expr_parenteses_logica: operando_logico { $$ = $1; codigo_expr_logica_booleano($$); } | '(' expr_bin_logica ')' { $$ = $2; };
 
 operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_booleano($$, 1); } 
                 | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_booleano($$, 0); };

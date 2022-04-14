@@ -66,8 +66,7 @@ typedef enum TipoOperando {
     LABEL,
     IMEDIATO,
     REGISTRADOR_PONTEIRO,
-    REMENDO_TRUE,
-    REMENDO_FALSE
+    REMENDO
 } TipoOperando;
 
 typedef struct OperandoILOC
@@ -100,8 +99,8 @@ void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
-OperandoILOC *cria_operando_remendo_true();
-OperandoILOC *cria_operando_remendo_false();
+OperandoILOC *cria_operando_remendo();
+OperandoILOC *cria_operando_remendo();
 
 OperandoILOC *reg_rfp();
 OperandoILOC *reg_rsp();

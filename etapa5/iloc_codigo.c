@@ -5,8 +5,6 @@
 
 int print_stuff = 1;
 
-//#region Principais Código 
-
 void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino) 
 {
 	CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
@@ -40,86 +38,56 @@ void _append_nodo(Nodo *pai, Nodo *filho) {
    _append(pai, copia_filho_cod_ptr);
 }
 
+Remendo *concat_remendos(Remendo *lst1, Remendo *lst2) {
+	if(lst1 == NULL) return lst2;
+	if(lst2 == NULL) return lst1;
+
+	Remendo *ultimo_lst1 = lst1;
+	while(ultimo_lst1->proximo != NULL) {
+		ultimo_lst1 = ultimo_lst1->proximo;
+	}
+	ultimo_lst1->proximo = lst2;
+	return lst1;
+}
+
+void remenda(Remendo *buracos, OperandoILOC *argamassa) {
+	if(argamassa == NULL) return;
+
+	while(buracos != NULL) {
+		OperandoILOC *operando = buracos->operando;
+		operando->tipo = argamassa->tipo;
+		operando->nome = argamassa->nome;
+
+		Remendo *aux_buraco = buracos;
+		buracos = buracos->proximo; //eh pra perder mesmo quero tirar da lista
+		free(aux_buraco);
+	}
+}
+
+void append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando) {
+	if(remendo_operando == NULL) return;
+
+	Remendo *remendo = cria_remendo(remendo_operando);
+
+	if(remendo_lst == NULL) {
+		remendo_lst = remendo;
+	}
+	else {
+		remendo->proximo = remendo_lst;
+		remendo_lst = remendo;
+	}
+}
+
+Remendo *cria_remendo(OperandoILOC *remendo_operando) {
+	Remendo *remendo = malloc(sizeof(Remendo));
+	remendo->operando = remendo_operando;
+	remendo->proximo = NULL;
+	return remendo;
+}
+
 //#endregion Principais Código 
 
 //#region Código 
-
-//exp code
-//x:nop
-//ifblocknode code
-//jump z
-//y:nop
-//elseBlockNode code
-//z:nop
-
-//ou
-
-//exp code
-//x:nop
-//ifblocknode code
-//z:nop
-/*
-void codigo_if(Nodo *nodo_if, Nodo *nodo_expr, Nodo *nodo_bloco_if, Nodo *nodo_bloco_else) {
-
-//TODO mudar nomes e retirar comentario acima
-    char* label_bloco_if = gera_nome_rotulo();
-    char* label_bloco_else = gera_nome_rotulo();
-    char* label_fim = gera_nome_rotulo();
-    
-    OperandoCodigo *operando_bloco_if = cria_operando_label(label_bloco_if);
-    OperandoCodigo *operando_bloco_else = cria_operando_label(label_bloco_else);
-    OperandoCodigo *operando_fim = cria_operando_label(label_fim);
-
-    CodigoILOC *nop_com_label_bloco_if = instrucao_nop(label_bloco_if);
-    CodigoILOC *nop_com_label_bloco_else = instrucao_nop(label_bloco_else);
-    CodigoILOC *nop_com_label_fim = instrucao_nop(label_fim);
-
-    //where it jumps in case expNode is true
-    OperandoCodigo *operando_label_true = operando_bloco_if;
-
-    //where it jumps in case expNode is false
-    OperandoCodigo *operando_label_false = nodo_bloco_else == NULL ? operando_fim : operando_bloco_else;
-    
-    CodigoILOC *jump_fim = instrucao_jump(operando_fim);
-    
-    //TODO resolveLogical(ifNode, expNode, operando_label_true, operando_label_false);
-
-   //      if (nodeExp->hasPatchworks) {
-
-   //      coverPatchworks(nodeExp, labelTrue, true);
-   //      coverPatchworks(nodeExp, labelFalse, false);
-   //      appendCode(rootNode, nodeExp);
-        
-   //  } else {
-
-        OperandoCodigo r1Operand = nodeExp->resultRegister;
-        list<InstructionCode> compareCode = makeCompare(r1Operand, labelTrue, labelFalse);
-        appendCode(rootNode, nodeExp);
-        appendCode(rootNode, compareCode);
-    //}
-
-   _append_codigo(nodo_if, nop_com_label_bloco_if);
-   _append_codigo_de_nodo(nodo_if, nodo_bloco_if);
-   
-   if (nodo_bloco_else != NULL) {
-      
-      _append_codigo(nodo_if, {jump_fim});
-      _append_codigo(nodo_if, {nop_com_label_bloco_else});
-      _append_codigo_de_nodo(nodo_if, nodo_bloco_else);
-      
-   }
-
-   _append_codigo(ifNode, {nop_com_label_fim});
-}
-*/
-
-// // cbr r1 -> l2_true, l3_false // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
-// CodigoILOC* codigo_verifica_expr(OperandoCodigo *operando_registrador, OperandoCodigo *operando_label_true, OperandoCodigo *operando_label_false) {
-
-//    liga_operandos(operando_label_true, operando_label_false);
-//    return _cria_codigo(operando_registrador, CBR, operando_label_true);
-// }
-
 
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
 void codigo_carrega_variavel(Nodo *nodo) {
@@ -164,16 +132,6 @@ void codigo_carrega_literal(Nodo *nodo) {
    }
 }
 
-// loadI c1 => r2 // r2 = c1
-void codigo_carrega_booleano(Nodo *nodo, int valor) {
-
-   CodigoILOC *codigo = instrucao_loadI(valor);
-
-   _append(nodo, codigo);
-   
-   nodo->reg_resultado = codigo->destino;
-}
-
 // storeAI r0 => r1 (rfp ou rbss), deslocamento // TODO: n passar o load da variavel
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
@@ -203,34 +161,121 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 //Ex.: L1: add r1, r2 => r3
 void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 
-    char* operacao_label_malloc;
+    char* op_nome_malloc = NULL;
     char *r1_nome_malloc = gera_nome_registrador();
     char *r2_nome_malloc = gera_nome_registrador();
     char *r3_nome_malloc = gera_nome_registrador();
     OperandoILOC *r1, *r2, *r3 = operando_registrador(r3_nome_malloc);
 
-    if (!esq->tem_remendo && !dir->tem_remendo)
-         operacao_label_malloc = NULL;
-    else operacao_label_malloc = gera_nome_rotulo();
+    // if (esq->tem_remendo || dir->tem_remendo) {
+    //     op_nome_malloc = gera_nome_rotulo();
+	// }
 
-    codigo_operador_expr(operador, esq, r1_nome_malloc, operacao_label_malloc);
-    r1 = copia_operando(operador->reg_resultado);
+    // codigo_avalia_expr(operador, esq, r1_nome_malloc, op_nome_malloc);
+    // r1 = copia_operando(operador->reg_resultado);
 
-    codigo_operador_expr(operador, dir, r2_nome_malloc, operacao_label_malloc);
-    r2 = copia_operando(operador->reg_resultado);
+    // codigo_avalia_expr(operador, dir, r2_nome_malloc, op_nome_malloc);
+    // r2 = copia_operando(operador->reg_resultado);
 
-    _cria_codigo_com_label_append(operador, operacao_label_malloc, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
+    _cria_codigo_com_label_append(operador, op_nome_malloc, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
     
     operador->reg_resultado = r3;
-    operador->tem_remendo = FALSE;
 
-   if(operacao_label_malloc) free(operacao_label_malloc); 
+   if(op_nome_malloc) free(op_nome_malloc); 
    free(r1_nome_malloc); free(r2_nome_malloc); free(r3_nome_malloc);
 
    if(print_stuff) {
       printf("\n>> OP: codigo expr aritmetica\n");
       imprime_codigo(operador->codigo);
    }
+}
+
+//Ex.: L1: add r1, r2 => r3
+void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir) {
+
+	OperandoILOC *remendo_true = cria_operando_remendo();
+	OperandoILOC *remendo_false = cria_operando_remendo();
+
+    char *r3_nome_malloc = gera_nome_registrador();
+    OperandoILOC *r1, *r2, *r3 = operando_registrador(r3_nome_malloc);
+
+	r1 = copia_operando(esq->reg_resultado);
+    r2 = copia_operando(dir->reg_resultado);
+
+    _append_nodo(operador, esq);
+    _append_nodo(operador, dir);
+
+	_cria_codigo_append(operador, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
+
+	operador->reg_resultado = r3;
+
+	CodigoILOC *codigo = codigo_compara_logico(copia_operando(r3), remendo_true, remendo_false);
+
+	_append(operador, codigo);	
+
+	append_remendo(operador->remendos_true, remendo_true);
+	append_remendo(operador->remendos_false, remendo_false);
+
+	free(r3_nome_malloc);
+}
+
+void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir) {
+
+	char *rotulo_malloc = gera_nome_rotulo();
+
+	remenda(esq->remendos_true, operando_label(rotulo_malloc));
+
+	operador->remendos_true = dir->remendos_true;
+	operador->remendos_false = concat_remendos(esq->remendos_false, dir->remendos_false);
+
+	_append_nodo(operador, esq);
+	_append(operador, instrucao_nop(rotulo_malloc));
+    _append_nodo(operador, dir);
+
+   free(rotulo_malloc);
+}
+
+void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir) {
+
+	char *rotulo_malloc = gera_nome_rotulo();
+
+	remenda(esq->remendos_false, operando_label(rotulo_malloc));
+
+	operador->remendos_false = dir->remendos_false;
+	operador->remendos_true = concat_remendos(esq->remendos_true, dir->remendos_true);
+
+	_append_nodo(operador, esq);
+	_append(operador, instrucao_nop(rotulo_malloc));
+    _append_nodo(operador, dir);
+
+   free(rotulo_malloc);
+}
+
+void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
+
+	char *rotulo_malloc = gera_nome_rotulo();
+
+	OperandoILOC *op_remendo = cria_operando_remendo();
+
+   CodigoILOC *codigo = instrucao_jumpI(op_remendo);
+
+   _append(nodo, codigo);
+
+	if(valor) {
+		append_remendo(nodo->remendos_true, op_remendo);
+	} else {
+		append_remendo(nodo->remendos_false, op_remendo);
+	}
+
+    free(rotulo_malloc);
+}
+
+void codigo_not(Nodo *operador, Nodo *expr) {
+
+	operador->remendos_true = expr->remendos_false;
+	operador->remendos_false =  expr->remendos_true;
+
+	_append_nodo(operador, expr);
 }
 
 //dar um jeito nesse monte de repeticao de operadores no codigo inteiro.. 
@@ -250,70 +295,6 @@ int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
    }
 }
 
-//TODO lidar com remendos
-void codigo_operador_expr(Nodo *operador, Nodo *expr, char* reg_resultado_nome, char* operacao_label) {
-
-    OperandoILOC *reg_resultado;
-
-   //  if (expr->tem_remendo) {
-        
-   //      reg_resultado = operando_registrador(reg_resultado_nome);
-   //      list<InstructionCode> newCode = createBoolFlow(nodeExp, operacao_label, resultRegisterOperand);
-   //      _append_nodo(operador, expr);
-   //      _append(operador, {newCode});
-    
-   //  } else {
-        reg_resultado = expr->reg_resultado;
-        _append_nodo(operador, expr);
-    //}
-
-   //libera_operando(operador->reg_resultado);
-   operador->reg_resultado = reg_resultado;
-   operador->tem_remendo = FALSE;
-}
-
-/* 
-L2:loadI true => r5
-   jumpI -> L5
-L3:loadI false => r5
-   jumpI -> L5
-*/
-void codigo_logico(Nodo *operador)
-{
-   char *registrador_result_nome_malloc = gera_nome_registrador();
-   char *label_true = gera_nome_rotulo();
-   char *label_false = gera_nome_rotulo();
-   char *label_fim = gera_nome_rotulo();
-
-   codigo_logico_auxiliar(NULL, operador, label_true, label_fim);
-   
-   OperandoILOC *origem_load_true = operando_imediato(1);
-
-   OperandoILOC *destino_load_true = operando_registrador(registrador_result_nome_malloc);
-
-   _cria_codigo_com_label_append(operador, label_true, origem_load_true, LOADI, destino_load_true);
-
-   OperandoILOC *destino_jump_true = operando_label(label_fim);
-
-   _cria_codigo_append(operador, NULL, JUMPI, destino_jump_true);
-    
-   OperandoILOC *origem_load_false = operando_imediato(0);
-
-   OperandoILOC *destino_load_false = operando_registrador(registrador_result_nome_malloc);
-
-   _cria_codigo_com_label_append(operador, label_false, origem_load_false, LOADI, destino_load_false);
-
-   OperandoILOC *destino_jump_false = operando_label(label_fim);
-
-   _cria_codigo_append(operador, NULL, JUMPI, destino_jump_false);
-   _cria_codigo_com_label_append(operador, label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra? botar o remendo
-
-   operador->reg_resultado = operando_registrador(registrador_result_nome_malloc);
-   operador->tem_remendo = TRUE;
-
-   free(registrador_result_nome_malloc); free(label_true); free(label_false); free(label_fim);
-}
-
 void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 
 	if(operador->operador == nodo_sub) {
@@ -326,6 +307,22 @@ void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
       _append_nodo(operador, expr);
 		operador->reg_resultado = expr->reg_resultado;
     }
+}
+
+// load 0 -> r2
+// cmp_NE r1, r2 -> r3 
+// cbr r3 -> l2_true, l3_false // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
+CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false) {
+
+	CodigoILOC *codigo_cmp_NE_0 = intrucoes_cmp_NE_0(r1);
+
+	OperandoILOC *r3 = copia_operando(codigo_cmp_NE_0->destino);
+
+	CodigoILOC *codigo_cbr = instrucao_cbr(r3, op_label_true, op_label_false);
+
+	codigo_cbr->anterior = codigo_cmp_NE_0;
+
+	return codigo_cbr;
 }
 
 // rsubI r1, 0 => r3 // r3 = 0 - r1
@@ -348,117 +345,32 @@ void codigo_sub(Nodo *operador, Nodo *expr) {
 
    free(r3_nome_malloc);
 }
-
-// TODO precisa resolver como lógica e trocar a ordem dos labels de true e false
-void codigo_not(Nodo *operador, Nodo *expr) {
-
-	 OperandoILOC *remendo_true = cria_operando_remendo_true();
-    OperandoILOC *remendo_false = cria_operando_remendo_false();
-    
-    //make compare with inverted labels 
-    //resolveLogical(operador, expr, remendo_false, remendo_true);
-    
-    operador->tem_remendo = TRUE;
-}
-
-
-void codigo_logico_auxiliar(char *label, Nodo *nodo_operador, char* label_true, char* label_false) {
-   char *label1 = gera_nome_rotulo();
-   switch(nodo_operador->operador)
-   {
-      /* [A<B]
-         cmp_LT ra, rb => cc1
-         cbr cc1 -> L1, L2
-      L1:loadI true => r1
-         jumpI -> L3
-      L2:loadI false => r1
-         jumpI -> L3
-      */
-      case nodo_EQ: //TODO ajeitar os tipos disso aqui
-         codigo_logico_operacoes(nodo_operador, label, CMP_EQ, label_true, label_false);
-      break;
-
-      case nodo_NE:
-         codigo_logico_operacoes(nodo_operador, label, CMP_NE, label_true, label_false);
-      break;
-
-      case nodo_LE:
-         codigo_logico_operacoes(nodo_operador, label, CMP_LE, label_true, label_false);
-      break;
-
-      case nodo_GE:
-         codigo_logico_operacoes(nodo_operador, label, CMP_GE, label_true, label_false);
-      break;
-
-      case nodo_GT:
-         codigo_logico_operacoes(nodo_operador, label, CMP_GT, label_true, label_false);
-      break;
-
-      case nodo_LT:
-         codigo_logico_operacoes(nodo_operador, label, CMP_LT, label_true, label_false);
-      break;
-      
-      /* [A<B||C>B]
-         cmp_LT ra, rb => cc1 //A<B
-         cbr cc1 -> LT, L1
-      L1:cmp_GT rc, rd => cc2 //C>D
-         cbr cc2 -> LT, LF
-      LT:loadI true => r5
-         jumpI -> L5
-      LF:loadI false => r5
-         jumpI -> L5
-      */
-      case nodo_or:
-         codigo_logico_auxiliar(label, nodo_operador->filho, label_true, label1);
-         codigo_logico_auxiliar(label1, nodo_operador->filho->irmao, label_true, label_false);
-      break;
-
-      /* [A<B&&C>B]
-         {cmp_LT ra, rb => cc1 //A<B
-         cbr cc1 -> L1, LF}
-      L1:{cmp_GT rc, rd => cc2 //C>D
-         cbr cc2 -> LT, LF}
-      LT:loadI true => r5
-         jumpI -> L5
-      LF:loadI false => r5
-         jumpI -> L5
-      */
-     case nodo_and:
-         codigo_logico_auxiliar(label, nodo_operador->filho, label1, label_false);
-         codigo_logico_auxiliar(label1, nodo_operador->filho->irmao, label_true, label_false);
-      break;
-      
-      default:
-      break;
-   }
-
-   free(label1);
-}
-
-void codigo_logico_operacoes(Nodo *operador, char *label, OperacaoILOC operacao, char* label_true, char* label_false)
-{
-   char *registradorA_nome_malloc = gera_nome_registrador();
-   char *registradorB_nome_malloc = gera_nome_registrador();
-   char *registradorCC1_nome_malloc = gera_nome_registrador();
-
-   OperandoILOC *op_origem = operando_registrador(registradorA_nome_malloc);
-   OperandoILOC *op_origem2 = operando_registrador(registradorB_nome_malloc);
-   OperandoILOC *op_destino = operando_registrador(registradorCC1_nome_malloc);
-
-   _cria_codigo_com_label_append(operador, label, lista(op_origem,op_origem2), operacao, op_destino);
-
-   OperandoILOC *cbr_origem = operando_registrador(registradorCC1_nome_malloc);
-   OperandoILOC *cbr_destino = operando_registrador(label_true);
-   OperandoILOC *cbr_destino2 = operando_registrador(label_false);
-
-   _cria_codigo_append(operador, cbr_origem, CMP_EQ, lista(cbr_destino,cbr_destino2));
-
-   free(registradorA_nome_malloc); free(registradorB_nome_malloc); free(registradorCC1_nome_malloc);
-}
    
 //#endregion Código 
 
 //#region Instrução 
+
+// cbr r1 -> l2_true, l3_false // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
+CodigoILOC* instrucao_cbr(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false) {
+   return _cria_codigo(r1, CBR, lista(op_label_true, op_label_false));
+}
+
+// load 0 -> r2
+// cmp_NE r1, r2 -> r3 
+CodigoILOC* intrucoes_cmp_NE_0(OperandoILOC *r1) {
+
+   CodigoILOC *codigo_0 = instrucao_loadI(0);
+
+    OperandoILOC *r2 = copia_operando(codigo_0->destino);
+    char *r3_nome_malloc =  gera_nome_registrador();
+    OperandoILOC *r3 = operando_registrador(r3_nome_malloc);
+    
+    CodigoILOC *codigo_cmp_NE = _cria_codigo(lista(r1, r2) , CMP_NE, r3);
+
+   free(r3_nome_malloc);
+    codigo_cmp_NE->anterior = codigo_0;
+    return codigo_cmp_NE;
+}
 
 CodigoILOC *instrucao_nop(char* label) {
    return _cria_codigo_com_label(label, NULL, NOP, NULL);
@@ -481,7 +393,7 @@ CodigoILOC *instrucao_loadI(int valor) {
 }
 
 // ex: jumpI -> l1 // PC = endereço(l1)
-CodigoILOC *instrucao_jump(OperandoILOC* destino) {
+CodigoILOC *instrucao_jumpI(OperandoILOC* destino) {
 
    return _cria_codigo(NULL, JUMPI, destino);
 }

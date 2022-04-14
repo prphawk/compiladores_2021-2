@@ -32,6 +32,11 @@ typedef enum operador
     nodo_or
 } Operador;
 
+typedef struct Remendo {
+    OperandoILOC *operando;
+    struct Remendo *proximo;
+} Remendo;
+
 typedef struct Nodo {
     Tipo tipo;
     ValorLexico valor_lexico;
@@ -41,8 +46,10 @@ typedef struct Nodo {
 
     CodigoILOC *codigo;
     OperandoILOC *reg_resultado;
-    int tem_remendo;
+    Remendo *remendos_true;
+    Remendo *remendos_false;
 } Nodo;
+
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico);
 Nodo *adiciona_nodo_label(char *label);
