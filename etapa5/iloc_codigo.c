@@ -207,25 +207,28 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 //Ex.: L1: add r1, r2 => r3
 void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 
-    char* operacao_label;
-    OperandoILOC *r3 = operando_registrador(gera_nome_registrador());
-    OperandoILOC *r1;
-    OperandoILOC *r2;
+    char* operacao_label_malloc;
+    char *r1_nome_malloc = gera_nome_registrador();
+    char *r2_nome_malloc = gera_nome_registrador();
+    char *r3_nome_malloc = gera_nome_registrador();
+    OperandoILOC *r1, *r2, *r3 = operando_registrador(r3_nome_malloc);
 
-    if (!esq->tem_remendo && !dir->tem_remendo) 
-         operacao_label = NULL;
-    else operacao_label = gera_nome_rotulo();
+    if (!esq->tem_remendo && !dir->tem_remendo)
+         operacao_label_malloc = NULL;
+    else operacao_label_malloc = gera_nome_rotulo();
 
-    codigo_operador_expr(operador, esq, gera_nome_registrador(), operacao_label);
-    r1 = operador->reg_resultado;
+    codigo_operador_expr(operador, esq, r1_nome_malloc, operacao_label_malloc);
+    r1 = copia_operando(operador->reg_resultado);
 
-    codigo_operador_expr(operador, dir, gera_nome_registrador(), operacao_label);
-    r2 = operador->reg_resultado;
+    codigo_operador_expr(operador, dir, r2_nome_malloc, operacao_label_malloc);
+    r2 = copia_operando(operador->reg_resultado);
 
-    _cria_codigo_com_label_append(operador, operacao_label, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
+    _cria_codigo_com_label_append(operador, operacao_label_malloc, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
     
     operador->reg_resultado = r3;
     operador->tem_remendo = FALSE;
+
+   if(operacao_label_malloc) free(operacao_label_malloc); free(r1_nome_malloc); free(r2_nome_malloc); free(r3_nome_malloc);
 
    if(print_stuff) {
       printf("\n>> OP: codigo expr aritmetica\n");
@@ -280,7 +283,7 @@ L3:loadI false => r5
 */
 void codigo_logico(Nodo *operador)
 {
-   char *registrador_result = gera_nome_registrador();
+   char *registrador_result_nome_malloc = gera_nome_registrador();
    char *label_true = gera_nome_rotulo();
    char *label_false = gera_nome_rotulo();
    char *label_fim = gera_nome_rotulo();
@@ -289,7 +292,7 @@ void codigo_logico(Nodo *operador)
    
    OperandoILOC *origem_load_true = operando_imediato(1);
 
-   OperandoILOC *destino_load_true = operando_registrador(registrador_result);
+   OperandoILOC *destino_load_true = operando_registrador(registrador_result_nome_malloc);
 
    _cria_codigo_com_label_append(operador, label_true, origem_load_true, LOADI, destino_load_true);
 
@@ -299,7 +302,7 @@ void codigo_logico(Nodo *operador)
     
    OperandoILOC *origem_load_false = operando_imediato(0);
 
-   OperandoILOC *destino_load_false = operando_registrador(registrador_result);
+   OperandoILOC *destino_load_false = operando_registrador(registrador_result_nome_malloc);
 
    _cria_codigo_com_label_append(operador, label_false, origem_load_false, LOADI, destino_load_false);
 
@@ -308,8 +311,10 @@ void codigo_logico(Nodo *operador)
    _cria_codigo_append(operador, NULL, JUMPI, destino_jump_false);
    _cria_codigo_com_label_append(operador, label_fim, NULL, NOP, NULL); //TODO tirar essa gambiarra? botar o remendo
 
-   operador->reg_resultado = operando_registrador(registrador_result);
+   operador->reg_resultado = operando_registrador(registrador_result_nome_malloc);
    operador->tem_remendo = TRUE;
+
+   free(registrador_result_nome_malloc); free(label_true); free(label_false); free(label_fim);
 }
 
 void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
@@ -333,14 +338,18 @@ void codigo_sub(Nodo *operador, Nodo *expr) {
 
     // resolveArithmetic(operador, expr, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
 
-	OperandoILOC *origem_1 = operador->reg_resultado;
+   char* r3_nome_malloc = gera_nome_registrador();
+
+	OperandoILOC *origem_1 = copia_operando(operador->reg_resultado);
 	OperandoILOC *origem_2 = operando_imediato(0);
 	
-	OperandoILOC *destino = operando_registrador(gera_nome_registrador());
+	OperandoILOC *destino = operando_registrador(r3_nome_malloc);
 
 	_cria_codigo_append(operador, lista(origem_1, origem_2), RSUBI, destino);
 
    operador->reg_resultado = destino;
+
+   free(r3_nome_malloc);
 }
 
 // TODO precisa resolver como lógica e trocar a ordem dos labels de true e false
@@ -429,22 +438,25 @@ void codigo_logico_auxiliar(char *label, Nodo *nodo_operador, char* label_true, 
 
 void codigo_logico_operacoes(Nodo *operador, char *label, OperacaoILOC operacao, char* label_true, char* label_false)
 {
-   char *registradorA = gera_nome_registrador();
-   char *registradorB = gera_nome_registrador();
-   char *registradorCC1 = gera_nome_registrador();
+   char *registradorA_nome_malloc = gera_nome_registrador();
+   char *registradorB_nome_malloc = gera_nome_registrador();
+   char *registradorCC1_nome_malloc = gera_nome_registrador();
 
-   OperandoILOC *op_origem = operando_registrador(registradorA);
-   OperandoILOC *op_origem2 = operando_registrador(registradorB);
-   OperandoILOC *op_destino = operando_registrador(registradorCC1);
+   OperandoILOC *op_origem = operando_registrador(registradorA_nome_malloc);
+   OperandoILOC *op_origem2 = operando_registrador(registradorB_nome_malloc);
+   OperandoILOC *op_destino = operando_registrador(registradorCC1_nome_malloc);
 
    _cria_codigo_com_label_append(operador, label, lista(op_origem,op_origem2), operacao, op_destino);
 
-   OperandoILOC *cbr_origem = operando_registrador(registradorCC1);
+   OperandoILOC *cbr_origem = operando_registrador(registradorCC1_nome_malloc);
    OperandoILOC *cbr_destino = operando_registrador(label_true);
    OperandoILOC *cbr_destino2 = operando_registrador(label_false);
 
    _cria_codigo_append(operador, cbr_origem, CMP_EQ, lista(cbr_destino,cbr_destino2));
+
+   free(registradorA_nome_malloc); free(registradorB_nome_malloc); free(registradorCC1_nome_malloc);
 }
+   
 //#endregion Código 
 
 //#region Instrução 
