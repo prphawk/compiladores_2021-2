@@ -1,5 +1,5 @@
 int f(){
     int a, b, c, d, e, f;
     bool boo;
-    boo = 1 > 2;
+    boo = true && true;
 }

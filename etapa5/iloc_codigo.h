@@ -29,13 +29,14 @@ CodigoILOC *instrucao_nop(char* label);
 CodigoILOC* instrucao_cbr(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false);
 CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false);
 void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir);
+void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_booleano(Nodo *nodo, int valor);
 
 Remendo *cria_remendo(OperandoILOC *remendo_operando);
 Remendo *concat_remendos(Remendo *lst1, Remendo *lst2);
-Remendo * append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
-void remenda(Remendo *buracos, OperandoILOC *argamassa);
+Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
+Remendo *remenda(Remendo *buracos, OperandoILOC *argamassa);
 
 CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final);

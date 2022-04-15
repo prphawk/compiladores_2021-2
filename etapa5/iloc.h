@@ -103,7 +103,7 @@ OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
 void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
 void libera_nome(char *nome);
-void libera_remendo(Remendo *remendo);
+void libera_head_remendo(Remendo *remendo);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
 OperandoILOC *gera_operando_remendo();
@@ -123,5 +123,6 @@ CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoIL
 void imprime_codigo(CodigoILOC *codigo);
 void imprime_operandos(OperandoILOC *operando);
 void imprime_operando(OperandoILOC *operando);
+void imprime_remendos(Remendo *remendo_lst);
 
 void print_ILOC_intermed(char* str, CodigoILOC *codigo);

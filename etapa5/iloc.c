@@ -91,13 +91,12 @@ void libera_operando(OperandoILOC *operando) {
    operando = NULL;
 }
 
-void libera_remendo(Remendo *remendo) {
-    if(remendo == NULL) return;
+void libera_head_remendo(Remendo *remendo) {
+   if(remendo == NULL) return;
 
-    libera_remendo(remendo->proximo);
+   //libera_remendo(remendo->proximo);
 
    free(remendo);
-   remendo = NULL;
 }
 
 void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) 
@@ -174,6 +173,17 @@ CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoIL
     return codigo;
 }
 
+void imprime_remendos(Remendo *remendo_lst) {
+   Remendo *aux = remendo_lst;
+   printf("\nImprimindo lista de remendos");
+   while(aux != NULL) {
+      printf("\n Remendo:");
+      imprime_operando(aux->operando);
+      aux = aux->proximo;
+   }
+   printf("\nFim.");
+}
+
 CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
 {
    CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
@@ -194,7 +204,7 @@ void imprime_codigo(CodigoILOC *codigo)
       switch(codigo->operacao)
       {
          case NOP:
-            printf("nop");
+            printf("nop\n"); return;
             break;
          case ADD:
             printf("add");
@@ -368,8 +378,8 @@ void imprime_operando(OperandoILOC *operando)
         
     if(operando->tipo == IMEDIATO)
         printf("%i", operando->valor);
-   //  else if(operando->tipo == REMENDO)
-   //      printf("REMENDO");
+    else if(operando->tipo == REMENDO)
+        printf("REMENDO");
     else printf("%s", operando->nome);
 
     if(operando->tipo == LABEL || operando->tipo == REMENDO)
