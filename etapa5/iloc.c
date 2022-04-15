@@ -83,7 +83,7 @@ void libera_operando(OperandoILOC *operando) {
 
 
    if(operando->tipo != REGISTRADOR_PONTEIRO) {
-      libera_nome(operando->nome);
+     libera_nome(operando->nome);
       operando->nome = NULL;
    }
 
@@ -122,11 +122,11 @@ OperandoILOC *gera_operando_imediato(int valor) {
 }
 
 OperandoILOC *gera_operando_registrador(char* nome) {
-   return _cria_operando(copia_nome(nome), 0, REGISTRADOR);
+   return _cria_operando(nome, 0, REGISTRADOR);
 }
 
 OperandoILOC *gera_operando_rotulo(char* nome) {
-   return _cria_operando(copia_nome(nome), 0, LABEL);
+   return _cria_operando(nome, 0, LABEL);
 }
 
 OperandoILOC *reg_rfp() {
@@ -179,7 +179,7 @@ CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoIL
 CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
 {
    CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
-   codigo->label = copia_nome(label);
+   codigo->label = label;
    return codigo;
 }
 
