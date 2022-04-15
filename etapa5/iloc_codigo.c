@@ -17,28 +17,25 @@ void _cria_codigo_com_label_append(Nodo *nodo, char *label, OperandoILOC *origem
    _append(nodo, codigo);
 }
 
+CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst)
+{
+	if(new_lst == NULL) return lst;
+
+   CodigoILOC *aux_new_lst = new_lst; //new_lst é o ponteiro que aponta para o FINAL de lista de codigo 
+   while(aux_new_lst->anterior != NULL) { //subo até o topo da instrução
+      aux_new_lst = aux_new_lst->anterior;
+   } //chega no inicio do codigo a ser adicionado
+   aux_new_lst->anterior = lst; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
+   lst = new_lst; //codigo inteiro no primeiro nodo
+
+   return lst;
+}
+
 void _append(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
 {
-   if(codigo_fim_ptr == NULL) return;
-   
-   CodigoILOC *aux = codigo_fim_ptr; //fim_Codigo é o ponteiro que aponta para o FINAL de lista de codigo 
-   while(aux->anterior != NULL) { //subo até o topo da instrução
-      aux = aux->anterior;
-   } //chega no inicio do codigo a ser adicionado
-   aux->anterior = nodo->codigo; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
-   nodo->codigo = codigo_fim_ptr; //codigo inteiro no primeiro nodo
+   nodo->codigo = _append_codigo(nodo->codigo, codigo_fim_ptr);
 }
 
-CodigoILOC *_append_codigo(CodigoILOC *codigo, CodigoILOC *codigo_head)
-{
-   if(codigo_head != NULL) {
-   	codigo_head->anterior = codigo;
-   }
-   
-   codigo = codigo_head;
-
-   return codigo;
-}
 
 void _append_nodo(Nodo *pai, Nodo *filho) {
 
@@ -264,20 +261,11 @@ void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	CodigoILOC *codigo = codigo_compara_logico(copia_operando(r3), remendo_true, remendo_false);
 
-	_append(operador, codigo);	
+	_append(operador, codigo);
 
 	operador->remendos_true = append_remendo(operador->remendos_true, remendo_true);
 
-	// printf("\n-----------------------");
-	// printf("\n>> remendo true aqui %p", remendo_true);
-	// print_remendos(operador->remendos_true);
-
 	operador->remendos_false = append_remendo(operador->remendos_false, remendo_false);
-
-	// printf("\n-----------------------");
-	// printf("\n>> remendo false aqui %p", remendo_false);
-	// print_remendos(operador->remendos_false);
-	// printf("\n-----------------------");
 }
 
 void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir) {
@@ -371,15 +359,15 @@ int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
 void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 
 	if(operador->tipo_operacao == nodo_sub) {
-      codigo_sub(operador, expr);
-   }
-   else if(operador->tipo_operacao == nodo_not) {
-      codigo_not(operador, expr);
-   }
+		codigo_sub(operador, expr);
+	}
+	else if(operador->tipo_operacao == nodo_not) {
+		codigo_not(operador, expr);
+	}
 	else {
-      _append_nodo(operador, expr);
+		_append_nodo(operador, expr);
 		operador->reg_resultado = expr->reg_resultado;
-    }
+	}
 }
 
 // load 0 -> r2
@@ -393,9 +381,11 @@ CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true,
 
 	CodigoILOC *codigo_cbr = instrucao_cbr(r3, op_label_true, op_label_false);
 
-	codigo_cbr->anterior = codigo_cmp_NE_0;
+	CodigoILOC *codigo = NULL;
+	codigo = _append_codigo(codigo, codigo_cmp_NE_0);
+	codigo = _append_codigo(codigo, codigo_cbr);
 
-	return codigo_cbr;
+	return codigo;
 }
 
 // rsubI r1, 0 => r3 // r3 = 0 - r1
@@ -428,15 +418,18 @@ CodigoILOC* instrucao_cbr(OperandoILOC *r1, OperandoILOC *op_label_true, Operand
 // cmp_NE r1, r2 -> r3 
 CodigoILOC* intrucoes_cmp_NE_0(OperandoILOC *r1) {
 
-   CodigoILOC *codigo_0 = instrucao_loadI(0, NULL);
+   	CodigoILOC *codigo_0 = instrucao_loadI(0, NULL);
 
-    OperandoILOC *r2 = copia_operando(codigo_0->destino);
-    OperandoILOC *r3 = gera_operando_registrador(gera_nome_registrador());
-    
-    CodigoILOC *codigo_cmp_NE = _cria_codigo(lista(r1, r2) , CMP_NE, r3);
+	OperandoILOC *r2 = copia_operando(codigo_0->destino);
+	OperandoILOC *r3 = gera_operando_registrador(gera_nome_registrador());
 
-    codigo_cmp_NE->anterior = codigo_0;
-    return codigo_cmp_NE;
+	CodigoILOC *codigo_cmp_NE = _cria_codigo(lista(r1, r2) , CMP_NE, r3);
+
+	CodigoILOC *codigo = NULL;
+	codigo = _append_codigo(codigo, codigo_0);
+	codigo = _append_codigo(codigo, codigo_cmp_NE);
+
+	return codigo;
 }
 
 CodigoILOC *instrucao_nop(char* label) {

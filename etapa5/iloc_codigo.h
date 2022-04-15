@@ -7,6 +7,7 @@ CodigoILOC *instrucao_loadI_reg(int valor, char *label, OperandoILOC *r2);
 CodigoILOC *instrucao_jumpI(OperandoILOC *destino);
 
 void _append(Nodo *nodo, CodigoILOC *codigo);
+CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst);
 void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_carrega_variavel(Nodo *nodo);

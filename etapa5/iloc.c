@@ -87,7 +87,7 @@ void libera_operando(OperandoILOC *operando) {
       operando->nome = NULL;
    }
 
-   free(operando);
+   free(operando); 
    operando = NULL;
 }
 
@@ -95,8 +95,6 @@ void libera_remendo(Remendo *remendo) {
     if(remendo == NULL) return;
 
     libera_remendo(remendo->proximo);
-
-    //libera_operando(remendo->operando);
 
    free(remendo);
    remendo = NULL;
@@ -370,8 +368,8 @@ void imprime_operando(OperandoILOC *operando)
         
     if(operando->tipo == IMEDIATO)
         printf("%i", operando->valor);
-    else if(operando->tipo == REMENDO)
-        printf("REMENDO");
+   //  else if(operando->tipo == REMENDO)
+   //      printf("REMENDO");
     else printf("%s", operando->nome);
 
     if(operando->tipo == LABEL || operando->tipo == REMENDO)
