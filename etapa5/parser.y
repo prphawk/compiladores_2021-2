@@ -87,13 +87,14 @@ extern int E4_CHECK_FLAG;
 %type<nodo> operador_binario_prec2
 %type<nodo> operador_binario_prec3
 %type<nodo> operador_binario_prec4
-%type<nodo> operador_binario_prec5
+%type<nodo> operador_binario_relacional
 %type<nodo> operador_unario
 %type<nodo> operador_asterisco
 %type<nodo> operador_binario_logico
 %type<nodo> operando_logico
 %type<nodo> expr_ternaria
 %type<nodo> expr_bin_aritmetica
+%type<nodo> expr_bin_aritmetica_0
 %type<nodo> expr_bin_aritmetica_1
 %type<nodo> expr_bin_aritmetica_2
 %type<nodo> expr_bin_aritmetica_3
@@ -363,36 +364,35 @@ literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_
          ;
 
 operador_binario_prec1: '^'     { $$ = adiciona_nodo($1); };
-operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->operador = nodo_mult; }
-                        | '/'   { $$ = adiciona_nodo($1); $$->operador = nodo_div;  }
+operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_mult; }
+                        | '/'   { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_div;  }
                         | '%'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->operador = nodo_add; } 
-                        | '-'   { $$ = adiciona_nodo($1); $$->operador = nodo_sub; }
+operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_add; } 
+                        | '-'   { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_sub; }
                         ;
 operador_binario_prec4: '&'     { $$ = adiciona_nodo($1); } 
                         | '|'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_prec5: '<'         { $$ = adiciona_nodo($1); $$->operador = nodo_LT; } 
-                        | '>'       { $$ = adiciona_nodo($1); $$->operador = nodo_GT; } 
-                        | TK_OC_LE  { $$ = adiciona_nodo($1); $$->operador = nodo_LE; }
-                        | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->operador = nodo_EQ; }
-                        | TK_OC_GE  { $$ = adiciona_nodo($1); $$->operador = nodo_GE; }
-                        | TK_OC_NE  { $$ = adiciona_nodo($1); $$->operador = nodo_NE; }
-                        | operador_binario_logico { $$ = $1; }
+operador_binario_relacional: '<'         { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LT; } 
+                        | '>'       { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_GT; } 
+                        | TK_OC_LE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LE; }
+                        | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_EQ; }
+                        | TK_OC_GE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_GE; }
+                        | TK_OC_NE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_NE; }
                         ;
 
 operador_asterisco: '*' { $$ = adiciona_nodo($1); } 
 
-operador_unario: '-' { $$ = adiciona_nodo($1); $$->operador = nodo_neg; }
+operador_unario: '-' { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_neg; }
                | '+' { $$ = adiciona_nodo($1); } 
-               | '!' { $$ = adiciona_nodo($1); $$->operador = nodo_not; }
+               | '!' { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_not; }
                | '&' { $$ = adiciona_nodo($1); } 
                | '?' { $$ = adiciona_nodo($1); }
                | '#' { $$ = adiciona_nodo($1); }
                ;
 
-operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->operador = nodo_and; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->operador = nodo_or; };
+operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_or; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_and; };
 
 expressao: expr_ternaria        { $$ = $1; }
         | expr_bin_aritmetica   { $$ = $1; }
@@ -420,14 +420,23 @@ expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao
                 if(E4_CHECK_FLAG) verifica_expr_ternaria($1, $3, $5, novo_nodo);
             };
 
-expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
-                | expr_bin_aritmetica operador_binario_prec5 expr_bin_aritmetica_1
+expr_bin_aritmetica: expr_bin_aritmetica_0 { $$ = $1; }
+                | expr_bin_aritmetica operador_binario_logico expr_bin_aritmetica_0
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
-                    codigo_expr_aritmetica($1, $2, $3);
+                    codigo_expr_logica($1, $2, $3);
+                };
+expr_bin_aritmetica_0: expr_bin_aritmetica_1 { $$ = $1; }
+                | expr_bin_aritmetica_0 operador_binario_relacional expr_bin_aritmetica_1 //TODO MUDAR NAS OUTRAS ETAPAS
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
+                    codigo_expr_logica($1, $2, $3);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2
@@ -522,7 +531,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
-                    codigo_logico($$);
+                    codigo_expr_logica($1, $2, $3);
 
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_logica 
@@ -531,7 +540,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
-                    codigo_logico($$);
+                    codigo_expr_logica($1, $2, $3);
                 }
                 | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica
                 {
@@ -539,7 +548,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
-                    codigo_logico($$);
+                    codigo_expr_logica($1, $2, $3);
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica
                 {
@@ -547,13 +556,13 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
-                    codigo_logico($$);
+                    codigo_expr_logica($1, $2, $3);
                 };
 
-expr_parenteses_logica: operando_logico { $$ = $1; codigo_expr_logica_booleano($$); } | '(' expr_bin_logica ')' { $$ = $2; };
+expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
 
-operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_booleano($$, 1); } 
-                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_carrega_booleano($$, 0); };
+operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_expr_logica_booleano($$, 1); } 
+                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_expr_logica_booleano($$, 0); };
 
 %%
 int yyerror (char const *s) {

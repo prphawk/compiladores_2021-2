@@ -2,8 +2,9 @@
 #include "iloc.h"
 #include "tabela_simbolos.h"
 
-CodigoILOC *instrucao_loadI(int valor);
-CodigoILOC *instrucao_jumpI(OperandoILOC* destino);
+CodigoILOC *instrucao_loadI(int valor, char *label);
+CodigoILOC *instrucao_loadI_reg(int valor, char *label, OperandoILOC *r2);
+CodigoILOC *instrucao_jumpI(OperandoILOC *destino);
 
 void _append(Nodo *nodo, CodigoILOC *codigo);
 void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
@@ -26,8 +27,14 @@ CodigoILOC* intrucoes_cmp_NE_0(OperandoILOC *r1);
 CodigoILOC *instrucao_nop(char* label);
 CodigoILOC* instrucao_cbr(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false);
 CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false);
+void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir);
+void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir);
+void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir);
+void codigo_expr_logica_booleano(Nodo *nodo, int valor);
 
 Remendo *cria_remendo(OperandoILOC *remendo_operando);
-void append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
-void remenda(Remendo *buracos, OperandoILOC *argamassa);
 Remendo *concat_remendos(Remendo *lst1, Remendo *lst2);
+Remendo * append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
+void remenda(Remendo *buracos, OperandoILOC *argamassa);
+
+CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final);

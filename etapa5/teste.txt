@@ -1,8 +1,5 @@
-int g(int i, int j, int k){
-}
 int f(){
-    float a <= 1;
-    int b;
-    int c;
-    a = 1+2;
+    int a, b, c, d, e, f;
+    bool boo;
+    boo = 1 > 2;
 }

@@ -98,19 +98,19 @@ OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo)
     return primeiro;
 }
 
-OperandoILOC *cria_operando_remendo() {
+OperandoILOC *gera_operando_remendo() {
    return _cria_operando(NULL, 0, REMENDO);
 }
 
-OperandoILOC *operando_imediato(int valor) {
+OperandoILOC *gera_operando_imediato(int valor) {
    return _cria_operando(NULL, valor, IMEDIATO);
 }
 
-OperandoILOC *operando_registrador(char* nome) {
+OperandoILOC *gera_operando_registrador(char* nome) {
    return _cria_operando(copia_nome(nome), 0, REGISTRADOR);
 }
 
-OperandoILOC *operando_label(char* nome) {
+OperandoILOC *gera_operando_rotulo(char* nome) {
    return _cria_operando(copia_nome(nome), 0, LABEL);
 }
 
@@ -355,5 +355,10 @@ void imprime_operando(OperandoILOC *operando)
         
     if(operando->tipo == IMEDIATO)
         printf("%i", operando->valor);
+    else if(operando->tipo == REMENDO)
+        printf("REMENDO");
     else printf("%s", operando->nome);
+
+    if(operando->tipo == LABEL || operando->tipo == REMENDO)
+      printf(" %p", operando);
 }
