@@ -3,7 +3,7 @@
 #define FALSE 0
 #define TRUE 1
 
-int print_stuff = 1;
+extern int print_ILOC_intermed_global;
 
 void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino) 
 {
@@ -61,22 +61,27 @@ Remendo *concat_remendos(Remendo *lst1, Remendo *lst2) {
 	return lst1;
 }
 
-void remenda(Remendo *buracos, OperandoILOC *argamassa) {
+void remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
 	if(argamassa == NULL) return;
 
-	Remendo *aux_buraco = buracos;
+	Remendo *aux_buraco;
 
-	while(aux_buraco != NULL) {
-		OperandoILOC *operando = aux_buraco->operando;
+	while(buraco_lst != NULL) {
+		OperandoILOC *operando = buraco_lst->operando;
 		operando->tipo = argamassa->tipo;
-		operando->nome = argamassa->nome;
+		operando->nome = copia_nome(argamassa->nome);
 
-		printf("\n>> remenda com ");
-		imprime_operando(operando);
-
-		aux_buraco = aux_buraco->proximo;
-		//free(aux_buraco);
+		if(print_ILOC_intermed_global) {
+			printf("\n>> remenda com ");
+			imprime_operando(operando);
+		}
+		
+		aux_buraco = buraco_lst;
+		buraco_lst = buraco_lst->proximo;
+		libera_remendo(aux_buraco); //menos o operando. ele é liberado pelo codigo de algm.
 	}
+
+	libera_operando(argamassa);
 }
 
 void print_remendos(Remendo *buracos) {
@@ -88,7 +93,6 @@ void print_remendos(Remendo *buracos) {
 		imprime_operando(aux_buraco->operando);
 
 		aux_buraco = aux_buraco->proximo;
-		//free(aux_buraco);
 	}
 }
 
@@ -139,12 +143,7 @@ void codigo_carrega_variavel(Nodo *nodo) {
 
    free(nome_malloc);
 
-	if(print_stuff) {
-		printf("\n>> OP: carrega variavel\n");
-		imprime_codigo(nodo->codigo);
-		printf("\n----------------------\n");
-
-   }
+	print_ILOC_intermed("Carrega variavel", nodo->codigo);
 }
 
 // loadI c1 => r2 // r2 = c1
@@ -158,10 +157,7 @@ void codigo_carrega_literal(Nodo *nodo) {
    
    nodo->reg_resultado = codigo->destino;
 
-   if(print_stuff) {
-		printf("\n>> OP: carrega literal\n");
-		imprime_codigo(codigo);
-   }
+	print_ILOC_intermed("Carrega literal", codigo);
 }
 
 CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
@@ -181,17 +177,16 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
 	OperandoILOC *operando_rotulo_final = gera_operando_rotulo(rotulo_final);
 	CodigoILOC *codigo_jump_rotulo_final = instrucao_jumpI(operando_rotulo_final);
 
+	CodigoILOC *codigo_jump_rotulo_final_copia = copia_codigo(codigo_jump_rotulo_final);
 	free(rotulo_true_malloc); free(rotulo_false_malloc); free(destino_nome_malloc);
 
 	CodigoILOC *codigo_lst = NULL;
 	codigo_lst = _append_codigo(codigo_lst, codigo_load_true); //se a expressao for true o remendado pula pra ca, atribui o booleano e depois pula pro final
 	codigo_lst = _append_codigo(codigo_lst, codigo_jump_rotulo_final);
 	codigo_lst = _append_codigo(codigo_lst, codigo_load_false);
-	codigo_lst = _append_codigo(codigo_lst, copia_codigo(codigo_jump_rotulo_final));
+	codigo_lst = _append_codigo(codigo_lst, codigo_jump_rotulo_final_copia);
 
 	expressao->reg_resultado = destino;
-
-	imprime_codigo(codigo_lst);
 
 	return codigo_lst;
 }
@@ -216,15 +211,12 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	}
 	origem = copia_operando(expressao->reg_resultado); //TODO CUIDAR!!!!!!!!!! TEM Q COPIAR SE FOR USAR EM NOVA INSTRUÇAO
 	_cria_codigo_com_label_append(atribuicao, rotulo_store, origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
+
+	libera_nome(rotulo_store);
 	
 	//atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
 
-   if(print_stuff) {
-      printf("\n>> OP: codigo atribuicao\n");
-      imprime_codigo(atribuicao->codigo);
-	printf("\n----------------------\n");
-
-   }
+	print_ILOC_intermed("Codigo atribuicao", atribuicao->codigo);
 }
 
 //Ex.: L1: add r1, r2 => r3
@@ -253,10 +245,7 @@ void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
    if(op_nome_malloc) free(op_nome_malloc); 
    free(r1_nome_malloc); free(r2_nome_malloc); free(r3_nome_malloc);
 
-   if(print_stuff) {
-      printf("\n>> OP: codigo expr aritmetica\n");
-      imprime_codigo(operador->codigo);
-   }
+	print_ILOC_intermed("Codigo expr aritmetica", operador->codigo);
 }
 
 void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir) {

@@ -3,6 +3,8 @@
 int global_num_rotulos = 1;
 int global_num_registradores = 1;
 
+extern int print_ILOC_intermed_global;
+
 char *gera_nome_rotulo()
 {
     return _gera_nome(1);
@@ -60,10 +62,8 @@ void libera_codigo(CodigoILOC *codigo) {
 
     libera_codigo(codigo->anterior);
 
-    if(codigo->label != NULL) {
-        free(codigo->label);
-        codigo->label = NULL;
-    }
+    libera_nome(codigo->label);
+    codigo->label = NULL;
 
     libera_operando(codigo->origem);
     libera_operando(codigo->destino);
@@ -72,19 +72,34 @@ void libera_codigo(CodigoILOC *codigo) {
     codigo = NULL;
 }
 
+void libera_nome(char *nome) {
+   if(nome != NULL) free(nome);
+}
+
 void libera_operando(OperandoILOC *operando) {
     if(operando == NULL) return;
 
     libera_operando(operando->proximo);
 
 
-   if(operando->nome != NULL && operando->tipo == REGISTRADOR) {
-      free(operando->nome);
+   if(operando->tipo != REGISTRADOR_PONTEIRO) {
+      libera_nome(operando->nome);
       operando->nome = NULL;
    }
 
    free(operando);
    operando = NULL;
+}
+
+void libera_remendo(Remendo *remendo) {
+    if(remendo == NULL) return;
+
+    libera_remendo(remendo->proximo);
+
+    //libera_operando(remendo->operando);
+
+   free(remendo);
+   remendo = NULL;
 }
 
 void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) 
@@ -361,4 +376,12 @@ void imprime_operando(OperandoILOC *operando)
 
     if(operando->tipo == LABEL || operando->tipo == REMENDO)
       printf(" %p", operando);
+}
+
+void print_ILOC_intermed(char* str, CodigoILOC *codigo) {
+   if(print_ILOC_intermed_global) {
+		printf("\n>> OP: %s\n", str);
+		imprime_codigo(codigo);
+		printf("\n----------------------\n");
+   }
 }
