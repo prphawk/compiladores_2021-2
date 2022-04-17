@@ -102,7 +102,7 @@ void libera_codigo(CodigoILOC *codigo) {
     codigo->label = NULL;
 
     libera_operando(codigo->origem);
-    //libera_operando(codigo->destino);
+    libera_operando(codigo->destino);
 
     free(codigo);
     codigo = NULL;
