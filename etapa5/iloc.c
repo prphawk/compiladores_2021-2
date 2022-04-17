@@ -49,11 +49,47 @@ OperandoILOC *copia_operando(OperandoILOC *operando) {
 
    if(operando == NULL) return NULL;
 
+   if(operando->tipo == REMENDO) {
+      return operando;
+   }
+
     OperandoILOC *copia = malloc(sizeof(OperandoILOC));
     copia->nome = copia_nome(operando->nome);
     copia->valor = operando->valor;
     copia->tipo = operando->tipo;
     copia->proximo = copia_operando(operando->proximo);
+    return copia;
+}
+
+Remendo *substitui_remendo(Remendo *lst, OperandoILOC *velho, OperandoILOC *novo) {
+   Remendo *aux = lst;
+   
+   while(aux != NULL) {
+      if(aux->operando == velho) {
+         aux->operando = novo;
+      }
+      aux = aux->proximo;
+   }
+
+   return lst;
+}
+
+OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_false, OperandoILOC *operando) {
+
+   if(operando == NULL) return NULL;
+
+    OperandoILOC *copia = malloc(sizeof(OperandoILOC));
+    copia->nome = copia_nome(operando->nome);
+    copia->valor = operando->valor;
+    copia->tipo = operando->tipo;
+
+   if(operando->tipo == REMENDO) {
+      substitui_remendo(lst_true, operando, copia);
+      substitui_remendo(lst_false, operando, copia);
+   }
+
+    copia->proximo = copia_operando_repassa_remendo(lst_true, lst_false, operando->proximo);
+
     return copia;
 }
 
@@ -66,7 +102,7 @@ void libera_codigo(CodigoILOC *codigo) {
     codigo->label = NULL;
 
     libera_operando(codigo->origem);
-    libera_operando(codigo->destino);
+    //libera_operando(codigo->destino);
 
     free(codigo);
     codigo = NULL;
@@ -156,6 +192,22 @@ CodigoILOC *copia_codigo(CodigoILOC *codigo) {
 	copia->origem = copia_operando(codigo->origem);
 	copia->operacao = codigo->operacao;
 	copia->destino = copia_operando(codigo->destino);
+	copia->anterior = copia_codigo(codigo->anterior);
+
+   if(codigo)
+
+   return copia;
+}
+
+CodigoILOC *copia_codigo_repassa_remendo(CodigoILOC *codigo, Remendo *lst_true, Remendo *lst_false) {
+
+	if(codigo == NULL) return NULL;
+
+	CodigoILOC *copia = malloc(sizeof(CodigoILOC));
+	copia->label = copia_nome(codigo->label);
+	copia->origem = copia_operando_repassa_remendo(lst_true, lst_false, codigo->origem);
+	copia->operacao = codigo->operacao;
+	copia->destino = copia_operando_repassa_remendo(lst_true, lst_false, codigo->destino);
 	copia->anterior = copia_codigo(codigo->anterior);
 
    return copia;

@@ -116,7 +116,9 @@ OperandoILOC *reg_rpc();
 
 char* copia_nome(char *nome);
 OperandoILOC *copia_operando(OperandoILOC *operando);
+OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_false, OperandoILOC *operando);
 CodigoILOC *copia_codigo(CodigoILOC *codigo);
+CodigoILOC *copia_codigo_repassa_remendo(CodigoILOC *codigo, Remendo *lst_true, Remendo *lst_false);
 CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 

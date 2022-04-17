@@ -39,9 +39,7 @@ void _append(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
 
 void _append_nodo(Nodo *pai, Nodo *filho) {
 
-   CodigoILOC *filho_cod_ptr = filho->codigo;
-
-   CodigoILOC *copia_filho_cod_ptr = copia_codigo(filho_cod_ptr);
+   CodigoILOC *copia_filho_cod_ptr = copia_codigo_repassa_remendo(filho->codigo, filho->remendos_true, filho->remendos_false);
 
    _append(pai, copia_filho_cod_ptr);
 }
@@ -67,21 +65,8 @@ Remendo *remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
 	while(buraco_lst != NULL) {
 		OperandoILOC *operando = buraco_lst->operando;
 
-		// if(print_ILOC_intermed_global) {
-			
-		// 	printf("\n>> antes ");
-		// 	imprime_operando(operando);
-		// }
-
 		operando->tipo = argamassa->tipo;
 		operando->nome = copia_nome(argamassa->nome);
-
-		printf("\n>>%p", operando);
-
-		if(print_ILOC_intermed_global) {
-			printf("\n>> remenda resultado:");
-			imprime_operando(operando);
-		}
 		
 		aux_buraco = buraco_lst;
 		buraco_lst = buraco_lst->proximo;
@@ -111,7 +96,8 @@ void print_remendos(Remendo *buracos) {
 Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando) {
 	if(remendo_operando == NULL) return remendo_lst;
 
-	Remendo *remendo = cria_remendo(remendo_operando);
+	Remendo *remendo = cria_remendo();
+	remendo->operando = remendo_operando;
 
 	if(remendo_lst == NULL) {
 		remendo_lst = remendo;
@@ -133,9 +119,9 @@ int tem_buracos(Nodo *nodo) {
 	return FALSE;
 }
 
-Remendo *cria_remendo(OperandoILOC *remendo_operando) {
+Remendo *cria_remendo() {
 	Remendo *remendo = malloc(sizeof(Remendo));
-	remendo->operando = remendo_operando;
+	remendo->operando = NULL;
 	remendo->proximo = NULL;
 	return remendo;
 }
@@ -308,12 +294,6 @@ void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	operador->remendos_false = concat_remendos(esq->remendos_false, dir->remendos_false);
 
-	// printf("\nagr os true do and");
-	// print_remendos(operador->remendos_true);
-	// printf("\nagr os false do and");
-	// print_remendos(operador->remendos_false);
-	// printf("\n--------------------------");
-
 	_append_nodo(operador, esq);
 	_append(operador, instrucao_nop(rotulo_copia));
    _append_nodo(operador, dir);
@@ -331,7 +311,7 @@ void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	_append_nodo(operador, esq);
 	_append(operador, instrucao_nop(rotulo_copia));
-    _append_nodo(operador, dir);
+   _append_nodo(operador, dir);
 }
 
 void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
@@ -349,13 +329,6 @@ void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
 	}
 
 	_append(nodo, codigo);
-
-
-	// printf("\nremendos true de um booleano:");
-	// print_remendos(nodo->remendos_true);
-	// printf("\nremendos false de um booleano:");
-	// print_remendos(nodo->remendos_false);
-	// printf("\n--------------------------");
 }
 
 void codigo_not(Nodo *operador, Nodo *expr) {

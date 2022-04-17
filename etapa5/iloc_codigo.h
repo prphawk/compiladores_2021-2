@@ -32,9 +32,8 @@ void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir);
 void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir);
-void codigo_expr_logica_booleano(Nodo *nodo, int valor);
 
-Remendo *cria_remendo(OperandoILOC *remendo_operando);
+Remendo *cria_remendo();
 Remendo *concat_remendos(Remendo *lst1, Remendo *lst2);
 Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
 Remendo *remenda(Remendo *buracos, OperandoILOC *argamassa);
