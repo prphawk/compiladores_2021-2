@@ -374,7 +374,7 @@ operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->tipo_operacao = no
 operador_binario_prec4: '&'     { $$ = adiciona_nodo($1); } 
                         | '|'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_relacional: '<'         { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LT; } 
+operador_binario_relacional: '<'    { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LT; } 
                         | '>'       { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_GT; } 
                         | TK_OC_LE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LE; }
                         | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_EQ; }

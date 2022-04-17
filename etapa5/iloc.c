@@ -49,11 +49,47 @@ OperandoILOC *copia_operando(OperandoILOC *operando) {
 
    if(operando == NULL) return NULL;
 
+   if(operando->tipo == REMENDO) {
+      return operando;
+   }
+
     OperandoILOC *copia = malloc(sizeof(OperandoILOC));
     copia->nome = copia_nome(operando->nome);
     copia->valor = operando->valor;
     copia->tipo = operando->tipo;
     copia->proximo = copia_operando(operando->proximo);
+    return copia;
+}
+
+Remendo *substitui_remendo(Remendo *lst, OperandoILOC *velho, OperandoILOC *novo) {
+   Remendo *aux = lst;
+   
+   while(aux != NULL) {
+      if(aux->operando == velho) {
+         aux->operando = novo;
+      }
+      aux = aux->proximo;
+   }
+
+   return lst;
+}
+
+OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_false, OperandoILOC *operando) {
+
+   if(operando == NULL) return NULL;
+
+    OperandoILOC *copia = malloc(sizeof(OperandoILOC));
+    copia->nome = copia_nome(operando->nome);
+    copia->valor = operando->valor;
+    copia->tipo = operando->tipo;
+
+   if(operando->tipo == REMENDO) {
+      substitui_remendo(lst_true, operando, copia);
+      substitui_remendo(lst_false, operando, copia);
+   }
+
+    copia->proximo = copia_operando_repassa_remendo(lst_true, lst_false, operando->proximo);
+
     return copia;
 }
 
@@ -66,7 +102,7 @@ void libera_codigo(CodigoILOC *codigo) {
     codigo->label = NULL;
 
     libera_operando(codigo->origem);
-    libera_operando(codigo->destino);
+    //libera_operando(codigo->destino);
 
     free(codigo);
     codigo = NULL;
@@ -91,13 +127,12 @@ void libera_operando(OperandoILOC *operando) {
    operando = NULL;
 }
 
-void libera_remendo(Remendo *remendo) {
-    if(remendo == NULL) return;
+void libera_head_remendo(Remendo *remendo) {
+   if(remendo == NULL) return;
 
-    libera_remendo(remendo->proximo);
+   //libera_remendo(remendo->proximo);
 
    free(remendo);
-   remendo = NULL;
 }
 
 void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo) 
@@ -159,6 +194,22 @@ CodigoILOC *copia_codigo(CodigoILOC *codigo) {
 	copia->destino = copia_operando(codigo->destino);
 	copia->anterior = copia_codigo(codigo->anterior);
 
+   if(codigo)
+
+   return copia;
+}
+
+CodigoILOC *copia_codigo_repassa_remendo(CodigoILOC *codigo, Remendo *lst_true, Remendo *lst_false) {
+
+	if(codigo == NULL) return NULL;
+
+	CodigoILOC *copia = malloc(sizeof(CodigoILOC));
+	copia->label = copia_nome(codigo->label);
+	copia->origem = copia_operando_repassa_remendo(lst_true, lst_false, codigo->origem);
+	copia->operacao = codigo->operacao;
+	copia->destino = copia_operando_repassa_remendo(lst_true, lst_false, codigo->destino);
+	copia->anterior = copia_codigo(codigo->anterior);
+
    return copia;
 }
 
@@ -172,6 +223,17 @@ CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoIL
     codigo->anterior = NULL;
 
     return codigo;
+}
+
+void imprime_remendos(Remendo *remendo_lst) {
+   Remendo *aux = remendo_lst;
+   printf("\nImprimindo lista de remendos");
+   while(aux != NULL) {
+      printf("\n Remendo:");
+      imprime_operando(aux->operando);
+      aux = aux->proximo;
+   }
+   printf("\nFim.");
 }
 
 CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
@@ -194,7 +256,7 @@ void imprime_codigo(CodigoILOC *codigo)
       switch(codigo->operacao)
       {
          case NOP:
-            printf("nop");
+            printf("nop\n"); return;
             break;
          case ADD:
             printf("add");
@@ -368,8 +430,8 @@ void imprime_operando(OperandoILOC *operando)
         
     if(operando->tipo == IMEDIATO)
         printf("%i", operando->valor);
-   //  else if(operando->tipo == REMENDO)
-   //      printf("REMENDO");
+    else if(operando->tipo == REMENDO)
+        printf("REMENDO");
     else printf("%s", operando->nome);
 
     if(operando->tipo == LABEL || operando->tipo == REMENDO)

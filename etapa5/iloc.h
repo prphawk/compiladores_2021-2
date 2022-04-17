@@ -103,7 +103,7 @@ OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
 void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
 void libera_nome(char *nome);
-void libera_remendo(Remendo *remendo);
+void libera_head_remendo(Remendo *remendo);
 
 OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
 OperandoILOC *gera_operando_remendo();
@@ -116,12 +116,15 @@ OperandoILOC *reg_rpc();
 
 char* copia_nome(char *nome);
 OperandoILOC *copia_operando(OperandoILOC *operando);
+OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_false, OperandoILOC *operando);
 CodigoILOC *copia_codigo(CodigoILOC *codigo);
+CodigoILOC *copia_codigo_repassa_remendo(CodigoILOC *codigo, Remendo *lst_true, Remendo *lst_false);
 CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 
 void imprime_codigo(CodigoILOC *codigo);
 void imprime_operandos(OperandoILOC *operando);
 void imprime_operando(OperandoILOC *operando);
+void imprime_remendos(Remendo *remendo_lst);
 
 void print_ILOC_intermed(char* str, CodigoILOC *codigo);

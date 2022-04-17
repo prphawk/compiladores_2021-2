@@ -21,14 +21,14 @@ CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst)
 {
 	if(new_lst == NULL) return lst;
 
-   CodigoILOC *aux_new_lst = new_lst; //new_lst é o ponteiro que aponta para o FINAL de lista de codigo 
-   while(aux_new_lst->anterior != NULL) { //subo até o topo da instrução
-      aux_new_lst = aux_new_lst->anterior;
-   } //chega no inicio do codigo a ser adicionado
-   aux_new_lst->anterior = lst; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
-   lst = new_lst; //codigo inteiro no primeiro nodo
+	CodigoILOC *aux_new_lst = new_lst; //new_lst é o ponteiro que aponta para o FINAL de lista de codigo 
+	while(aux_new_lst->anterior != NULL) { //subo até o topo da instrução
+		aux_new_lst = aux_new_lst->anterior;
+	} //chega no inicio do codigo a ser adicionado
+	aux_new_lst->anterior = lst; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
+	lst = new_lst; //codigo inteiro no primeiro nodo
 
-   return lst;
+	return lst;
 }
 
 void _append(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
@@ -39,9 +39,7 @@ void _append(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
 
 void _append_nodo(Nodo *pai, Nodo *filho) {
 
-   CodigoILOC *filho_cod_ptr = filho->codigo;
-
-   CodigoILOC *copia_filho_cod_ptr = copia_codigo(filho_cod_ptr);
+   CodigoILOC *copia_filho_cod_ptr = copia_codigo_repassa_remendo(filho->codigo, filho->remendos_true, filho->remendos_false);
 
    _append(pai, copia_filho_cod_ptr);
 }
@@ -58,30 +56,32 @@ Remendo *concat_remendos(Remendo *lst1, Remendo *lst2) {
 	return lst1;
 }
 
-void remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
-	if(argamassa == NULL) return;
+Remendo *remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
+	if(argamassa == NULL) return buraco_lst;
+
 
 	Remendo *aux_buraco;
 
 	while(buraco_lst != NULL) {
 		OperandoILOC *operando = buraco_lst->operando;
+
 		operando->tipo = argamassa->tipo;
 		operando->nome = copia_nome(argamassa->nome);
-
-		if(print_ILOC_intermed_global) {
-			printf("\n>> remenda com ");
-			imprime_operando(operando);
-		}
 		
 		aux_buraco = buraco_lst;
 		buraco_lst = buraco_lst->proximo;
-		libera_remendo(aux_buraco); //menos o operando. ele é liberado pelo codigo de algm.
+
+		libera_head_remendo(aux_buraco); //menos o operando. ele é liberado pelo codigo de algm.
 	}
 
 	libera_operando(argamassa);
+	return buraco_lst;
 }
 
 void print_remendos(Remendo *buracos) {
+
+	if(!print_ILOC_intermed_global) return;
+
 	Remendo *aux_buraco = buracos;
 
 	while(aux_buraco != NULL) {
@@ -96,7 +96,8 @@ void print_remendos(Remendo *buracos) {
 Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando) {
 	if(remendo_operando == NULL) return remendo_lst;
 
-	Remendo *remendo = cria_remendo(remendo_operando);
+	Remendo *remendo = cria_remendo();
+	remendo->operando = remendo_operando;
 
 	if(remendo_lst == NULL) {
 		remendo_lst = remendo;
@@ -118,9 +119,9 @@ int tem_buracos(Nodo *nodo) {
 	return FALSE;
 }
 
-Remendo *cria_remendo(OperandoILOC *remendo_operando) {
+Remendo *cria_remendo() {
 	Remendo *remendo = malloc(sizeof(Remendo));
-	remendo->operando = remendo_operando;
+	remendo->operando = NULL;
 	remendo->proximo = NULL;
 	return remendo;
 }
@@ -168,11 +169,15 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
 
 	char *rotulo_true = gera_nome_rotulo();
 	char *rotulo_false = gera_nome_rotulo();
+	
 	char *rotulo_true_copia = copia_nome(rotulo_true); //pq o operando q remenda eh liberado dps do remendo mas ainda precisa do rotulo
 	char *rotulo_false_copia = copia_nome(rotulo_false);
 
-	remenda(expressao->remendos_true, gera_operando_rotulo(rotulo_true));
-	remenda(expressao->remendos_false, gera_operando_rotulo(rotulo_false));
+	OperandoILOC *op_remendo_true = gera_operando_rotulo(rotulo_true);
+	OperandoILOC *op_remendo_false = gera_operando_rotulo(rotulo_false);
+
+	expressao->remendos_true = remenda(expressao->remendos_true, op_remendo_true);
+	expressao->remendos_false = remenda(expressao->remendos_false, op_remendo_false);
 
 	CodigoILOC *codigo_load_true 	= instrucao_loadI_reg(1, rotulo_true_copia, destino);
 	CodigoILOC *codigo_load_false = instrucao_loadI_reg(0, rotulo_false_copia, copia_operando(destino));
@@ -242,32 +247,6 @@ void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 	print_ILOC_intermed("Codigo expr aritmetica", operador->codigo);
 }
 
-void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir) {
-
-	OperandoILOC *remendo_true = gera_operando_remendo();
-	OperandoILOC *remendo_false = gera_operando_remendo();
-
-   OperandoILOC *r1, *r2, *r3 = gera_operando_registrador(gera_nome_registrador());
-
-	r1 = copia_operando(esq->reg_resultado);
-   r2 = copia_operando(dir->reg_resultado);
-
-    _append_nodo(operador, esq);
-    _append_nodo(operador, dir);
-
-	_cria_codigo_append(operador, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
-
-	operador->reg_resultado = r3;
-
-	CodigoILOC *codigo = codigo_compara_logico(copia_operando(r3), remendo_true, remendo_false);
-
-	_append(operador, codigo);
-
-	operador->remendos_true = append_remendo(operador->remendos_true, remendo_true);
-
-	operador->remendos_false = append_remendo(operador->remendos_false, remendo_false);
-}
-
 void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir) {
 
 	if(nodo_operador->tipo_operacao == nodo_and) {
@@ -279,41 +258,60 @@ void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir) {
 		codigo_expr_logica_relacional(esq, nodo_operador, dir);
 }
 
+void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir) {
+
+	OperandoILOC *op_remendo_true = gera_operando_remendo();
+	OperandoILOC *op_remendo_false = gera_operando_remendo();
+
+   OperandoILOC *r1, *r2, *r3 = gera_operando_registrador(gera_nome_registrador());
+
+	r1 = copia_operando(esq->reg_resultado);
+   r2 = copia_operando(dir->reg_resultado);
+
+	_append_nodo(operador, esq);
+	_append_nodo(operador, dir);
+
+	_cria_codigo_append(operador, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
+
+	operador->reg_resultado = r3;
+
+	CodigoILOC *codigo = codigo_compara_logico(copia_operando(r3), op_remendo_true, op_remendo_false);
+
+	_append(operador, codigo);
+
+	operador->remendos_true = append_remendo(operador->remendos_true, op_remendo_true);
+	operador->remendos_false = append_remendo(operador->remendos_false, op_remendo_false);
+}
+
 void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	char *rotulo = gera_nome_rotulo();
+	char *rotulo_copia = copia_nome(rotulo);
 
-	print_remendos(esq->remendos_true);
-
-	remenda(esq->remendos_true, gera_operando_rotulo(rotulo));
-
-	print_remendos(esq->remendos_true);
-	printf("\n");
+	esq->remendos_true = remenda(esq->remendos_true, gera_operando_rotulo(rotulo));
 
 	operador->remendos_true = dir->remendos_true;
+
 	operador->remendos_false = concat_remendos(esq->remendos_false, dir->remendos_false);
 
 	_append_nodo(operador, esq);
-	_append(operador, instrucao_nop(copia_nome(rotulo)));
-    _append_nodo(operador, dir);
+	_append(operador, instrucao_nop(rotulo_copia));
+   _append_nodo(operador, dir);
 }
 
 void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	char *rotulo = gera_nome_rotulo();
+	char *rotulo_copia = copia_nome(rotulo);
 
-	print_remendos(esq->remendos_true);
-	remenda(esq->remendos_false, gera_operando_rotulo(rotulo));
-
-	print_remendos(esq->remendos_true);
-	printf("\n");
+	esq->remendos_false = remenda(esq->remendos_false, gera_operando_rotulo(rotulo));
 
 	operador->remendos_false = dir->remendos_false;
 	operador->remendos_true = concat_remendos(esq->remendos_true, dir->remendos_true);
 
 	_append_nodo(operador, esq);
-	_append(operador, instrucao_nop(copia_nome(rotulo)));
-    _append_nodo(operador, dir);
+	_append(operador, instrucao_nop(rotulo_copia));
+   _append_nodo(operador, dir);
 }
 
 void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
@@ -322,13 +320,15 @@ void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
 
    CodigoILOC *codigo = instrucao_jumpI(op_remendo);
 
-   _append(nodo, codigo);
-
-	if(valor) {
+	if(valor == TRUE) {
 		nodo->remendos_true = append_remendo(nodo->remendos_true, op_remendo);
+		nodo->remendos_false = NULL;
 	} else {
+		nodo->remendos_true = NULL;
 		nodo->remendos_false = append_remendo(nodo->remendos_false, op_remendo);
 	}
+
+	_append(nodo, codigo);
 }
 
 void codigo_not(Nodo *operador, Nodo *expr) {
