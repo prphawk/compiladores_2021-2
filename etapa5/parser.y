@@ -73,6 +73,7 @@ extern int E4_CHECK_FLAG;
 %type<nodo> variavel_ou_vetor
 %type<nodo> lista_nome_variavel_local
 %type<nodo> declaracao_var_local
+%type<nodo> tipo_e_lista_var_local
 %type<nodo> comando_simples
 %type<nodo> comando_atribuicao
 %type<nodo> comando_entrada
@@ -128,7 +129,7 @@ declaracoes: declaracao declaracoes
                 if ($1!=NULL) { 
                     adiciona_filho($1, $2); 
                     $$ = $1; 
-                    //_append_nodo($$, $2);
+                    _append_nodo($$, $2);
                 }
                 else $$ = $2;       
             } 
@@ -160,15 +161,14 @@ corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
-                    //_append_nodo($1, $2); //TODO tirar isso dps?
+                    _append_nodo($1, $2); //TODO tirar isso dps?
                     $$ = $1;
                 };
 
 cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };
 cabecalho_1: cabecalho_2 cabecalho_3 parametros ')' 
             { 
-                adiciona_parametros_escopo_anterior($1); /* como a gramática não permite declarar funções 
-                dentro de funções é certo que a função procurada vai estar no escopo imediatamente anterior*/
+                adiciona_parametros_escopo_anterior($1);
                 $$ = $1; 
             }
 cabecalho_2: tipo TK_IDENTIFICADOR
@@ -200,7 +200,7 @@ lista_comandos: comando_simples ';' lista_comandos
                     if($1==NULL) $$ = $3;
                     else { 
                         adiciona_filho($1, $3); $$ = $1; 
-                        //_append_nodo($1, $3);
+                        _append_nodo($1, $3);
                     }
                 }
                 | { $$ = NULL; };
@@ -231,17 +231,26 @@ comando_simples: declaracao_var_local   { $$ = $1;}
                | bloco_comandos         { $$ = $1;}
                ;
 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); if(E4_CHECK_FLAG) verifica_inicializacao($3, $4); }
-                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); if(E4_CHECK_FLAG) verifica_inicializacao($2, $3); }
-                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); if(E4_CHECK_FLAG) verifica_inicializacao($2, $3); }
-                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); if(E4_CHECK_FLAG) verifica_inicializacao($1, $2); }
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo_e_lista_var_local   { $$ = $3; }
+                     | TK_PR_CONST tipo_e_lista_var_local               { $$ = $2; }
+                     | TK_PR_STATIC tipo_e_lista_var_local              { $$ = $2; }
+                     | tipo_e_lista_var_local                           { $$ = $1; }
                      ;
+
+tipo_e_lista_var_local: tipo lista_nome_variavel_local //TODO mudar no resto das etapas
+                    { 
+                        $$ = $2;
+                        insere_tipo_identificador_pilha($1); 
+                        verifica_inicializacao($1, $2);
+                        codigo_update_deslocamento($$);
+                    };
 
 lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local
                         {
                             if ($1!=NULL) {
                                 adiciona_filho($1, $3);
                                 $$ = $1;
+                                _append_nodo($1, $3);
                             }
                             else $$ = $3;       
                         }   
@@ -256,7 +265,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel_ou_literal 
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                     insere_variavel_sem_tipo_pilha($1);
-                                    //codigo_atribuicao(identificador_nodo, $$, $3);
+                                    codigo_atribuicao(identificador_nodo, $$, $3);
                                 }
                                 | TK_IDENTIFICADOR { 
                                     insere_variavel_sem_tipo_pilha($1);

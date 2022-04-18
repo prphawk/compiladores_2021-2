@@ -231,6 +231,6 @@ void _imprime_filhos(Nodo *nodo) {
 void imprime_codigo_ILOC()
 {
     Nodo *root = arvore;
-   _imprime_arvore(root, 0);
+   //_imprime_arvore(root, 0);
    imprime_codigo(root->codigo);
 }

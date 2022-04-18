@@ -10,6 +10,7 @@ void _append(Nodo *nodo, CodigoILOC *codigo);
 CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst);
 void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
+void codigo_update_deslocamento(Nodo *nodo);
 void codigo_carrega_variavel(Nodo *nodo);
 void codigo_expr_logica_booleano(Nodo *nodo, int valor);
 void codigo_carrega_literal(Nodo *nodo);
