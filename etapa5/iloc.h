@@ -115,6 +115,7 @@ OperandoILOC *reg_rbss();
 OperandoILOC *reg_rpc();
 
 char* copia_nome(char *nome);
+char* copia_nome_operando(char *nome, TipoOperando tipo);
 OperandoILOC *copia_operando(OperandoILOC *operando);
 OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_false, OperandoILOC *operando);
 CodigoILOC *copia_codigo(CodigoILOC *codigo);

@@ -66,7 +66,7 @@ Remendo *remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
 		OperandoILOC *operando = buraco_lst->operando;
 
 		operando->tipo = argamassa->tipo;
-		operando->nome = copia_nome(argamassa->nome);
+		operando->nome = copia_nome_operando(argamassa->nome, argamassa->tipo);
 		
 		aux_buraco = buraco_lst;
 		buraco_lst = buraco_lst->proximo;
@@ -76,21 +76,6 @@ Remendo *remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
 
 	libera_operando(argamassa);
 	return buraco_lst;
-}
-
-void print_remendos(Remendo *buracos) {
-
-	if(!print_ILOC_intermed_global) return;
-
-	Remendo *aux_buraco = buracos;
-
-	while(aux_buraco != NULL) {
-	
-		printf("\n>> print remendo ");
-		imprime_operando(aux_buraco->operando);
-
-		aux_buraco = aux_buraco->proximo;
-	}
 }
 
 Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando) {
@@ -196,6 +181,57 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
 	expressao->reg_resultado = destino;
 
 	return codigo_lst;
+}
+
+/*
+S -> 	if { B.t=rot(); B.f=rot(); }
+		(B) { S1 .next=S.next; }
+		S1 else { S2.next=S.next; }
+		S2 { S.code=B.code || gera(B.t:) || S1.code ||
+		gera(goto S.next) || gera(B.f:); || S2.code }
+*/
+void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_false) {
+	
+	//eu não tenho TEMPO pra refatorar isso aqui, bear with me:
+
+	char *rotulo_fim 			= gera_nome_rotulo();
+	char *rotulo_true 		= gera_nome_rotulo();
+	char *rotulo_false 		= NULL;
+	CodigoILOC *codigo_nop_false		 = NULL;
+	CodigoILOC *codigo_jump_fim_copia = NULL;
+
+	expressao->remendos_true 		= remenda(expressao->remendos_true, gera_operando_rotulo(copia_nome(rotulo_true)));
+
+	CodigoILOC *codigo_nop_true 	= instrucao_nop(rotulo_true);
+	CodigoILOC *codigo_jump_fim 	= instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_fim)));
+
+	if(bloco_false != NULL) {
+		rotulo_false = gera_nome_rotulo();
+		codigo_nop_false 	= instrucao_nop(copia_nome(rotulo_false));
+
+		codigo_jump_fim_copia = copia_codigo(codigo_jump_fim);
+	} else {
+		rotulo_false = copia_nome(rotulo_fim);
+	}
+
+	expressao->remendos_false		 = remenda(expressao->remendos_false, gera_operando_rotulo(rotulo_false));
+
+	CodigoILOC *codigo_nop_fim 	 = instrucao_nop(rotulo_fim);
+
+	_append_nodo(nodo, expressao);
+	_append(nodo, codigo_nop_true);
+	_append_nodo(nodo, bloco_true);
+	_append(nodo, codigo_jump_fim);
+
+	if(bloco_false != NULL) {
+		_append(nodo, codigo_nop_false);
+		_append_nodo(nodo, bloco_false);
+		_append(nodo, codigo_jump_fim_copia);
+	}
+
+	_append(nodo, codigo_nop_fim);
+
+	print_ILOC_intermed("Codigo if else", nodo->codigo);
 }
 
 
@@ -465,3 +501,18 @@ CodigoILOC *instrucao_jumpI(OperandoILOC* destino) {
 }
 
 //#endregion Instrução 
+
+void print_remendos(Remendo *buracos) {
+
+	if(!print_ILOC_intermed_global) return;
+
+	Remendo *aux_buraco = buracos;
+
+	while(aux_buraco != NULL) {
+	
+		printf("\n>> print remendo ");
+		imprime_operando(aux_buraco->operando);
+
+		aux_buraco = aux_buraco->proximo;
+	}
+}

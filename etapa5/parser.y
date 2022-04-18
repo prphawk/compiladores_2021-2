@@ -312,20 +312,22 @@ comando_retorno: TK_PR_RETURN expressao
                 };
 
 comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos 
-                        {
-                            Nodo *novo_nodo = adiciona_nodo_label("if");
-                            adiciona_filho(novo_nodo, $3);
-                            adiciona_filho(novo_nodo, $5);
-                            $$ = novo_nodo;
-                        }
+                    {
+                        Nodo *novo_nodo = adiciona_nodo_label("if");
+                        adiciona_filho(novo_nodo, $3);
+                        adiciona_filho(novo_nodo, $5);
+                        $$ = novo_nodo;
+                        codigo_if_else($$, $3, $5, NULL);
+                    }
                      | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos
-                        {
-                            Nodo *novo_nodo = adiciona_nodo_label("if");
-                            adiciona_filho(novo_nodo, $3);
-                            adiciona_filho(novo_nodo, $5);
-                            adiciona_filho(novo_nodo, $7);
-                            $$ = novo_nodo;
-                        }
+                    {
+                        Nodo *novo_nodo = adiciona_nodo_label("if");
+                        adiciona_filho(novo_nodo, $3);
+                        adiciona_filho(novo_nodo, $5);
+                        adiciona_filho(novo_nodo, $7);
+                        $$ = novo_nodo;
+                        codigo_if_else($$, $3, $5, $7);
+                    }
                      ;
 
 comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_atribuicao')' bloco_comandos

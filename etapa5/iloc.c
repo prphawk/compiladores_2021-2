@@ -54,7 +54,7 @@ OperandoILOC *copia_operando(OperandoILOC *operando) {
    }
 
     OperandoILOC *copia = malloc(sizeof(OperandoILOC));
-    copia->nome = copia_nome(operando->nome);
+    copia->nome = copia_nome_operando(operando->nome, operando->tipo);
     copia->valor = operando->valor;
     copia->tipo = operando->tipo;
     copia->proximo = copia_operando(operando->proximo);
@@ -77,9 +77,9 @@ Remendo *substitui_remendo(Remendo *lst, OperandoILOC *velho, OperandoILOC *novo
 OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_false, OperandoILOC *operando) {
 
    if(operando == NULL) return NULL;
-
+ 
     OperandoILOC *copia = malloc(sizeof(OperandoILOC));
-    copia->nome = copia_nome(operando->nome);
+    copia->nome = copia_nome_operando(operando->nome, operando->tipo);
     copia->valor = operando->valor;
     copia->tipo = operando->tipo;
 
@@ -181,6 +181,11 @@ OperandoILOC *reg_rpc() {
 char* copia_nome(char *nome) {
    if(nome == NULL) return NULL;
    return strdup(nome);
+}
+
+char* copia_nome_operando(char *nome, TipoOperando tipo) {
+   if(tipo == REGISTRADOR_PONTEIRO) return nome;
+   return copia_nome(nome);
 }
 
 CodigoILOC *copia_codigo(CodigoILOC *codigo) {

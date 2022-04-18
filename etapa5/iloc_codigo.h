@@ -20,6 +20,7 @@ void codigo_expr_unaria(Nodo *operador, Nodo *expr);
 void codigo_sub(Nodo *operador, Nodo *expr);
 void codigo_not(Nodo *operador, Nodo *expr);
 
+void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_false);
 void codigo_avalia_expr(Nodo *operador, Nodo *expr, char* reg_resultado_nome, char* operacao_label);
 int operacao_iloc_binaria_nodo(Nodo *nodo_operador);
 void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir);

@@ -2,5 +2,11 @@ int f(){
     int a, b, c, d, e, f;
     bool boo;
     //boo = 1 != 2;//true && true;
-    boo = false && true;
+    //boo = false && true;
+
+    if (true && true) {
+		a = 1000;
+	} else {
+        a = 2000;
+    };
 }
