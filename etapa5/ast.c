@@ -59,9 +59,10 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
 
     nodo->codigo = NULL;
     nodo->reg_resultado = NULL;
-    nodo->operador = nodo_null;
-    nodo->tem_remendo = 0;
+    nodo->tipo_operacao = nodo_null;
 
+    nodo->remendos_false = NULL;
+    nodo->remendos_true = NULL;
     return nodo;
 }
 

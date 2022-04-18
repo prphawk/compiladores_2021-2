@@ -6,7 +6,7 @@ VariavelSemTipoLst *global_variaveis_sem_tipo = NULL; // para inserir e atualiza
 char *global_ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
 int E4_CHECK_FLAG = 1; // existe pra habilitar/desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
-extern int print_simbolos;
+extern int print_simbolos_global;
 
 /*
 TABELA HASH - a tabela hash usa open adressing.
@@ -285,7 +285,7 @@ void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
             busca->deslocamento = pilha->deslocamento;
             _atualiza_deslocamento_topo(busca->conteudo.tamanho);
 
-            if(print_simbolos) print_pilha();
+            if(print_simbolos_global) print_pilha();
         }
 
         VariavelSemTipoLst *antigo_vst = vst;
@@ -445,7 +445,7 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
             }
             _verifica_ocupacao_tabela(pilha);
 
-            if(print_simbolos) {
+            if(print_simbolos_global) {
                 printf("\n>> OP: DECLARAÇÃO\n");
                 print_pilha();
             }
@@ -477,7 +477,7 @@ void empilha()
 
     global_pilha_hash = pilha_aux;
 
-    if(print_simbolos) printf("\n>> OP: EMPILHANDO\n");
+    if(print_simbolos_global) printf("\n>> OP: EMPILHANDO\n");
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
@@ -535,7 +535,7 @@ void desempilha()
 
     global_pilha_hash = nova_pilha;
 
-    if(print_simbolos) {
+    if(print_simbolos_global) {
         printf("\n>> OP: DESEMPILHANDO\n");
         print_pilha();
     }
@@ -779,7 +779,7 @@ void _verifica_tamanho_maximo_string(Tipo tipo_dir, ValorLexico esq, ValorLexico
             if(inicializacao) { //senao é atribuicao
                 busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
 
-                if(print_simbolos) print_pilha();
+                if(print_simbolos_global) print_pilha();
 
             } else if(busca_esq->conteudo.tamanho < busca_dir->conteudo.tamanho) {
                 throwStringSizeError(busca_dir->conteudo.valor_lexico.linha, busca_dir->conteudo.valor_lexico.label, busca_esq->conteudo.linha);

@@ -29,7 +29,8 @@ typedef enum operador
     nodo_neg,
     nodo_not,
     nodo_and,
-    nodo_or
+    nodo_or,
+    nodo_attr
 } Operador;
 
 typedef struct Nodo {
@@ -37,12 +38,14 @@ typedef struct Nodo {
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
-    Operador operador;
+    Operador tipo_operacao;
 
     CodigoILOC *codigo;
     OperandoILOC *reg_resultado;
-    int tem_remendo;
+    Remendo *remendos_true;
+    Remendo *remendos_false;
 } Nodo;
+
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico);
 Nodo *adiciona_nodo_label(char *label);

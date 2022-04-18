@@ -1,8 +1,8 @@
-int g(int i, int j, int k){
-}
-int f(){
-    float a <= 1;
-    int b;
-    int c;
-    a = 1+2;
-}
+int main() {
+    int x;
+    if (2 + 0) {
+        x = 10;
+    } else {
+        x = 20;
+    };
+} 
