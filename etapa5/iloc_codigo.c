@@ -39,6 +39,8 @@ void _append(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
 
 void _append_nodo(Nodo *pai, Nodo *filho) {
 
+	if(pai == NULL || filho == NULL) return;
+
    CodigoILOC *copia_filho_cod_ptr = copia_codigo_repassa_remendo(filho->codigo, filho->remendos_true, filho->remendos_false);
 
    _append(pai, copia_filho_cod_ptr);
@@ -161,8 +163,8 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
 	OperandoILOC *op_remendo_true = gera_operando_rotulo(rotulo_true);
 	OperandoILOC *op_remendo_false = gera_operando_rotulo(rotulo_false);
 
-	expressao->remendos_true = remenda(expressao->remendos_true, op_remendo_true);
-	expressao->remendos_false = remenda(expressao->remendos_false, op_remendo_false);
+	remenda(expressao->remendos_true, op_remendo_true);
+	remenda(expressao->remendos_false, op_remendo_false);
 
 	CodigoILOC *codigo_load_true 	= instrucao_loadI_reg(1, rotulo_true_copia, destino);
 	CodigoILOC *codigo_load_false = instrucao_loadI_reg(0, rotulo_false_copia, copia_operando(destino));
@@ -184,6 +186,53 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
 }
 
 /*
+S → while { B.f=S.next; B.t=rot(); }
+	(B) { S.begin=rot(); S1.next=S.begin; }
+	S1 { S.code=gera(S.begin:) || B.code ||
+	gera(B.t:) || S1.code || gera(goto S.begin) }
+*/
+void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco) {
+	char *rotulo_expressao 	= gera_nome_rotulo();
+	char *rotulo_bloco		= gera_nome_rotulo();
+	char *rotulo_fim 			= gera_nome_rotulo();
+
+	CodigoILOC *codigo_nop_expressao 	= instrucao_nop(copia_nome(rotulo_expressao));
+	CodigoILOC *codigo_nop_bloco 			= instrucao_nop(copia_nome(rotulo_bloco));
+	CodigoILOC *codigo_nop_fim 			= instrucao_nop(copia_nome(rotulo_fim));
+
+	converte_para_logica(expressao);
+
+	remenda(expressao->remendos_true, gera_operando_rotulo(rotulo_bloco));
+	remenda(expressao->remendos_false, gera_operando_rotulo(rotulo_fim));
+
+	CodigoILOC *codigo_jump_expressao 	= instrucao_jumpI(gera_operando_rotulo(rotulo_expressao));
+
+	_append(nodo, codigo_nop_expressao);
+	_append_nodo(nodo, expressao);
+	_append(nodo, codigo_nop_bloco);
+	_append_nodo(nodo, bloco);
+	_append(nodo, codigo_jump_expressao);
+	_append(nodo, codigo_nop_fim);	
+
+	print_ILOC_intermed("Codigo while", nodo->codigo);
+}
+
+void converte_para_logica(Nodo *expressao) {
+	if(tem_buracos(expressao) || !expressao->reg_resultado) return;
+
+	OperandoILOC *op_remendo_true = gera_operando_remendo();
+	OperandoILOC *op_remendo_false = gera_operando_remendo();
+
+	OperandoILOC *reg_resultado = copia_operando(expressao->reg_resultado);
+
+	CodigoILOC *codigo = codigo_compara_logico(reg_resultado, op_remendo_true, op_remendo_false);
+
+	_append(expressao, codigo);
+
+	expressao->remendos_true = append_remendo(expressao->remendos_true, op_remendo_true);
+	expressao->remendos_false = append_remendo(expressao->remendos_false, op_remendo_false);
+}
+/*
 S -> 	if { B.t=rot(); B.f=rot(); }
 		(B) { S1 .next=S.next; }
 		S1 else { S2.next=S.next; }
@@ -199,6 +248,8 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	char *rotulo_false 		= NULL;
 	CodigoILOC *codigo_nop_false		 = NULL;
 	CodigoILOC *codigo_jump_fim_copia = NULL;
+
+	converte_para_logica(expressao);
 
 	expressao->remendos_true 		= remenda(expressao->remendos_true, gera_operando_rotulo(copia_nome(rotulo_true)));
 
@@ -263,20 +314,13 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 //Ex.: L1: add r1, r2 => r3
 void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 
-    char* rotulo = NULL;
-    OperandoILOC *r1, *r2, *r3 = gera_operando_registrador(gera_nome_registrador());
+    OperandoILOC *r1 = copia_operando(esq->reg_resultado);
+	 OperandoILOC *r2 = copia_operando(dir->reg_resultado);
+	 OperandoILOC *r3 = gera_operando_registrador(gera_nome_registrador());
 
-    // if (tem_buracos(esq) || tem_buracos(dir)) {
-    //     rotulo = gera_nome_rotulo();
-	// }
-
-    // codigo_avalia_expr(operador, esq, gera_nome_registrador(), rotulo);
-    // r1 = copia_operando(operador->reg_resultado);
-
-    // codigo_avalia_expr(operador, dir, gera_nome_registrador(), copia_nome(rotulo));
-    // r2 = copia_operando(operador->reg_resultado);
-
-	_cria_codigo_com_label_append(operador, rotulo, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
+	_append_nodo(operador, esq);
+	_append_nodo(operador, dir);
+	_cria_codigo_append(operador, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
     
 	operador->reg_resultado = r3;
 

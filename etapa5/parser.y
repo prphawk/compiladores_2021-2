@@ -123,9 +123,13 @@ extern int E4_CHECK_FLAG;
 
 programa: declaracoes { $$ = $1; arvore = $$; };
 
-declaracoes: declaracao declaracoes 
+declaracoes: declaracao declaracoes
             {
-                if ($1!=NULL) { adiciona_filho($1, $2); $$ = $1; }
+                if ($1!=NULL) { 
+                    adiciona_filho($1, $2); 
+                    $$ = $1; 
+                    //_append_nodo($$, $2);
+                }
                 else $$ = $2;       
             } 
             | { $$ = NULL;}
@@ -156,6 +160,7 @@ corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
+                    //_append_nodo($1, $2); //TODO tirar isso dps?
                     $$ = $1;
                 };
 
@@ -193,7 +198,10 @@ tipo: TK_PR_INT     { $$ = TIPO_INT;    }
 lista_comandos: comando_simples ';' lista_comandos 
                 { 
                     if($1==NULL) $$ = $3;
-                    else { adiciona_filho($1, $3); $$ = $1; }
+                    else { 
+                        adiciona_filho($1, $3); $$ = $1; 
+                        //_append_nodo($1, $3);
+                    }
                 }
                 | { $$ = NULL; };
 
@@ -348,6 +356,8 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                       adiciona_filho(novo_nodo, $3);
                       adiciona_filho(novo_nodo, $6);
                       $$ = novo_nodo;
+                      codigo_while(novo_nodo, $3, $6);
+
                   }
                   ;
 

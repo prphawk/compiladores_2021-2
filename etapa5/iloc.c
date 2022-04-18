@@ -211,7 +211,7 @@ CodigoILOC *copia_codigo_repassa_remendo(CodigoILOC *codigo, Remendo *lst_true, 
 	copia->origem = copia_operando_repassa_remendo(lst_true, lst_false, codigo->origem);
 	copia->operacao = codigo->operacao;
 	copia->destino = copia_operando_repassa_remendo(lst_true, lst_false, codigo->destino);
-	copia->anterior = copia_codigo(codigo->anterior);
+	copia->anterior = copia_codigo_repassa_remendo(codigo->anterior, lst_true, lst_false);
 
    return copia;
 }
