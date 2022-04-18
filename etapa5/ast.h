@@ -29,7 +29,8 @@ typedef enum operador
     nodo_neg,
     nodo_not,
     nodo_and,
-    nodo_or
+    nodo_or,
+    nodo_attr
 } Operador;
 
 typedef struct Nodo {

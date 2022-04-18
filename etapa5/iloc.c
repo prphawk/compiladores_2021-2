@@ -199,8 +199,6 @@ CodigoILOC *copia_codigo(CodigoILOC *codigo) {
 	copia->destino = copia_operando(codigo->destino);
 	copia->anterior = copia_codigo(codigo->anterior);
 
-   if(codigo)
-
    return copia;
 }
 
