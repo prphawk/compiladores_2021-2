@@ -306,9 +306,30 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	origem = copia_operando(expressao->reg_resultado); //TODO CUIDAR!!!!!!!!!! TEM Q COPIAR SE FOR USAR EM NOVA INSTRUÇAO
 	_cria_codigo_com_label_append(atribuicao, copia_nome(rotulo_store), origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
 	
-	//atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
+	atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
+	//agr eu preciso kk
 
 	print_ILOC_intermed("Codigo atribuicao", atribuicao->codigo);
+}
+
+void codigo_update_deslocamento(Nodo *nodo) {
+
+	if(nodo == NULL) return;
+
+	if(nodo->tipo_operacao == nodo_attr) {
+		Nodo *identificador = nodo->filho;
+		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(identificador->valor_lexico.label);
+
+		if(nodo->reg_resultado) {
+			OperandoILOC *deslocamento = nodo->reg_resultado->proximo;
+			if(deslocamento) deslocamento->valor = busca.deslocamento;
+		}
+
+		if(identificador->irmao) {
+			Nodo *prox_attr = identificador->irmao->irmao;
+			codigo_update_deslocamento(prox_attr);
+		}
+	}
 }
 
 //Ex.: L1: add r1, r2 => r3
