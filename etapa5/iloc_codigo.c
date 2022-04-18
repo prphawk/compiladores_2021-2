@@ -37,7 +37,7 @@ void _append(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
 }
 
 
-void _append_nodo(Nodo *pai, Nodo *filho) {
+void codigo_append_nodo(Nodo *pai, Nodo *filho) {
 
 	if(pai == NULL || filho == NULL) return;
 
@@ -208,9 +208,9 @@ void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco) {
 	CodigoILOC *codigo_jump_expressao 	= instrucao_jumpI(gera_operando_rotulo(rotulo_expressao));
 
 	_append(nodo, codigo_nop_expressao);
-	_append_nodo(nodo, expressao);
+	codigo_append_nodo(nodo, expressao);
 	_append(nodo, codigo_nop_bloco);
-	_append_nodo(nodo, bloco);
+	codigo_append_nodo(nodo, bloco);
 	_append(nodo, codigo_jump_expressao);
 	_append(nodo, codigo_nop_fim);	
 
@@ -269,14 +269,14 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 
 	CodigoILOC *codigo_nop_fim 	 = instrucao_nop(rotulo_fim);
 
-	_append_nodo(nodo, expressao);
+	codigo_append_nodo(nodo, expressao);
 	_append(nodo, codigo_nop_true);
-	_append_nodo(nodo, bloco_true);
+	codigo_append_nodo(nodo, bloco_true);
 	_append(nodo, codigo_jump_fim);
 
 	if(bloco_false != NULL) {
 		_append(nodo, codigo_nop_false);
-		_append_nodo(nodo, bloco_false);
+		codigo_append_nodo(nodo, bloco_false);
 		_append(nodo, codigo_jump_fim_copia);
 	}
 
@@ -298,10 +298,10 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	if(tem_buracos(expressao)) {
 		rotulo_store = gera_nome_rotulo();
 		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store);
-		_append_nodo(atribuicao, expressao);
+		codigo_append_nodo(atribuicao, expressao);
 		_append(atribuicao, codigo);
 	} else {
-		_append_nodo(atribuicao, expressao);
+		codigo_append_nodo(atribuicao, expressao);
 	}
 	origem = copia_operando(expressao->reg_resultado); //TODO CUIDAR!!!!!!!!!! TEM Q COPIAR SE FOR USAR EM NOVA INSTRUÇAO
 	_cria_codigo_com_label_append(atribuicao, copia_nome(rotulo_store), origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
@@ -339,8 +339,8 @@ void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 	 OperandoILOC *r2 = copia_operando(dir->reg_resultado);
 	 OperandoILOC *r3 = gera_operando_registrador(gera_nome_registrador());
 
-	_append_nodo(operador, esq);
-	_append_nodo(operador, dir);
+	codigo_append_nodo(operador, esq);
+	codigo_append_nodo(operador, dir);
 	_cria_codigo_append(operador, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
     
 	operador->reg_resultado = r3;
@@ -369,8 +369,8 @@ void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir) {
 	r1 = copia_operando(esq->reg_resultado);
    r2 = copia_operando(dir->reg_resultado);
 
-	_append_nodo(operador, esq);
-	_append_nodo(operador, dir);
+	codigo_append_nodo(operador, esq);
+	codigo_append_nodo(operador, dir);
 
 	_cria_codigo_append(operador, lista(r1, r2), operacao_iloc_binaria_nodo(operador), r3);
 
@@ -395,9 +395,9 @@ void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	operador->remendos_false = concat_remendos(esq->remendos_false, dir->remendos_false);
 
-	_append_nodo(operador, esq);
+	codigo_append_nodo(operador, esq);
 	_append(operador, instrucao_nop(rotulo_copia));
-   _append_nodo(operador, dir);
+   codigo_append_nodo(operador, dir);
 }
 
 void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir) {
@@ -410,9 +410,9 @@ void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir) {
 	operador->remendos_false = dir->remendos_false;
 	operador->remendos_true = concat_remendos(esq->remendos_true, dir->remendos_true);
 
-	_append_nodo(operador, esq);
+	codigo_append_nodo(operador, esq);
 	_append(operador, instrucao_nop(rotulo_copia));
-   _append_nodo(operador, dir);
+   codigo_append_nodo(operador, dir);
 }
 
 void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
@@ -437,7 +437,7 @@ void codigo_not(Nodo *operador, Nodo *expr) {
 	operador->remendos_true = expr->remendos_false;
 	operador->remendos_false =  expr->remendos_true;
 
-	_append_nodo(operador, expr);
+	codigo_append_nodo(operador, expr);
 }
 
 //dar um jeito nesse monte de repeticao de operadores no codigo inteiro.. 
@@ -466,7 +466,7 @@ void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 		codigo_not(operador, expr);
 	}
 	else {
-		_append_nodo(operador, expr);
+		codigo_append_nodo(operador, expr);
 		operador->reg_resultado = expr->reg_resultado;
 	}
 }

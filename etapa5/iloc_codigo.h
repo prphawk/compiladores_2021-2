@@ -8,6 +8,7 @@ CodigoILOC *instrucao_jumpI(OperandoILOC *destino);
 
 void _append(Nodo *nodo, CodigoILOC *codigo);
 CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst);
+void codigo_append_nodo(Nodo *pai, Nodo *filho);
 void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_update_deslocamento(Nodo *nodo);
@@ -41,3 +42,6 @@ Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
 Remendo *remenda(Remendo *buracos, OperandoILOC *argamassa);
 
 CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final);
+
+void converte_para_logica(Nodo *expressao);
+void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco);

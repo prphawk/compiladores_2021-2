@@ -129,7 +129,7 @@ declaracoes: declaracao declaracoes
                 if ($1!=NULL) { 
                     adiciona_filho($1, $2); 
                     $$ = $1; 
-                    _append_nodo($$, $2);
+                    codigo_append_nodo($$, $2);
                 }
                 else $$ = $2;       
             } 
@@ -161,7 +161,7 @@ corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
-                    _append_nodo($1, $2); //TODO tirar isso dps?
+                    codigo_append_nodo($1, $2); //TODO tirar isso dps?
                     $$ = $1;
                 };
 
@@ -200,7 +200,7 @@ lista_comandos: comando_simples ';' lista_comandos
                     if($1==NULL) $$ = $3;
                     else { 
                         adiciona_filho($1, $3); $$ = $1; 
-                        _append_nodo($1, $3);
+                        codigo_append_nodo($1, $3);
                     }
                 }
                 | { $$ = NULL; };
@@ -250,7 +250,7 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
                             if ($1!=NULL) {
                                 adiciona_filho($1, $3);
                                 $$ = $1;
-                                _append_nodo($1, $3);
+                                codigo_append_nodo($1, $3);
                             }
                             else $$ = $3;       
                         }   
