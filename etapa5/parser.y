@@ -270,8 +270,7 @@ cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel_ou_literal 
                                 | TK_IDENTIFICADOR { 
                                     insere_variavel_sem_tipo_pilha($1);
                                     libera_vlex($1), $$ = NULL;
-                                }
-                                ;
+                                };
 
 variavel_ou_literal: variavel { $$ = $1; } | literal { $$ = $1; };
 

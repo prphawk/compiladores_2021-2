@@ -94,7 +94,6 @@ typedef struct Remendo {
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
 char *_gera_nome(int eh_rotulo);
-void _liga_operandos(OperandoILOC *primeiro, OperandoILOC *segundo);
 OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo);
 OperandoILOC *gera_operando_imediato(int valor);
 OperandoILOC *gera_operando_rotulo(char *nome);
@@ -118,10 +117,16 @@ char* copia_nome(char *nome);
 char* copia_nome_operando(char *nome, TipoOperando tipo);
 OperandoILOC *copia_operando(OperandoILOC *operando);
 OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_false, OperandoILOC *operando);
+Remendo *substitui_remendo(Remendo *lst, OperandoILOC *velho, OperandoILOC *novo);
 CodigoILOC *copia_codigo(CodigoILOC *codigo);
-CodigoILOC *copia_codigo_repassa_remendo(CodigoILOC *codigo, Remendo *lst_true, Remendo *lst_false);
+CodigoILOC *copia_codigo_repassa_remendo(Remendo *lst_true, Remendo *lst_false, CodigoILOC *codigo);
 CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 CodigoILOC *_cria_codigo_com_label(char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
+
+Remendo *cria_remendo();
+Remendo *concat_remendos(Remendo *lst1, Remendo *lst2);
+Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
+Remendo *remenda(Remendo *buracos, OperandoILOC *argamassa);
 
 void imprime_codigo(CodigoILOC *codigo);
 void imprime_operandos(OperandoILOC *operando);

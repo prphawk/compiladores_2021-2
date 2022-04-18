@@ -5,17 +5,7 @@
 
 extern int print_ILOC_intermed_global;
 
-void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino) 
-{
-	CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
-    _append(nodo, codigo);
-}
-
-void _cria_codigo_com_label_append(Nodo *nodo, char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
-{
-   CodigoILOC *codigo = _cria_codigo_com_label(label, origem, operacao, destino);
-   _append(nodo, codigo);
-}
+//#region Auxiliares 
 
 CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst)
 {
@@ -36,65 +26,25 @@ void _append(Nodo *nodo, CodigoILOC *codigo_fim_ptr)
    nodo->codigo = _append_codigo(nodo->codigo, codigo_fim_ptr);
 }
 
+void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino) 
+{
+	CodigoILOC *codigo = _cria_codigo(origem, operacao, destino);
+    _append(nodo, codigo);
+}
+
+void _cria_codigo_com_label_append(Nodo *nodo, char *label, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
+{
+   CodigoILOC *codigo = _cria_codigo_com_label(label, origem, operacao, destino);
+   _append(nodo, codigo);
+}
 
 void codigo_append_nodo(Nodo *pai, Nodo *filho) {
 
 	if(pai == NULL || filho == NULL) return;
 
-   CodigoILOC *copia_filho_cod_ptr = copia_codigo_repassa_remendo(filho->codigo, filho->remendos_true, filho->remendos_false);
+   CodigoILOC *copia_filho_cod_ptr = copia_codigo_repassa_remendo(filho->remendos_true, filho->remendos_false, filho->codigo);
 
    _append(pai, copia_filho_cod_ptr);
-}
-
-Remendo *concat_remendos(Remendo *lst1, Remendo *lst2) {
-	if(lst1 == NULL) return lst2;
-	if(lst2 == NULL) return lst1;
-
-	Remendo *ultimo_lst1 = lst1;
-	while(ultimo_lst1->proximo != NULL) {
-		ultimo_lst1 = ultimo_lst1->proximo;
-	}
-	ultimo_lst1->proximo = lst2;
-	return lst1;
-}
-
-Remendo *remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
-	if(argamassa == NULL) return buraco_lst;
-
-
-	Remendo *aux_buraco;
-
-	while(buraco_lst != NULL) {
-		OperandoILOC *operando = buraco_lst->operando;
-
-		operando->tipo = argamassa->tipo;
-		operando->nome = copia_nome_operando(argamassa->nome, argamassa->tipo);
-		
-		aux_buraco = buraco_lst;
-		buraco_lst = buraco_lst->proximo;
-
-		libera_head_remendo(aux_buraco); //menos o operando. ele é liberado pelo codigo de algm.
-	}
-
-	libera_operando(argamassa);
-	return buraco_lst;
-}
-
-Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando) {
-	if(remendo_operando == NULL) return remendo_lst;
-
-	Remendo *remendo = cria_remendo();
-	remendo->operando = remendo_operando;
-
-	if(remendo_lst == NULL) {
-		remendo_lst = remendo;
-	}
-	else {
-		remendo->proximo = remendo_lst;
-		remendo_lst = remendo;
-	}
-
-	return remendo_lst;
 }
 
 int tem_buracos(Nodo *nodo) {
@@ -106,14 +56,7 @@ int tem_buracos(Nodo *nodo) {
 	return FALSE;
 }
 
-Remendo *cria_remendo() {
-	Remendo *remendo = malloc(sizeof(Remendo));
-	remendo->operando = NULL;
-	remendo->proximo = NULL;
-	return remendo;
-}
-
-//#endregion Principais Código 
+//#endregion Auxiliares 
 
 //#region Código 
 
