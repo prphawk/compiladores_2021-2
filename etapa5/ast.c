@@ -213,7 +213,6 @@ void _exporta(void *arvore)
         _exporta(nodo_f);
         nodo_f = nodo_f->irmao;
     }
-
 }
 
 void _imprime_filhos(Nodo *nodo) {
@@ -228,9 +227,8 @@ void _imprime_filhos(Nodo *nodo) {
     }
 }
 
-void imprime_codigo_ILOC()
+void exporta_codigo_ILOC()
 {
     Nodo *root = arvore;
-   //_imprime_arvore(root, 0);
-   imprime_codigo(root->codigo);
+    print_codigo(root->codigo);
 }

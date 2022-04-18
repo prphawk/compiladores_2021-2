@@ -128,9 +128,9 @@ Remendo *concat_remendos(Remendo *lst1, Remendo *lst2);
 Remendo *append_remendo(Remendo *remendo_lst, OperandoILOC *remendo_operando);
 Remendo *remenda(Remendo *buracos, OperandoILOC *argamassa);
 
-void imprime_codigo(CodigoILOC *codigo);
-void imprime_operandos(OperandoILOC *operando);
-void imprime_operando(OperandoILOC *operando);
-void imprime_remendos(Remendo *remendo_lst);
+void print_codigo(CodigoILOC *codigo);
+void print_operandos(OperandoILOC *operando);
+void print_operando(OperandoILOC *operando);
+void print_remendos(Remendo *remendo_lst);
 
 void print_ILOC_intermed(char* str, CodigoILOC *codigo);

@@ -302,11 +302,11 @@ void libera_head_remendo(Remendo *remendo) {
 
 //#region Prints
 
-void imprime_codigo(CodigoILOC *codigo)
+void print_codigo(CodigoILOC *codigo)
 {
    if(codigo!=NULL)
    {
-      imprime_codigo(codigo->anterior);
+      print_codigo(codigo->anterior);
 
       if(codigo->label != NULL) {
          printf("%s:\n", codigo->label);
@@ -461,29 +461,29 @@ void imprime_codigo(CodigoILOC *codigo)
 
       printf(" ");
 
-      imprime_operandos(codigo->origem);
+      print_operandos(codigo->origem);
 
       printf(" => ");
 
-      imprime_operandos(codigo->destino);
+      print_operandos(codigo->destino);
 
       printf("\n");
 
    }
 }
 
-void imprime_operandos(OperandoILOC *operando)
+void print_operandos(OperandoILOC *operando)
 {
     if(operando==NULL) return;
     
-    imprime_operando(operando);
+    print_operando(operando);
     if(operando->proximo!=NULL) {
         printf(", ");
-        imprime_operando(operando->proximo);
+        print_operando(operando->proximo);
     }
 }
 
-void imprime_operando(OperandoILOC *operando)
+void print_operando(OperandoILOC *operando)
 {
     if(operando==NULL) return; 
         
@@ -497,12 +497,14 @@ void imprime_operando(OperandoILOC *operando)
       printf(" %p", operando);
 }
 
-void imprime_remendos(Remendo *remendo_lst) {
+void print_remendos(Remendo *remendo_lst) {
+   if(!print_ILOC_intermed_global) return;
+
    Remendo *aux = remendo_lst;
    printf("\nImprimindo lista de remendos");
    while(aux != NULL) {
       printf("\n Remendo:");
-      imprime_operando(aux->operando);
+      print_operando(aux->operando);
       aux = aux->proximo;
    }
    printf("\nFim.");
@@ -511,7 +513,7 @@ void imprime_remendos(Remendo *remendo_lst) {
 void print_ILOC_intermed(char* str, CodigoILOC *codigo) {
    if(print_ILOC_intermed_global) {
 		printf("\n>> OP: %s\n", str);
-		imprime_codigo(codigo);
+		print_codigo(codigo);
 		printf("\n----------------------\n");
    }
 }

@@ -509,18 +509,3 @@ CodigoILOC *instrucao_jumpI(OperandoILOC* destino) {
 }
 
 //#endregion Instrução 
-
-void print_remendos(Remendo *buracos) {
-
-	if(!print_ILOC_intermed_global) return;
-
-	Remendo *aux_buraco = buracos;
-
-	while(aux_buraco != NULL) {
-	
-		printf("\n>> print remendo ");
-		imprime_operando(aux_buraco->operando);
-
-		aux_buraco = aux_buraco->proximo;
-	}
-}
