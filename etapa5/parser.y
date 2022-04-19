@@ -108,6 +108,8 @@ extern int E4_CHECK_FLAG;
 %type<nodo> chamada_funcao
 %type<nodo> lista_comandos
 %type<nodo> corpo
+%type<nodo> corpo_1
+%type<nodo> corpo_2
 %type<nodo> lista_argumentos
 %type<nodo> argumentos
 %type<nodo> cabecalho
@@ -155,14 +157,16 @@ nome_variavel_global: TK_IDENTIFICADOR
                         libera_vlex($1); libera_vlex($3); 
                     };
 
-corpo: '{' lista_comandos corpo_1 { $$ = $2; }
-corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
+corpo: corpo_1 corpo_2 { $$ = $1; }
+corpo_1: '{' lista_comandos { $$ = $2; codigo_rsp_funcao($$); }
+corpo_2: '}' { desempilha(); libera_ultima_funcao(); }
 
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
-                    codigo_append_nodo($1, $2); //TODO tirar isso dps? TODO botar o label de nome da função antes do codigo e fazer codigo de carregamento dos parametros tbm
+                    //TODO botar o label de nome da função antes do codigo e fazer codigo de carregamento dos parametros tbm
                     $$ = $1;
+                    codigo_declaracao_funcao($1, $2);
                 };
 
 cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };
