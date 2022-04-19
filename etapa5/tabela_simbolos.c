@@ -24,11 +24,22 @@ int _eh_escopo_global(PilhaHash *pilha) {
 
 int _conta_tabelas(PilhaHash *pilha, int count) {
     
-    PilhaHash *aux_pilha = pilha;
-
-    if(aux_pilha == NULL) return count;
+    if(pilha == NULL) return count;
 
     return _conta_tabelas(pilha->resto, ++count);
+}
+
+int _pelo_menos_x_tabelas(PilhaHash *pilha, int x) {
+    
+    int count = 0;
+    PilhaHash *aux_pilha = pilha;
+
+    while(aux_pilha != NULL && count < x) {
+        aux_pilha = aux_pilha->resto;
+        count++;
+    }
+
+    return count >= x;
 }
 
 int _conta_argumentos(ArgumentoFuncaoLst *args) {
@@ -460,12 +471,13 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
 // função que "empilha" uma nova hash em cima da atual
 void empilha()
 {
+    
     PilhaHash *pilha_aux = malloc(sizeof(PilhaHash));
 
-    if(global_pilha_hash == NULL) {
-        pilha_aux->deslocamento = 0;
-    } else {
+    if(_pelo_menos_x_tabelas(global_pilha_hash, 2)) { //se estamos empilhando bloco aninhado à função
         pilha_aux->deslocamento = global_pilha_hash->deslocamento;
+    } else {
+        pilha_aux->deslocamento = 0;
     }
 
     pilha_aux->quantidade_atual = 0;
@@ -525,7 +537,7 @@ void desempilha()
 
     PilhaHash *antiga_pilha = global_pilha_hash;
 
-    if(nova_pilha != NULL) {
+    if(_pelo_menos_x_tabelas(nova_pilha, 2)) { //se vamos desempílhar um bloco aninhado
         nova_pilha->deslocamento = antiga_pilha->deslocamento; //TODO ver se eh isso mesmo, ou entao fazer uma subtração.
     }
 
@@ -930,7 +942,8 @@ void print_pilha() {
 
 char* eh_escopo_global_str(PilhaHash *pilha) {
     if(_eh_escopo_global(pilha)) return "(GLOBAL) ";
-    return "";
+    if(_pelo_menos_x_tabelas(pilha, 3)) return "(BLOCO) ";
+    return "(FUNÇÃO) ";
 }
 
 //printa pilha com tabela e seus valores
