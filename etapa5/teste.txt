@@ -1,11 +1,11 @@
-/*
-int f(int y, int x) {
 
-	return y + 200;
+int f() {
+
+	return 73;
 }
-*/
+
 int main() {
 
 	int x;
-	x = 34;
+	x = f();
 }

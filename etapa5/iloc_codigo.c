@@ -17,14 +17,15 @@ void codigo_finaliza(Nodo *arvore) {
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
 	//--------------------- talvez tenha q mudar
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 7, NULL, reg_rbss()));
-
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 3, NULL, reg_rbss()));
+/*
 	OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
 	CodigoILOC *codigo_addi_retorno = instrucao_addi(reg_rpc(), num_instr_incompleto + 3, reg_retorno);
 	CodigoILOC *codigo_storeai_retorno = _cria_codigo(copia_operando(reg_retorno), STOREAI, lista(reg_rsp(), 0)); //TODO eh zero mesmo?
 
 	codigo_lst = _append_codigo(codigo_lst, codigo_addi_retorno);
 	codigo_lst = _append_codigo(codigo_lst, codigo_storeai_retorno);
+*/
 	// ----------------------
 
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
@@ -94,7 +95,11 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 	char *rotulo = gera_nome_rotulo();
 	_append(cabecalho, instrucao_nop(rotulo));
-	codigo_append_nodo(cabecalho, corpo); //TODO tirar isso dps? 
+
+	insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
+
+	codigo_append_nodo(cabecalho, corpo);
+
 	if(compare_eq_str(cabecalho->valor_lexico.label, "main")) {
 		rotulo_main_global = rotulo;
 	}
@@ -308,17 +313,42 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	print_ILOC_intermed("Codigo if else", nodo->codigo);
 }
 
+//StoreAI r0 => rsp, 12 // Empilha registrador * quantityOfRegisters //TODO apagar dps
+// addI rpc, 7  => r1      
+// storeAI r1  => rsp, 0  
+// storeAI rsp => rsp, 4  // Salva o rsp (SP)
+// storeAI rfp => rsp, 8  // Salva o rfp (RFP)
+// 
+// storeAI r0 => rsp, 12  // Empilha parâmetro * quantityOfParameters
+//
+// jumpI => functionLabel            
+// loadAI rsp, returnValueOffset => r0   
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
 
-	remenda_argumentos_chamada_funcao(nodo, lista_argumentos);
+	//remenda_argumentos_chamada_funcao(nodo, lista_argumentos);
 
+	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+	_append(nodo, instrucao_addi(reg_rpc(), 5, r1));
+	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
+	_append(nodo, instrucao_storeai(reg_rsp(), reg_rsp(), 4));
+	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));
+
+	char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
+	_append(nodo, instrucao_jumpI(gera_operando_rotulo(rotulo_ptr)));
+
+/*
 	 // Calcula o endereço de retorno
     OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
     OperandoILOC *reg_imediato = gera_operando_imediato(incrementa_rpc);
 
 	 _cria_codigo_append(nodo, lista(reg_rpc(), reg_imediato), ADDI, reg_retorno);
-    
+ */   
 	
+}
+
+//ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1
+CodigoILOC *instrucao_storeai(OperandoILOC *r1, OperandoILOC *r2, int valor) {
+	return _cria_codigo(r1, STOREAI, lista(r2, gera_operando_imediato(valor)));
 }
 
 void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {

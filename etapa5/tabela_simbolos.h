@@ -44,6 +44,7 @@ typedef struct conteudo {
     NaturezaSimbolo natureza;
     ArgumentoFuncaoLst* argumentos;
     ValorLexico valor_lexico;
+    char* rotulo;
 } Conteudo;
 
 typedef struct entradaHash
@@ -138,3 +139,5 @@ char* _natureza_str(NaturezaSimbolo natureza);
 void _print_argumentos(ArgumentoFuncaoLst *argLst);
 
 DeslocamentoEscopo busca_deslocamento_e_escopo(char *chave);
+void insere_rotulo_funcao(char* nome_funcao, char* rotulo);
+char* busca_rotulo_funcao(char* nome_funcao);

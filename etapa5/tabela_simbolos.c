@@ -154,6 +154,7 @@ Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo nat
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
     conteudo.argumentos = NULL;
+    conteudo.rotulo = NULL;
     conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
     return conteudo;
 }
@@ -522,6 +523,7 @@ void _inicializa_entrada(EntradaHash *entrada) {
     entrada->conteudo.linha = -1;
     entrada->conteudo.tamanho = -1;
     entrada->conteudo.argumentos = NULL;
+    entrada->conteudo.rotulo = NULL;
 }
 
 //#endregion Insere
@@ -661,6 +663,36 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
         }
     }
     throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+}
+
+void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
+
+    if(global_pilha_hash == NULL) return;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        busca_funcao->conteudo.rotulo = rotulo;
+    }
+}
+
+ char* busca_rotulo_funcao(char* nome_funcao) {
+
+    if(global_pilha_hash == NULL) return NULL;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        return busca_funcao->conteudo.rotulo;
+    }
 }
 
 void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *operador) {
