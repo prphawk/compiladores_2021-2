@@ -324,7 +324,7 @@ void print_codigo(CodigoILOC *codigo)
       switch(codigo->operacao)
       {
          case HALT: printf("halt\n"); return; break;
-         case NOP: printf("nop\n"); return; break;
+         case NOP: return; break;
          case ADD: printf("add"); break;
          case SUB: printf("sub"); break;
          case MULT: printf("mult"); break;

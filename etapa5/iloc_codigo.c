@@ -16,7 +16,16 @@ void codigo_finaliza(Nodo *arvore) {
 	CodigoILOC *codigo_lst = NULL;
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
+	//--------------------- talvez tenha q mudar
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 7, NULL, reg_rbss()));
+
+	OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
+	CodigoILOC *codigo_addi_retorno = instrucao_addi(reg_rpc(), num_instr_incompleto + 3, reg_retorno);
+	CodigoILOC *codigo_storeai_retorno = _cria_codigo(copia_operando(reg_retorno), STOREAI, lista(reg_rsp(), 0)); //TODO eh zero mesmo?
+
+	codigo_lst = _append_codigo(codigo_lst, codigo_addi_retorno);
+	codigo_lst = _append_codigo(codigo_lst, codigo_storeai_retorno);
+	// ----------------------
 
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
 
@@ -96,8 +105,7 @@ void codigo_rsp_funcao(Nodo *lista_comandos_funcao) {
 	CodigoILOC *codigo_lst = NULL;
 	int deslocamento_var_locais = busca_deslocamento_rsp();
 
-	OperandoILOC *origem = lista(reg_rsp(), gera_operando_imediato(deslocamento_var_locais));
-	CodigoILOC *codigo_atualiza_rsp = _cria_codigo(origem, ADDI, reg_rsp());
+	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), deslocamento_var_locais, reg_rsp());
 
 	codigo_lst = _append_codigo(codigo_lst, codigo_atualiza_rsp);
 	codigo_lst = _append_codigo(codigo_lst, lista_comandos_funcao->codigo);
@@ -550,6 +558,12 @@ void codigo_sub(Nodo *operador, Nodo *expr) {
 //#endregion Código 
 
 //#region Instrução 
+
+//ex: addI r1, c2 => r3
+CodigoILOC* instrucao_addi(OperandoILOC *r1, int valor, OperandoILOC *r3) {
+	OperandoILOC *origem = lista(r1, gera_operando_imediato(valor));
+	return _cria_codigo(origem, ADDI, r3);
+}
 
 // cbr r1 -> l2_true, l3_false // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
 CodigoILOC* instrucao_cbr(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false) {

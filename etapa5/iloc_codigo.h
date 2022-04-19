@@ -49,3 +49,4 @@ CodigoILOC *instrucao_loadI(int valor, char *label);
 CodigoILOC *instrucao_loadI_reg(int valor, char *label, OperandoILOC *r2);
 CodigoILOC *instrucao_jumpI(OperandoILOC *destino);
 CodigoILOC *instrucao_halt();
+CodigoILOC *instrucao_addi(OperandoILOC *r1, int valor, OperandoILOC *r3);
