@@ -193,6 +193,15 @@ DeslocamentoEscopo busca_deslocamento_e_escopo(char *label) {
     //TODO throwUnexpectedError
 }
 
+int busca_deslocamento_rsp() {
+
+    PilhaHash *pilha = global_pilha_hash; 
+
+    if(pilha == NULL) return -1;
+    
+    return pilha->deslocamento;
+}
+
 //  função que retorna uma entrada específica da hash a partir de sua chave
 EntradaHash *_busca_pilha(char *chave) {
 

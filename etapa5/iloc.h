@@ -57,8 +57,8 @@ typedef enum OperacaoILOC
     CMP_NE, // not equal. ex: cmp_NE r1, r2 -> r3 // r3 = true se r1 != r2, senão r3 = false
     CBR, // recebe um booleano como argumento e transfere o controle para um de dois rótulos alvo. Os dois rótulos alvo não precisam estar definidos previamente. ex: cbr r1 -> l2, l3 // PC = endereço(l2) se r1 = true, senão PC = endereço(l3)
     JUMPI, // ex: jumpI -> l1 // PC = endereço(l1)
-    JUMP  // ex: jump -> r1 // PC = r1
-    //TODO halt?
+    JUMP,  // ex: jump -> r1 // PC = r1
+    HALT
 } OperacaoILOC;
 
 typedef enum TipoOperando {
@@ -90,6 +90,8 @@ typedef struct Remendo {
     OperandoILOC *operando;
     struct Remendo *proximo;
 } Remendo;
+
+int conta_instrucoes(CodigoILOC *codigo);
 
 char *gera_nome_rotulo();
 char *gera_nome_registrador();

@@ -17,8 +17,8 @@ extern int yylex_destroy(void);
 int main (int argc, char **argv)
 {
   int ret = yyparse(); 
-  exporta_arvore();
-  print_arvore();
+  //exporta_arvore();
+  //print_arvore();
   exporta_codigo_ILOC();
   free_mem();
   yylex_destroy();

@@ -5,6 +5,15 @@ int global_num_registradores = 1;
 
 extern int print_ILOC_intermed_global;
 
+int conta_instrucoes(CodigoILOC *codigo) {
+	CodigoILOC *aux = codigo;
+	int count = 0;
+	while(aux != NULL) {
+		aux = aux->anterior;
+		count++;
+	}
+	return count;
+}
 //#region Cria
 
 char *gera_nome_rotulo()
@@ -314,6 +323,7 @@ void print_codigo(CodigoILOC *codigo)
       
       switch(codigo->operacao)
       {
+         case HALT: printf("halt\n"); return; break;
          case NOP: printf("nop\n"); return; break;
          case ADD: printf("add"); break;
          case SUB: printf("sub"); break;

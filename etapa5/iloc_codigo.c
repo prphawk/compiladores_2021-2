@@ -5,6 +5,27 @@
 
 extern int print_ILOC_intermed_global;
 
+char *rotulo_main_global = NULL;
+
+void codigo_finaliza(Nodo *arvore) {
+
+	_append(arvore, instrucao_halt());
+
+	int num_instr_incompleto = conta_instrucoes(arvore->codigo);
+
+	CodigoILOC *codigo_lst = NULL;
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 7, NULL, reg_rbss()));
+
+	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
+
+	codigo_lst = _append_codigo(codigo_lst, codigo_jump_main);
+	codigo_lst = _append_codigo(codigo_lst, arvore->codigo);
+
+	arvore->codigo = codigo_lst;
+}
+
 //#region Auxiliares 
 
 CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst)
@@ -59,6 +80,29 @@ int tem_buracos(Nodo *nodo) {
 //#endregion Auxiliares 
 
 //#region Código 
+
+void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
+
+	char *rotulo = gera_nome_rotulo();
+	_append(cabecalho, instrucao_nop(rotulo));
+	codigo_append_nodo(cabecalho, corpo); //TODO tirar isso dps? 
+	if(compare_eq_str(cabecalho->valor_lexico.label, "main")) {
+		rotulo_main_global = rotulo;
+	}
+}
+
+void codigo_rsp_funcao(Nodo *lista_comandos_funcao) {
+
+	CodigoILOC *codigo_lst = NULL;
+	int deslocamento_var_locais = busca_deslocamento_rsp();
+
+	OperandoILOC *origem = lista(reg_rsp(), gera_operando_imediato(deslocamento_var_locais));
+	CodigoILOC *codigo_atualiza_rsp = _cria_codigo(origem, ADDI, reg_rsp());
+
+	codigo_lst = _append_codigo(codigo_lst, codigo_atualiza_rsp);
+	codigo_lst = _append_codigo(codigo_lst, lista_comandos_funcao->codigo);
+	lista_comandos_funcao->codigo = codigo_lst;
+}
 
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
 void codigo_carrega_variavel(Nodo *nodo) {
@@ -560,6 +604,10 @@ CodigoILOC *instrucao_loadI_reg(int valor, char *label, OperandoILOC *r2) {
 CodigoILOC *instrucao_jumpI(OperandoILOC* destino) {
 
    return _cria_codigo(NULL, JUMPI, destino);
+}
+
+CodigoILOC *instrucao_halt() {
+	return _cria_codigo(NULL, HALT, NULL);
 }
 
 //#endregion Instrução 
