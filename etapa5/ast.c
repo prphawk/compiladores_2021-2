@@ -133,6 +133,8 @@ Nodo *_acha_ultimo_irmao(Nodo *nodo_irmao)
 {
     Nodo *aux_nodo = nodo_irmao;
 
+    if(aux_nodo == NULL) return NULL;
+
     while(aux_nodo->irmao!=NULL)
     {
         aux_nodo = aux_nodo->irmao;

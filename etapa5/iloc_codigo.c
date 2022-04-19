@@ -256,6 +256,32 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	print_ILOC_intermed("Codigo if else", nodo->codigo);
 }
 
+void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
+
+	remenda_argumentos_chamada_funcao(nodo, lista_argumentos);
+	
+}
+
+void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {
+	Nodo *arg_lst = lista_argumentos;
+
+	while(arg_lst != NULL) {
+
+		if(tem_buracos(arg_lst)) {
+			char *rotulo_fim_arg = gera_nome_rotulo();
+			CodigoILOC *codigo = atribui_booleano(arg_lst, rotulo_fim_arg);
+			codigo_append_nodo(chamada_funcao, arg_lst);
+			_append(chamada_funcao, codigo);
+
+			CodigoILOC *nop_fim_arg = instrucao_nop(copia_nome(rotulo_fim_arg));
+			_append(chamada_funcao, nop_fim_arg);
+		} else {
+			codigo_append_nodo(chamada_funcao, arg_lst);
+		}
+		arg_lst = arg_lst->irmao;
+	}	
+}
+
 
 // storeAI r0 => r1 (rfp ou rbss), deslocamento // TODO: n passar o load da variavel
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {

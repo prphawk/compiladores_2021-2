@@ -68,6 +68,7 @@ typedef struct PilhaHash {
 } PilhaHash;
 
 int _eh_escopo_global(PilhaHash *pilha);
+int _pelo_menos_x_tabelas(PilhaHash *pilha, int x);
 int _conta_tabelas(PilhaHash *pilha, int count);
 int _conta_argumentos(ArgumentoFuncaoLst *args);
 int _conta_argumentos_nodo(Nodo *nodo);

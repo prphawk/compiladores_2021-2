@@ -9,7 +9,7 @@
 #include "mem.h"
 
 int print_simbolos_global = 0;
-int print_ILOC_intermed_global = 1; //TODO desativar esse ao entregar
+int print_ILOC_intermed_global = 0; //TODO desativar esse ao entregar
 
 extern int yyparse(void);
 extern int yylex_destroy(void);
@@ -17,8 +17,8 @@ extern int yylex_destroy(void);
 int main (int argc, char **argv)
 {
   int ret = yyparse(); 
-  //exporta_arvore();
-  //print_arvore();
+  exporta_arvore();
+  print_arvore();
   exporta_codigo_ILOC();
   free_mem();
   yylex_destroy();

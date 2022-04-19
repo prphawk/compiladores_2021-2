@@ -161,7 +161,7 @@ corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
-                    codigo_append_nodo($1, $2); //TODO tirar isso dps?
+                    codigo_append_nodo($1, $2); //TODO tirar isso dps? TODO botar o label de nome da função antes do codigo e fazer codigo de carregamento dos parametros tbm
                     $$ = $1;
                 };
 
@@ -214,6 +214,7 @@ chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' {
                 adiciona_filho(novo_nodo, $3);
                 if(E4_CHECK_FLAG) verifica_funcao_no_escopo($1, $3, novo_nodo);
                 $$ = novo_nodo;
+                codigo_chamada_funcao(novo_nodo, $1.label, $3);
                 libera_vlex($1);
             };
 
