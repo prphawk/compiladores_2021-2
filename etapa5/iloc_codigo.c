@@ -259,6 +259,13 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
 
 	remenda_argumentos_chamada_funcao(nodo, lista_argumentos);
+
+	 // Calcula o endereço de retorno
+    OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
+    OperandoILOC *reg_imediato = gera_operando_imediato(incrementa_rpc);
+
+	 _cria_codigo_append(nodo, lista(reg_rpc(), reg_imediato), ADDI, reg_retorno);
+    
 	
 }
 
