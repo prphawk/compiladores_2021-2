@@ -34,6 +34,7 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final);
 
 void converte_para_logica(Nodo *expressao);
 void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco);
+void codigo_for(Nodo *nodo, Nodo *atribuicao_inicial, Nodo *expressao, Nodo *atribuicao_final, Nodo *bloco);
 
 CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true, OperandoILOC *op_label_false);
 CodigoILOC* intrucoes_cmp_NE_0(OperandoILOC *r1);

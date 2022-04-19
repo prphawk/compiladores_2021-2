@@ -159,6 +159,34 @@ void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco) {
 
 	print_ILOC_intermed("Codigo while", nodo->codigo);
 }
+//comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_atribuicao')' bloco_comandos
+void codigo_for(Nodo *nodo, Nodo *atribuicao_inicial, Nodo *expressao, Nodo *atribuicao_final, Nodo *bloco) {
+	char *rotulo_expressao 	= gera_nome_rotulo();
+	char *rotulo_bloco		= gera_nome_rotulo();
+	char *rotulo_fim 			= gera_nome_rotulo();
+
+	CodigoILOC *codigo_nop_expressao 	= instrucao_nop(copia_nome(rotulo_expressao));
+	CodigoILOC *codigo_nop_bloco 			= instrucao_nop(copia_nome(rotulo_bloco));
+	CodigoILOC *codigo_nop_fim 			= instrucao_nop(copia_nome(rotulo_fim));
+
+	converte_para_logica(expressao);
+
+	remenda(expressao->remendos_true, gera_operando_rotulo(rotulo_bloco));
+	remenda(expressao->remendos_false, gera_operando_rotulo(rotulo_fim));
+
+	CodigoILOC *codigo_jump_expressao 	= instrucao_jumpI(gera_operando_rotulo(rotulo_expressao));
+
+	codigo_append_nodo(nodo, atribuicao_inicial);
+	_append(nodo, codigo_nop_expressao);
+	codigo_append_nodo(nodo, expressao);
+	_append(nodo, codigo_nop_bloco);
+	codigo_append_nodo(nodo, bloco);
+	codigo_append_nodo(nodo, atribuicao_final);
+	_append(nodo, codigo_jump_expressao);
+	_append(nodo, codigo_nop_fim);	
+
+	print_ILOC_intermed("Codigo for", nodo->codigo);
+}
 
 void converte_para_logica(Nodo *expressao) {
 	if(tem_buracos(expressao) || !expressao->reg_resultado) return;

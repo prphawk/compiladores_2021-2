@@ -357,6 +357,7 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                         adiciona_filho(novo_nodo, $7);
                         adiciona_filho(novo_nodo, $9);
                         $$ = novo_nodo;
+                        codigo_for(novo_nodo, $3, $5, $7, $9);
                     }
                   | TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
                   {
