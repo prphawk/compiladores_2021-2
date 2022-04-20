@@ -52,10 +52,13 @@ int tem_valor_literal_int(ValorLexico valor_lexico) {
 }
 
 char* append_str_malloc(char* str1, char* str2) {
-   char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char));
-   result[strlen(result) - 1] = '\0';
+
+   int size = (strlen(str1)+strlen(str2));
+   char* result = malloc((size+1)*sizeof(char));
+   result[size] = '\0';
    strcpy(result, str1);
    strcat(result, str2);
+   printf("\n>>%s", result);
    return result;
 }
 

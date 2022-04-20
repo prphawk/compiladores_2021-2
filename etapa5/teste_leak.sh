@@ -14,10 +14,17 @@ echo "\nSTARTING MEM LEAK TEST CASES\n"
 #     echo "$print\n"
 # done
 
-for file in ../testes_E4/right/*
+for file in ../testes_E5/*
     do
-    valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"
-    result=$?
+    valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"    
     print="FROM:${file}"
     echo "$print\n"
 done
+
+for file in ../testes_laura_E5/*
+    do
+    valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"    
+    print="FROM:${file}"
+    echo "$print\n"
+done
+  

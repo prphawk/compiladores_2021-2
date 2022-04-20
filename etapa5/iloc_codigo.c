@@ -150,8 +150,6 @@ void codigo_carrega_parametros(Nodo *cabecalho) {
 // storeAI r0 => rfp, offsetReturnValue
 void codigo_return(Nodo *nodo, Nodo *expressao) {
 
-	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
-
 	char *rotulo_store = NULL;
 	OperandoILOC *origem;
 
@@ -335,8 +333,6 @@ void codigo_for(Nodo *nodo, Nodo *atribuicao_inicial, Nodo *expressao, Nodo *atr
 // taca buraco
 void converte_para_logica(Nodo *expressao) {
 
-	char *rotulo = gera_nome_rotulo();
-
 	if(tem_buracos(expressao) || expressao->reg_resultado == NULL) {
 		return;
 	}
@@ -347,7 +343,6 @@ void converte_para_logica(Nodo *expressao) {
 	OperandoILOC *reg_resultado = copia_operando(expressao->reg_resultado);
 
 	CodigoILOC *codigo = codigo_compara_logico(reg_resultado, op_remendo_true, op_remendo_false);
-	codigo->label = rotulo;
 
 	_append(expressao, codigo);
 
