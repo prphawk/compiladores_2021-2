@@ -17,7 +17,7 @@ void codigo_finaliza(Nodo *arvore) {
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
 	//--------------------- talvez tenha q mudar
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 3, NULL, reg_rbss()));
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss()));
 /*
 	OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
 	CodigoILOC *codigo_addi_retorno = instrucao_addi(reg_rpc(), num_instr_incompleto + 3, reg_retorno);
@@ -119,6 +119,59 @@ void codigo_rsp_e_rfp_declaracao_funcao(Nodo *lista_comandos_funcao) {
 	codigo_lst = _append_codigo(codigo_lst, codigo_atualiza_rsp);
 	codigo_lst = _append_codigo(codigo_lst, lista_comandos_funcao->codigo);
 	lista_comandos_funcao->codigo = codigo_lst;
+}
+
+// loadI 73 => r0
+// storeAI r0 => rfp, offsetReturnValue
+void codigo_return(Nodo *nodo, Nodo *expressao) {
+
+	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+
+	char *rotulo_store = NULL;
+	OperandoILOC *origem;
+
+	if(tem_buracos(expressao)) {
+		rotulo_store = gera_nome_rotulo();
+		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store);
+		codigo_append_nodo(nodo, expressao);
+		_append(nodo, codigo);
+	} else {
+		codigo_append_nodo(nodo, expressao);
+	}
+	origem = copia_operando(expressao->reg_resultado);
+	OperandoILOC *destino = lista(reg_rfp(), gera_operando_imediato(12)); //TODO eh 12 mesmo?
+	_cria_codigo_com_label_append(nodo, copia_nome(rotulo_store), origem, STOREAI, destino);
+	
+	nodo->reg_resultado = destino; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
+	//agr eu preciso kk
+
+	print_ILOC_intermed("Codigo return", nodo->codigo);
+
+	//instrucao_loadI_reg()
+}
+
+/*
+oadAI rfp, 0 => r0 //obtém end. retorno
+loadAI rfp, 4 => r1 //obtém rsp salvo
+loadAI rfp, 8 => r2 //obtém rfp salvo
+storeAI r1 => rsp
+storeAI r2 => rfp
+jump => r0
+*/
+void codigo_retorna_funcao(Nodo *lista_comandos_funcao) {
+
+	if(eh_a_main()) return; //TODO tirar se necessario
+
+	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+	OperandoILOC *r2 = gera_operando_registrador(gera_nome_registrador());
+
+	_append(lista_comandos_funcao, instrucao_loadai(reg_rfp(), 0, r0));
+	_append(lista_comandos_funcao, instrucao_loadai(reg_rfp(), 4, r1));
+	_append(lista_comandos_funcao, instrucao_loadai(reg_rfp(), 8, r2));
+
+	_append(lista_comandos_funcao, instrucao_store(copia_operando(r1), reg_rsp()));
+	_append(lista_comandos_funcao, instrucao_store(copia_operando(r2), reg_rfp()));
 }
 
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
@@ -339,10 +392,15 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 
 	//loadAI rsp, 12 => r0 // pega o retorno da funcao
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
-	_append(nodo, instrucao_loadai(reg_rsp(), 12, r0));
+	_append(nodo, instrucao_loadai(reg_rsp(), 12, r0)); //TODO esse 12 aqui é relativo não? acho que esse ta certo mas o de chamada de funcao não, pq esse eh rsp e o outro eh rfp. nao mas o rfp faz copia do rsp na chamada
 	//storeAI r0 => rfp, 0
 	//_append(nodo, instrucao_storeai(copia_operando(r0), reg_rfp(), 0));
 	nodo->reg_resultado = r0;
+}
+
+// ex: store r1 => r2 // Memoria(r2) = r1
+CodigoILOC *instrucao_store(OperandoILOC *r1, OperandoILOC *r2) {
+	return _cria_codigo(r1, STORE, r2);
 }
 
 //ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1

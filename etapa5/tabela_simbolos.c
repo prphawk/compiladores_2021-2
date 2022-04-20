@@ -18,6 +18,10 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 
 //#region Auxiliares
 
+int eh_a_main() {
+    return (global_ultima_funcao && compare_eq_str(global_ultima_funcao, "main"));
+}
+
 int _eh_escopo_global(PilhaHash *pilha) {
     return pilha->resto == NULL;
 }

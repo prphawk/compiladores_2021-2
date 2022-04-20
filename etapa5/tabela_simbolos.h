@@ -68,6 +68,7 @@ typedef struct PilhaHash {
     struct PilhaHash *resto;
 } PilhaHash;
 
+int eh_a_main();
 int _eh_escopo_global(PilhaHash *pilha);
 int busca_deslocamento_rsp();
 int _pelo_menos_x_tabelas(PilhaHash *pilha, int x);

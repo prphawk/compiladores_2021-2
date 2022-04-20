@@ -10,6 +10,8 @@ int tem_buracos(Nodo *nodo);
 
 void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo);
 void codigo_rsp_e_rfp_declaracao_funcao(Nodo *lista_comandos);
+void codigo_return(Nodo *nodo, Nodo *expr);
+void codigo_retorna_funcao(Nodo *lista_comandos_funcao);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_update_deslocamento(Nodo *nodo);
 void codigo_carrega_variavel(Nodo *nodo);
@@ -52,3 +54,4 @@ CodigoILOC *instrucao_halt();
 CodigoILOC *instrucao_addi(OperandoILOC *r1, int valor, OperandoILOC *r3);
 CodigoILOC *instrucao_storeai(OperandoILOC *r1, OperandoILOC *r2, int valor);
 CodigoILOC *instrucao_loadai(OperandoILOC *r1, int valor, OperandoILOC *r3);
+CodigoILOC *instrucao_store(OperandoILOC *r1, OperandoILOC *r2);
