@@ -105,13 +105,17 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 	}
 }
 
-void codigo_rsp_funcao(Nodo *lista_comandos_funcao) {
+void codigo_rsp_e_rfp_declaracao_funcao(Nodo *lista_comandos_funcao) {
 
 	CodigoILOC *codigo_lst = NULL;
+
+	CodigoILOC *codigo_copia_rsp_para_rfp = _cria_codigo(reg_rsp(), I2I, reg_rfp());
+
 	int deslocamento_var_locais = busca_deslocamento_rsp();
 
 	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), deslocamento_var_locais, reg_rsp());
 
+	codigo_lst = _append_codigo(codigo_lst, codigo_copia_rsp_para_rfp);
 	codigo_lst = _append_codigo(codigo_lst, codigo_atualiza_rsp);
 	codigo_lst = _append_codigo(codigo_lst, lista_comandos_funcao->codigo);
 	lista_comandos_funcao->codigo = codigo_lst;
@@ -313,42 +317,41 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	print_ILOC_intermed("Codigo if else", nodo->codigo);
 }
 
-//StoreAI r0 => rsp, 12 // Empilha registrador * quantityOfRegisters //TODO apagar dps
-// addI rpc, 7  => r1      
-// storeAI r1  => rsp, 0  
-// storeAI rsp => rsp, 4  // Salva o rsp (SP)
-// storeAI rfp => rsp, 8  // Salva o rfp (RFP)
-// 
-// storeAI r0 => rsp, 12  // Empilha parâmetro * quantityOfParameters
-//
-// jumpI => functionLabel            
-// loadAI rsp, returnValueOffset => r0   
+  
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
 
 	//remenda_argumentos_chamada_funcao(nodo, lista_argumentos);
 
 	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+
+	//	loadI PC + 5 => r1 // guarda o endereço de retorno
 	_append(nodo, instrucao_addi(reg_rpc(), 5, r1));
+	// storeAI r1 => rsp, 0
 	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
+	// storeAI rsp => rsp, 4
 	_append(nodo, instrucao_storeai(reg_rsp(), reg_rsp(), 4));
+	// storeAI rfp => rsp, 8
 	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));
 
+	// jumpI => L0 // pula pra funcao chamada
 	char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
 	_append(nodo, instrucao_jumpI(gera_operando_rotulo(rotulo_ptr)));
 
-/*
-	 // Calcula o endereço de retorno
-    OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
-    OperandoILOC *reg_imediato = gera_operando_imediato(incrementa_rpc);
-
-	 _cria_codigo_append(nodo, lista(reg_rpc(), reg_imediato), ADDI, reg_retorno);
- */   
-	
+	//loadAI rsp, 12 => r0 // pega o retorno da funcao
+	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+	_append(nodo, instrucao_loadai(reg_rsp(), 12, r0));
+	//storeAI r0 => rfp, 0
+	//_append(nodo, instrucao_storeai(copia_operando(r0), reg_rfp(), 0));
+	nodo->reg_resultado = r0;
 }
 
 //ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1
 CodigoILOC *instrucao_storeai(OperandoILOC *r1, OperandoILOC *r2, int valor) {
 	return _cria_codigo(r1, STOREAI, lista(r2, gera_operando_imediato(valor)));
+}
+//ex: r1, c2 => r3 // r3 = Memoria(r1 + c2)
+CodigoILOC *instrucao_loadai(OperandoILOC *r1, int valor, OperandoILOC *r3) {
+	return _cria_codigo(lista(r1, gera_operando_imediato(valor)), LOADAI, r3);
 }
 
 void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {
@@ -611,7 +614,7 @@ CodigoILOC* instrucao_cbr(OperandoILOC *r1, OperandoILOC *op_label_true, Operand
 // cmp_NE r1, r2 -> r3 
 CodigoILOC* intrucoes_cmp_NE_0(OperandoILOC *r1) {
 
-   	CodigoILOC *codigo_0 = instrucao_loadI(0, NULL);
+   CodigoILOC *codigo_0 = instrucao_loadI(0, NULL);
 
 	OperandoILOC *r2 = copia_operando(codigo_0->destino);
 	OperandoILOC *r3 = gera_operando_registrador(gera_nome_registrador());

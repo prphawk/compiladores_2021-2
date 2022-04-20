@@ -158,7 +158,7 @@ nome_variavel_global: TK_IDENTIFICADOR
                     };
 
 corpo: corpo_1 corpo_2 { $$ = $1; }
-corpo_1: '{' lista_comandos { $$ = $2; codigo_rsp_funcao($$); }
+corpo_1: '{' lista_comandos { $$ = $2; codigo_rsp_e_rfp_declaracao_funcao($$); }
 corpo_2: '}' { desempilha(); libera_ultima_funcao(); }
 
 declaracao_funcao: cabecalho corpo
