@@ -6,7 +6,7 @@ executable="./etapa5"
 echo "------------- STARTING TEST CASES -------------\n"
 for file in ../testes_E5/*
     do
-    "$executable" < "$file" > "saidas/testes_E5/$file.txt"
+    "$executable" < "$file" #> "saidas/testes_E5/$file.txt"
     result=$?
     
     print="FROM:${file}"
@@ -15,7 +15,7 @@ done
 
 for file in ../testes_laura_E5/*
     do
-    "$executable" < "$file" > "saidas/testes_laura_E5/$file.txt"
+    "$executable" < "$file" #> "saidas/testes_laura_E5/$file.txt"
     result=$?
     
     print="FROM:${file}"

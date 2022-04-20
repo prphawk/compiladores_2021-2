@@ -19,7 +19,7 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 //#region Auxiliares
 
 int eh_a_main() {
-    return (global_ultima_funcao && compare_eq_str(global_ultima_funcao, "main"));
+    return (global_ultima_funcao != NULL && compare_eq_str(global_ultima_funcao, "main"));
 }
 
 int _eh_escopo_global(PilhaHash *pilha) {
@@ -650,7 +650,7 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
 
         char* chave = _chave_label(global_ultima_funcao);
 
-        EntradaHash *busca_funcao = _busca_topo_pilha(chave, global_pilha_hash->resto);
+        EntradaHash *busca_funcao = _busca_pilha(chave);
 
         free(chave);
 
