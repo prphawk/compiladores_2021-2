@@ -98,27 +98,31 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 	insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
 
-	codigo_append_nodo(cabecalho, corpo);
-
 	if(compare_eq_str(cabecalho->valor_lexico.label, "main")) {
 		rotulo_main_global = rotulo;
 	}
+
+	codigo_rsp_e_rfp_declaracao_funcao(cabecalho);
+
+	codigo_append_nodo(cabecalho, corpo); //com o return viu
+
+	codigo_retorna_funcao(cabecalho);
 }
 
-void codigo_rsp_e_rfp_declaracao_funcao(Nodo *lista_comandos_funcao) {
+void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho) {
+
+	//if(lista_comandos_funcao == NULL) return;
 
 	CodigoILOC *codigo_lst = NULL;
 
 	CodigoILOC *codigo_copia_rsp_para_rfp = _cria_codigo(reg_rsp(), I2I, reg_rfp());
+	
+	int deslocamento_var_locais = busca_deslocamento_rsp(cabecalho->valor_lexico.label);
 
-	int deslocamento_var_locais = busca_deslocamento_rsp();
+	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), 16 + deslocamento_var_locais, reg_rsp()); // o 16 pula o rsp e rfp antigos e o valor de retorno
 
-	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), deslocamento_var_locais, reg_rsp());
-
-	codigo_lst = _append_codigo(codigo_lst, codigo_copia_rsp_para_rfp);
-	codigo_lst = _append_codigo(codigo_lst, codigo_atualiza_rsp);
-	codigo_lst = _append_codigo(codigo_lst, lista_comandos_funcao->codigo);
-	lista_comandos_funcao->codigo = codigo_lst;
+	_append(cabecalho, codigo_copia_rsp_para_rfp);
+	_append(cabecalho, codigo_atualiza_rsp);
 }
 
 // loadI 73 => r0
@@ -158,7 +162,7 @@ storeAI r1 => rsp
 storeAI r2 => rfp
 jump => r0
 */
-void codigo_retorna_funcao(Nodo *lista_comandos_funcao) {
+void codigo_retorna_funcao(Nodo *cabecalho) {
 
 	if(eh_a_main()) return; //TODO tirar se necessario
 
@@ -166,12 +170,14 @@ void codigo_retorna_funcao(Nodo *lista_comandos_funcao) {
 	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
 	OperandoILOC *r2 = gera_operando_registrador(gera_nome_registrador());
 
-	_append(lista_comandos_funcao, instrucao_loadai(reg_rfp(), 0, r0));
-	_append(lista_comandos_funcao, instrucao_loadai(reg_rfp(), 4, r1));
-	_append(lista_comandos_funcao, instrucao_loadai(reg_rfp(), 8, r2));
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
 
-	_append(lista_comandos_funcao, instrucao_store(copia_operando(r1), reg_rsp()));
-	_append(lista_comandos_funcao, instrucao_store(copia_operando(r2), reg_rfp()));
+	_append(cabecalho, instrucao_store(copia_operando(r1), reg_rsp()));
+	_append(cabecalho, instrucao_store(copia_operando(r2), reg_rfp()));
+
+	_append(cabecalho, _cria_codigo(NULL, JUMP, copia_operando(r0)));
 }
 
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)

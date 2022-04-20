@@ -108,8 +108,8 @@ extern int E4_CHECK_FLAG;
 %type<nodo> chamada_funcao
 %type<nodo> lista_comandos
 %type<nodo> corpo
-%type<nodo> corpo_1
-%type<nodo> corpo_2
+/* %type<nodo> corpo_1
+%type<nodo> corpo_2 */
 %type<nodo> lista_argumentos
 %type<nodo> argumentos
 %type<nodo> cabecalho
@@ -157,21 +157,14 @@ nome_variavel_global: TK_IDENTIFICADOR
                         libera_vlex($1); libera_vlex($3); 
                     };
 
-corpo: corpo_1 corpo_2 { $$ = $1; }
-corpo_1: '{' lista_comandos 
-        { 
-            $$ = $2; 
-            codigo_rsp_e_rfp_declaracao_funcao($$); 
-            codigo_retorna_funcao($$);
-        }
-corpo_2: '}' { desempilha(); libera_ultima_funcao(); }
+corpo: '{' lista_comandos '}' { $$ = $2; };
 
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
-                    //TODO botar o label de nome da função antes do codigo e fazer codigo de carregamento dos parametros tbm
-                    $$ = $1;
                     codigo_declaracao_funcao($1, $2);
+                    $$ = $1;
+                    desempilha(); libera_ultima_funcao();
                 };
 
 cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };

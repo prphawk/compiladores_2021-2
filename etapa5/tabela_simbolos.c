@@ -200,7 +200,7 @@ DeslocamentoEscopo busca_deslocamento_e_escopo(char *label) {
 
 int busca_deslocamento_rsp() {
 
-    PilhaHash *pilha = global_pilha_hash; 
+    PilhaHash *pilha = global_pilha_hash;
 
     if(pilha == NULL) return -1;
     

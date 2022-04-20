@@ -1,11 +1,9 @@
 
 int f() {
-	
 	return 73;
 }
 
 int main() {
-
 	int x;
 	x = f();
 }
