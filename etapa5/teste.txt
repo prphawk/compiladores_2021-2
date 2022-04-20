@@ -1,9 +1,18 @@
-
-int f() {
-	return 73;
+/*
+int f(int y) {
+	return y;
 }
 
 int main() {
 	int x;
-	x = f();
+	x = f(x);
+}
+*/
+int main() {
+    int x <= 0;
+    if (x) {
+        x = 10;
+    } else {
+        x = 20;
+    };
 }

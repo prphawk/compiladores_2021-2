@@ -408,8 +408,8 @@ void print_operando(OperandoILOC *operando)
         printf("REMENDO");
     else printf("%s", operando->nome);
 
-   //  if(operando->tipo == LABEL || operando->tipo == REMENDO)
-   //    printf(" %p", operando);
+    if(operando->tipo == REMENDO)
+      printf(" %p", operando);
 }
 
 void print_remendos(Remendo *remendo_lst) {

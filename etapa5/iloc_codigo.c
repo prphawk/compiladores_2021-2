@@ -16,17 +16,8 @@ void codigo_finaliza(Nodo *arvore) {
 	CodigoILOC *codigo_lst = NULL;
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
-	//--------------------- talvez tenha q mudar
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss()));
-/*
-	OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
-	CodigoILOC *codigo_addi_retorno = instrucao_addi(reg_rpc(), num_instr_incompleto + 3, reg_retorno);
-	CodigoILOC *codigo_storeai_retorno = _cria_codigo(copia_operando(reg_retorno), STOREAI, lista(reg_rsp(), 0)); //TODO eh zero mesmo?
 
-	codigo_lst = _append_codigo(codigo_lst, codigo_addi_retorno);
-	codigo_lst = _append_codigo(codigo_lst, codigo_storeai_retorno);
-*/
-	// ----------------------
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss())); //TODO checar
 
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
 
@@ -138,7 +129,7 @@ void codigo_return(Nodo *nodo, Nodo *expressao) {
 
 	if(tem_buracos(expressao)) {
 		rotulo_store = gera_nome_rotulo();
-		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store);
+		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store, NULL);
 		codigo_append_nodo(nodo, expressao);
 		_append(nodo, codigo);
 	} else {
@@ -176,8 +167,8 @@ void codigo_retorna_funcao(Nodo *cabecalho) {
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
 
-	_append(cabecalho, instrucao_store(copia_operando(r1), reg_rsp()));
-	_append(cabecalho, instrucao_store(copia_operando(r2), reg_rfp()));
+	_append(cabecalho, _cria_codigo(copia_operando(r1), I2I, reg_rsp()));
+	_append(cabecalho, _cria_codigo(copia_operando(r2), I2I, reg_rfp()));
 
 	_append(cabecalho, _cria_codigo(NULL, JUMP, copia_operando(r0)));
 }
@@ -215,9 +206,11 @@ void codigo_carrega_literal(Nodo *nodo) {
 	print_ILOC_intermed("Carrega literal", codigo);
 }
 
-CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
+CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final, OperandoILOC *destino) {
 
-	OperandoILOC *destino = gera_operando_registrador(gera_nome_registrador());
+	if(destino == NULL){
+		destino = gera_operando_registrador(gera_nome_registrador());
+	}
 
 	char *rotulo_true = gera_nome_rotulo();
 	char *rotulo_false = gera_nome_rotulo();
@@ -310,8 +303,14 @@ void codigo_for(Nodo *nodo, Nodo *atribuicao_inicial, Nodo *expressao, Nodo *atr
 	print_ILOC_intermed("Codigo for", nodo->codigo);
 }
 
+// taca buraco
 void converte_para_logica(Nodo *expressao) {
-	if(tem_buracos(expressao) || !expressao->reg_resultado) return;
+
+	char *rotulo = gera_nome_rotulo();
+
+	if(tem_buracos(expressao) || expressao->reg_resultado == NULL) {
+		return;
+	};
 
 	OperandoILOC *op_remendo_true = gera_operando_remendo();
 	OperandoILOC *op_remendo_false = gera_operando_remendo();
@@ -319,11 +318,15 @@ void converte_para_logica(Nodo *expressao) {
 	OperandoILOC *reg_resultado = copia_operando(expressao->reg_resultado);
 
 	CodigoILOC *codigo = codigo_compara_logico(reg_resultado, op_remendo_true, op_remendo_false);
+	codigo->label = rotulo;
 
 	_append(expressao, codigo);
 
 	expressao->remendos_true = append_remendo(expressao->remendos_true, op_remendo_true);
 	expressao->remendos_false = append_remendo(expressao->remendos_false, op_remendo_false);
+
+		print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
+
 }
 /*
 S -> 	if { B.t=rot(); B.f=rot(); }
@@ -342,7 +345,9 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	CodigoILOC *codigo_nop_false		 = NULL;
 	CodigoILOC *codigo_jump_fim_copia = NULL;
 
+	print_ILOC_intermed("Codigo if else expressao", expressao->codigo);
 	converte_para_logica(expressao);
+	//_imprime_arvore(expressao, 0);
 
 	expressao->remendos_true 		= remenda(expressao->remendos_true, gera_operando_rotulo(copia_nome(rotulo_true)));
 
@@ -352,7 +357,6 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	if(bloco_false != NULL) {
 		rotulo_false = gera_nome_rotulo();
 		codigo_nop_false 	= instrucao_nop(copia_nome(rotulo_false));
-
 		codigo_jump_fim_copia = copia_codigo(codigo_jump_fim);
 	} else {
 		rotulo_false = copia_nome(rotulo_fim);
@@ -406,11 +410,6 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 	nodo->reg_resultado = r0;
 }
 
-// ex: store r1 => r2 // Memoria(r2) = r1
-CodigoILOC *instrucao_store(OperandoILOC *r1, OperandoILOC *r2) {
-	return _cria_codigo(r1, STORE, r2);
-}
-
 //ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1
 CodigoILOC *instrucao_storeai(OperandoILOC *r1, OperandoILOC *r2, int valor) {
 	return _cria_codigo(r1, STOREAI, lista(r2, gera_operando_imediato(valor)));
@@ -422,12 +421,13 @@ CodigoILOC *instrucao_loadai(OperandoILOC *r1, int valor, OperandoILOC *r3) {
 
 void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {
 	Nodo *arg_lst = lista_argumentos;
+	int count = 0;
 
 	while(arg_lst != NULL) {
 
 		if(tem_buracos(arg_lst)) {
 			char *rotulo_fim_arg = gera_nome_rotulo();
-			CodigoILOC *codigo = atribui_booleano(arg_lst, rotulo_fim_arg);
+			CodigoILOC *codigo = atribui_booleano(arg_lst, rotulo_fim_arg, NULL);
 			codigo_append_nodo(chamada_funcao, arg_lst);
 			_append(chamada_funcao, codigo);
 
@@ -452,7 +452,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
 	if(tem_buracos(expressao)) {
 		rotulo_store = gera_nome_rotulo();
-		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store);
+		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store, NULL);
 		codigo_append_nodo(atribuicao, expressao);
 		_append(atribuicao, codigo);
 	} else {
@@ -544,6 +544,11 @@ void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir) {
 	char *rotulo = gera_nome_rotulo();
 	char *rotulo_copia = copia_nome(rotulo);
 
+	if(!tem_buracos(esq))
+		converte_para_logica(esq);
+	if(!tem_buracos(dir))
+		converte_para_logica(dir);
+
 	esq->remendos_true = remenda(esq->remendos_true, gera_operando_rotulo(rotulo));
 
 	operador->remendos_true = dir->remendos_true;
@@ -559,6 +564,11 @@ void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	char *rotulo = gera_nome_rotulo();
 	char *rotulo_copia = copia_nome(rotulo);
+
+	if(!tem_buracos(esq))
+		converte_para_logica(esq);
+	if(!tem_buracos(dir))
+		converte_para_logica(dir);
 
 	esq->remendos_false = remenda(esq->remendos_false, gera_operando_rotulo(rotulo));
 

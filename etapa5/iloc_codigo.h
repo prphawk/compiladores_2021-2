@@ -37,7 +37,7 @@ void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir);
 
-CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final);
+CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final, OperandoILOC *destino);
 
 void converte_para_logica(Nodo *expressao);
 void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco);
@@ -54,4 +54,3 @@ CodigoILOC *instrucao_halt();
 CodigoILOC *instrucao_addi(OperandoILOC *r1, int valor, OperandoILOC *r3);
 CodigoILOC *instrucao_storeai(OperandoILOC *r1, OperandoILOC *r2, int valor);
 CodigoILOC *instrucao_loadai(OperandoILOC *r1, int valor, OperandoILOC *r3);
-CodigoILOC *instrucao_store(OperandoILOC *r1, OperandoILOC *r2);
