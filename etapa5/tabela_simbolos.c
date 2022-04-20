@@ -203,6 +203,10 @@ int busca_deslocamento_rsp() {
     PilhaHash *pilha = global_pilha_hash;
 
     if(pilha == NULL) return -1;
+
+    print_pilha();
+
+    printf("\n>> %i", pilha->deslocamento);
     
     return pilha->deslocamento;
 }

@@ -98,18 +98,20 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 	insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
 
-	if(compare_eq_str(cabecalho->valor_lexico.label, "main")) {
+	int eh_main = compare_eq_str(cabecalho->valor_lexico.label, "main");
+
+	if(eh_main) {
 		rotulo_main_global = rotulo;
 	}
 
-	codigo_rsp_e_rfp_declaracao_funcao(cabecalho);
+	codigo_rsp_e_rfp_declaracao_funcao(cabecalho, eh_main ? 0 : 16);
 
 	codigo_append_nodo(cabecalho, corpo); //com o return viu
 
 	codigo_retorna_funcao(cabecalho);
 }
 
-void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho) {
+void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int offset) {
 
 	//if(lista_comandos_funcao == NULL) return;
 
@@ -119,7 +121,7 @@ void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho) {
 	
 	int deslocamento_var_locais = busca_deslocamento_rsp(cabecalho->valor_lexico.label);
 
-	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), 16 + deslocamento_var_locais, reg_rsp()); // o 16 pula o rsp e rfp antigos e o valor de retorno
+	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), offset + deslocamento_var_locais, reg_rsp()); // o offset (16) pula o rsp e rfp antigos e o valor de retorno. se for a main, nao precisa
 
 	_append(cabecalho, codigo_copia_rsp_para_rfp);
 	_append(cabecalho, codigo_atualiza_rsp);

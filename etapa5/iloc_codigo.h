@@ -9,9 +9,9 @@ void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao
 int tem_buracos(Nodo *nodo);
 
 void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo);
-void codigo_rsp_e_rfp_declaracao_funcao(Nodo *lista_comandos);
+void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int offset);
 void codigo_return(Nodo *nodo, Nodo *expr);
-void codigo_retorna_funcao(Nodo *lista_comandos_funcao);
+void codigo_retorna_funcao(Nodo *cabecalho);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_update_deslocamento(Nodo *nodo);
 void codigo_carrega_variavel(Nodo *nodo);
