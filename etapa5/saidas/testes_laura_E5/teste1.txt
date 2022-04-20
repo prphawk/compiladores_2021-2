@@ -1,0 +1,7 @@
+loadi 1024 => rsp
+loadi 1024 => rfp
+loadi 7 => rbss
+jumpi  => L1
+L1: nop
+addi rsp, 0 => rsp
+halt
