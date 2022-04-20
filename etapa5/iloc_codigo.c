@@ -95,6 +95,8 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 	codigo_rsp_e_rfp_declaracao_funcao(cabecalho, eh_main);
 
+	codigo_carrega_parametros(cabecalho);
+
 	codigo_append_nodo(cabecalho, corpo); //com o return viu
 
 	codigo_retorna_funcao(cabecalho);
@@ -116,6 +118,32 @@ void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), (eh_main ? 0 : 16) + deslocamento_var_locais, reg_rsp()); // o offset (16) pula o rsp e rfp antigos e o valor de retorno. se for a main, nao precisa
 
 	_append(cabecalho, codigo_atualiza_rsp);
+}
+
+void codigo_carrega_parametros(Nodo *cabecalho) {
+
+	ArgumentoFuncaoLst *args = busca_parametros_funcao(cabecalho->valor_lexico.label);
+
+	if(args == NULL) return;
+
+	int offset_quantidade_parametros = _conta_argumentos(args);
+
+	int count = 0;
+
+	while((count < offset_quantidade_parametros) && args != NULL) {
+
+		OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+
+		_append(cabecalho, instrucao_loadai(reg_rfp(), (12 + (4 * count)), r0));
+
+		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(args->nome);
+		OperandoILOC *destino_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
+
+		_append(cabecalho, instrucao_storeai(copia_operando(r0), destino_ponteiro, busca.deslocamento));
+
+		args = args->proximo;
+		count++;
+	}
 }
 
 // loadI 73 => r0
@@ -386,7 +414,7 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
   
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
 
-	//remenda_argumentos_chamada_funcao(nodo, lista_argumentos);
+	int offset = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
 
 	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
 
@@ -405,7 +433,7 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 
 	//loadAI rsp, 12 => r0 // pega o retorno da funcao
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
-	_append(nodo, instrucao_loadai(reg_rsp(), 12, r0)); //TODO esse 12 aqui é relativo não? acho que esse ta certo mas o de chamada de funcao não, pq esse eh rsp e o outro eh rfp. nao mas o rfp faz copia do rsp na chamada
+	_append(nodo, instrucao_loadai(reg_rsp(), (offset * 4) + 12, r0)); //TODO esse 12 aqui é relativo não? acho que esse ta certo mas o de chamada de funcao não, pq esse eh rsp e o outro eh rfp. nao mas o rfp faz copia do rsp na chamada
 	//storeAI r0 => rfp, 0
 	//_append(nodo, instrucao_storeai(copia_operando(r0), reg_rfp(), 0));
 	nodo->reg_resultado = r0;
@@ -420,7 +448,7 @@ CodigoILOC *instrucao_loadai(OperandoILOC *r1, int valor, OperandoILOC *r3) {
 	return _cria_codigo(lista(r1, gera_operando_imediato(valor)), LOADAI, r3);
 }
 
-void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {
+int empilha_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {
 	Nodo *arg_lst = lista_argumentos;
 	int count = 0;
 
@@ -437,8 +465,13 @@ void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumen
 		} else {
 			codigo_append_nodo(chamada_funcao, arg_lst);
 		}
+
+		count++;
+		OperandoILOC *origem = copia_operando(arg_lst->reg_resultado);
+		_append(chamada_funcao, instrucao_storeai(origem, reg_rsp(), (count * 4) + 8));
 		arg_lst = arg_lst->irmao;
-	}	
+	}
+	return count;
 }
 
 

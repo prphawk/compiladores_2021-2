@@ -27,6 +27,7 @@ typedef enum natureza_simbolo
 typedef struct ArgumentoFuncaoLst
 {
     TipoSimbolo tipo;
+    char *nome;
     struct ArgumentoFuncaoLst *proximo;
 } ArgumentoFuncaoLst;
 
@@ -142,3 +143,4 @@ void _print_argumentos(ArgumentoFuncaoLst *argLst);
 DeslocamentoEscopo busca_deslocamento_e_escopo(char *chave);
 void insere_rotulo_funcao(char* nome_funcao, char* rotulo);
 char* busca_rotulo_funcao(char* nome_funcao);
+ArgumentoFuncaoLst *busca_parametros_funcao(char* nome_funcao);

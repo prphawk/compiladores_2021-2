@@ -330,6 +330,7 @@ void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     novo_arg_lst = malloc(sizeof(ArgumentoFuncaoLst));
     novo_arg_lst->tipo = tipo;
+    novo_arg_lst->nome = valor_lexico.label;
 
     if(global_pilha_hash == NULL) throwUnexpectedError(valor_lexico.linha, ">> Não tá empilhando antes dos parâmetros.");
 
@@ -553,7 +554,7 @@ void desempilha()
     PilhaHash *antiga_pilha = global_pilha_hash;
 
     if(_pelo_menos_x_tabelas(nova_pilha, 2)) { //se vamos desempílhar um bloco aninhado
-        nova_pilha->deslocamento = antiga_pilha->deslocamento; //TODO ver se eh isso mesmo, ou entao fazer uma subtração.
+        nova_pilha->deslocamento = antiga_pilha->deslocamento;
     }
 
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
@@ -626,6 +627,9 @@ void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
 
     _libera_argumentos(argumento->proximo);
 
+    if(argumento->nome != NULL)
+        free(argumento->nome);
+
     free(argumento);
 }
 
@@ -697,6 +701,23 @@ void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
     if(busca_funcao != NULL) {
         return busca_funcao->conteudo.rotulo;
     }
+}
+
+ ArgumentoFuncaoLst *busca_parametros_funcao(char* nome_funcao) {
+
+    if(global_pilha_hash == NULL) return NULL;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+         return busca_funcao->conteudo.argumentos;
+    }
+
+    return NULL;
 }
 
 void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *operador) {

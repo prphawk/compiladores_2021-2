@@ -187,8 +187,8 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR            { insere_parametro_sem_funcao($1, $2); libera_vlex($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_parametro_sem_funcao($2, $3); libera_vlex($3); };
+parametro: tipo TK_IDENTIFICADOR            { insere_parametro_sem_funcao($1, $2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_parametro_sem_funcao($2, $3); };
 
 tipo: TK_PR_INT     { $$ = TIPO_INT;    }
     | TK_PR_FLOAT   { $$ = TIPO_FLOAT;  }
