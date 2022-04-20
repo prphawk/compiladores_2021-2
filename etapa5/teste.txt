@@ -1,11 +1,8 @@
-/*
-int f(int y, int x) {
-
-	return y + 200;
+int f(int y) {
+	return y;
 }
-*/
-int main() {
 
+int main() {
 	int x;
-	x = 34;
+	x = f(x);
 }

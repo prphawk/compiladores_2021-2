@@ -9,7 +9,9 @@ void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao
 int tem_buracos(Nodo *nodo);
 
 void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo);
-void codigo_rsp_funcao(Nodo *lista_comandos);
+void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int offset);
+void codigo_return(Nodo *nodo, Nodo *expr);
+void codigo_retorna_funcao(Nodo *cabecalho);
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao);
 void codigo_update_deslocamento(Nodo *nodo);
 void codigo_carrega_variavel(Nodo *nodo);
@@ -23,7 +25,8 @@ void codigo_sub(Nodo *operador, Nodo *expr);
 void codigo_not(Nodo *operador, Nodo *expr);
 
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos);
-void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos);
+int empilha_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos);
+void codigo_carrega_parametros(Nodo *cabecalho);
 
 void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_false);
 void codigo_avalia_expr(Nodo *operador, Nodo *expr, char* reg_resultado_nome, char* operacao_label);
@@ -35,7 +38,7 @@ void codigo_expr_logica_relacional(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir);
 void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir);
 
-CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final);
+CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final, OperandoILOC *destino);
 
 void converte_para_logica(Nodo *expressao);
 void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco);
@@ -50,3 +53,5 @@ CodigoILOC *instrucao_loadI_reg(int valor, char *label, OperandoILOC *r2);
 CodigoILOC *instrucao_jumpI(OperandoILOC *destino);
 CodigoILOC *instrucao_halt();
 CodigoILOC *instrucao_addi(OperandoILOC *r1, int valor, OperandoILOC *r3);
+CodigoILOC *instrucao_storeai(OperandoILOC *r1, OperandoILOC *r2, int valor);
+CodigoILOC *instrucao_loadai(OperandoILOC *r1, int valor, OperandoILOC *r3);

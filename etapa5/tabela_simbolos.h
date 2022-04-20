@@ -27,6 +27,7 @@ typedef enum natureza_simbolo
 typedef struct ArgumentoFuncaoLst
 {
     TipoSimbolo tipo;
+    char *nome;
     struct ArgumentoFuncaoLst *proximo;
 } ArgumentoFuncaoLst;
 
@@ -44,6 +45,7 @@ typedef struct conteudo {
     NaturezaSimbolo natureza;
     ArgumentoFuncaoLst* argumentos;
     ValorLexico valor_lexico;
+    char* rotulo;
 } Conteudo;
 
 typedef struct entradaHash
@@ -67,6 +69,7 @@ typedef struct PilhaHash {
     struct PilhaHash *resto;
 } PilhaHash;
 
+int eh_a_main();
 int _eh_escopo_global(PilhaHash *pilha);
 int busca_deslocamento_rsp();
 int _pelo_menos_x_tabelas(PilhaHash *pilha, int x);
@@ -138,3 +141,6 @@ char* _natureza_str(NaturezaSimbolo natureza);
 void _print_argumentos(ArgumentoFuncaoLst *argLst);
 
 DeslocamentoEscopo busca_deslocamento_e_escopo(char *chave);
+void insere_rotulo_funcao(char* nome_funcao, char* rotulo);
+char* busca_rotulo_funcao(char* nome_funcao);
+ArgumentoFuncaoLst *busca_parametros_funcao(char* nome_funcao);

@@ -108,8 +108,8 @@ extern int E4_CHECK_FLAG;
 %type<nodo> chamada_funcao
 %type<nodo> lista_comandos
 %type<nodo> corpo
-%type<nodo> corpo_1
-%type<nodo> corpo_2
+/* %type<nodo> corpo_1
+%type<nodo> corpo_2 */
 %type<nodo> lista_argumentos
 %type<nodo> argumentos
 %type<nodo> cabecalho
@@ -157,16 +157,14 @@ nome_variavel_global: TK_IDENTIFICADOR
                         libera_vlex($1); libera_vlex($3); 
                     };
 
-corpo: corpo_1 corpo_2 { $$ = $1; }
-corpo_1: '{' lista_comandos { $$ = $2; codigo_rsp_funcao($$); }
-corpo_2: '}' { desempilha(); libera_ultima_funcao(); }
+corpo: '{' lista_comandos '}' { $$ = $2; };
 
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
-                    //TODO botar o label de nome da função antes do codigo e fazer codigo de carregamento dos parametros tbm
-                    $$ = $1;
                     codigo_declaracao_funcao($1, $2);
+                    $$ = $1;
+                    desempilha(); libera_ultima_funcao();
                 };
 
 cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };
@@ -189,8 +187,8 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR            { insere_parametro_sem_funcao($1, $2); libera_vlex($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_parametro_sem_funcao($2, $3); libera_vlex($3); };
+parametro: tipo TK_IDENTIFICADOR            { insere_parametro_sem_funcao($1, $2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_parametro_sem_funcao($2, $3); };
 
 tipo: TK_PR_INT     { $$ = TIPO_INT;    }
     | TK_PR_FLOAT   { $$ = TIPO_FLOAT;  }
@@ -333,6 +331,7 @@ comando_retorno: TK_PR_RETURN expressao
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
                     if(E4_CHECK_FLAG) verifica_return(novo_nodo, $2);
+                    codigo_return($$, $2);
                 };
 
 comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos 

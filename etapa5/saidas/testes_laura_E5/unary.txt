@@ -1,0 +1,1 @@
+line 22: syntax error, unexpected TK_LIT_FALSE, expecting TK_LIT_INT or TK_LIT_FLOAT or TK_IDENTIFICADOR or '('

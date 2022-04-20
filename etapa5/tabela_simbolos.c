@@ -18,6 +18,10 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 
 //#region Auxiliares
 
+int eh_a_main() {
+    return (global_ultima_funcao && compare_eq_str(global_ultima_funcao, "main"));
+}
+
 int _eh_escopo_global(PilhaHash *pilha) {
     return pilha->resto == NULL;
 }
@@ -154,6 +158,7 @@ Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo nat
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
     conteudo.argumentos = NULL;
+    conteudo.rotulo = NULL;
     conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
     return conteudo;
 }
@@ -195,10 +200,10 @@ DeslocamentoEscopo busca_deslocamento_e_escopo(char *label) {
 
 int busca_deslocamento_rsp() {
 
-    PilhaHash *pilha = global_pilha_hash; 
+    PilhaHash *pilha = global_pilha_hash;
 
     if(pilha == NULL) return -1;
-    
+        
     return pilha->deslocamento;
 }
 
@@ -325,6 +330,7 @@ void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     novo_arg_lst = malloc(sizeof(ArgumentoFuncaoLst));
     novo_arg_lst->tipo = tipo;
+    novo_arg_lst->nome = valor_lexico.label;
 
     if(global_pilha_hash == NULL) throwUnexpectedError(valor_lexico.linha, ">> Não tá empilhando antes dos parâmetros.");
 
@@ -522,6 +528,7 @@ void _inicializa_entrada(EntradaHash *entrada) {
     entrada->conteudo.linha = -1;
     entrada->conteudo.tamanho = -1;
     entrada->conteudo.argumentos = NULL;
+    entrada->conteudo.rotulo = NULL;
 }
 
 //#endregion Insere
@@ -547,7 +554,7 @@ void desempilha()
     PilhaHash *antiga_pilha = global_pilha_hash;
 
     if(_pelo_menos_x_tabelas(nova_pilha, 2)) { //se vamos desempílhar um bloco aninhado
-        nova_pilha->deslocamento = antiga_pilha->deslocamento; //TODO ver se eh isso mesmo, ou entao fazer uma subtração.
+        nova_pilha->deslocamento = antiga_pilha->deslocamento;
     }
 
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
@@ -620,6 +627,9 @@ void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
 
     _libera_argumentos(argumento->proximo);
 
+    if(argumento->nome != NULL)
+        free(argumento->nome);
+
     free(argumento);
 }
 
@@ -661,6 +671,53 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
         }
     }
     throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+}
+
+void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
+
+    if(global_pilha_hash == NULL) return;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        busca_funcao->conteudo.rotulo = rotulo;
+    }
+}
+
+ char* busca_rotulo_funcao(char* nome_funcao) {
+
+    if(global_pilha_hash == NULL) return NULL;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        return busca_funcao->conteudo.rotulo;
+    }
+}
+
+ ArgumentoFuncaoLst *busca_parametros_funcao(char* nome_funcao) {
+
+    if(global_pilha_hash == NULL) return NULL;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+         return busca_funcao->conteudo.argumentos;
+    }
+
+    return NULL;
 }
 
 void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *operador) {

@@ -233,6 +233,7 @@ void _imprime_filhos(Nodo *nodo) {
 void exporta_codigo_ILOC()
 {
     Nodo *root = arvore;
+    if(root == NULL) return;
     codigo_finaliza(root);
     print_codigo(root->codigo);
 }

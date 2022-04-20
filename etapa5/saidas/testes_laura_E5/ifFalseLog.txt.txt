@@ -1,0 +1,17 @@
+loadi 1024 => rsp
+loadi 1024 => rfp
+loadi 17 => rbss
+jumpi  => L4
+L4: nop
+addi rsp, 14 => rsp
+loadi 2000 => r2
+storeai r2 => rfp, 0
+jumpi  => L1
+L1: nop
+jumpi  => L2
+L3: nop
+loadi 1000 => r4
+storeai r4 => rfp, 0
+jumpi  => L2
+L2: nop
+halt

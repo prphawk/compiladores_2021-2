@@ -16,16 +16,8 @@ void codigo_finaliza(Nodo *arvore) {
 	CodigoILOC *codigo_lst = NULL;
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
-	//--------------------- talvez tenha q mudar
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 7, NULL, reg_rbss()));
 
-	OperandoILOC *reg_retorno = gera_operando_registrador(gera_nome_registrador());
-	CodigoILOC *codigo_addi_retorno = instrucao_addi(reg_rpc(), num_instr_incompleto + 3, reg_retorno);
-	CodigoILOC *codigo_storeai_retorno = _cria_codigo(copia_operando(reg_retorno), STOREAI, lista(reg_rsp(), 0)); //TODO eh zero mesmo?
-
-	codigo_lst = _append_codigo(codigo_lst, codigo_addi_retorno);
-	codigo_lst = _append_codigo(codigo_lst, codigo_storeai_retorno);
-	// ----------------------
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss())); //TODO checar
 
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
 
@@ -94,22 +86,119 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 	char *rotulo = gera_nome_rotulo();
 	_append(cabecalho, instrucao_nop(rotulo));
-	codigo_append_nodo(cabecalho, corpo); //TODO tirar isso dps? 
-	if(compare_eq_str(cabecalho->valor_lexico.label, "main")) {
-		rotulo_main_global = rotulo;
+
+	insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
+
+	int eh_main = compare_eq_str(cabecalho->valor_lexico.label, "main");
+
+	if(eh_main) rotulo_main_global = rotulo;
+
+	codigo_rsp_e_rfp_declaracao_funcao(cabecalho, eh_main);
+
+	codigo_carrega_parametros(cabecalho);
+
+	codigo_append_nodo(cabecalho, corpo); //com o return viu
+
+	codigo_retorna_funcao(cabecalho);
+}
+
+void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
+
+	//if(lista_comandos_funcao == NULL) return;
+
+	CodigoILOC *codigo_lst = NULL;
+
+	if(!eh_main) {
+		CodigoILOC *codigo_copia_rsp_para_rfp = _cria_codigo(reg_rsp(), I2I, reg_rfp());
+		_append(cabecalho, codigo_copia_rsp_para_rfp);
+	}
+
+	int deslocamento_var_locais = busca_deslocamento_rsp(cabecalho->valor_lexico.label);
+
+	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), (eh_main ? 0 : 16) + deslocamento_var_locais, reg_rsp()); // o offset (16) pula o rsp e rfp antigos e o valor de retorno. se for a main, nao precisa
+
+	_append(cabecalho, codigo_atualiza_rsp);
+}
+
+void codigo_carrega_parametros(Nodo *cabecalho) {
+
+	ArgumentoFuncaoLst *args = busca_parametros_funcao(cabecalho->valor_lexico.label);
+
+	if(args == NULL) return;
+
+	int offset_quantidade_parametros = _conta_argumentos(args);
+
+	int count = 0;
+
+	while((count < offset_quantidade_parametros) && args != NULL) {
+
+		OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+
+		_append(cabecalho, instrucao_loadai(reg_rfp(), (12 + (4 * count)), r0));
+
+		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(args->nome);
+		OperandoILOC *destino_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
+
+		_append(cabecalho, instrucao_storeai(copia_operando(r0), destino_ponteiro, busca.deslocamento));
+
+		args = args->proximo;
+		count++;
 	}
 }
 
-void codigo_rsp_funcao(Nodo *lista_comandos_funcao) {
+// loadI 73 => r0
+// storeAI r0 => rfp, offsetReturnValue
+void codigo_return(Nodo *nodo, Nodo *expressao) {
 
-	CodigoILOC *codigo_lst = NULL;
-	int deslocamento_var_locais = busca_deslocamento_rsp();
+	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 
-	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), deslocamento_var_locais, reg_rsp());
+	char *rotulo_store = NULL;
+	OperandoILOC *origem;
 
-	codigo_lst = _append_codigo(codigo_lst, codigo_atualiza_rsp);
-	codigo_lst = _append_codigo(codigo_lst, lista_comandos_funcao->codigo);
-	lista_comandos_funcao->codigo = codigo_lst;
+	if(tem_buracos(expressao)) {
+		rotulo_store = gera_nome_rotulo();
+		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store, NULL);
+		codigo_append_nodo(nodo, expressao);
+		_append(nodo, codigo);
+	} else {
+		codigo_append_nodo(nodo, expressao);
+	}
+	origem = copia_operando(expressao->reg_resultado);
+	OperandoILOC *destino = lista(reg_rfp(), gera_operando_imediato(12)); //TODO eh 12 mesmo?
+	_cria_codigo_com_label_append(nodo, copia_nome(rotulo_store), origem, STOREAI, destino);
+	
+	nodo->reg_resultado = destino; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
+	//agr eu preciso kk
+
+	print_ILOC_intermed("Codigo return", nodo->codigo);
+
+	//instrucao_loadI_reg()
+}
+
+/*
+oadAI rfp, 0 => r0 //obtém end. retorno
+loadAI rfp, 4 => r1 //obtém rsp salvo
+loadAI rfp, 8 => r2 //obtém rfp salvo
+storeAI r1 => rsp
+storeAI r2 => rfp
+jump => r0
+*/
+void codigo_retorna_funcao(Nodo *cabecalho) {
+
+	if(eh_a_main()) return; //TODO tirar se necessario
+
+	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+	OperandoILOC *r2 = gera_operando_registrador(gera_nome_registrador());
+
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
+
+	_append(cabecalho, _cria_codigo(copia_operando(r1), I2I, reg_rsp()));
+	_append(cabecalho, _cria_codigo(copia_operando(r2), I2I, reg_rfp()));
+
+	_append(cabecalho, _cria_codigo(NULL, JUMP, copia_operando(r0)));
 }
 
 //loadAI originRegister, originOffset => resultRegister // r3 = Memoria(r1 + c2)
@@ -145,9 +234,11 @@ void codigo_carrega_literal(Nodo *nodo) {
 	print_ILOC_intermed("Carrega literal", codigo);
 }
 
-CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final) {
+CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final, OperandoILOC *destino) {
 
-	OperandoILOC *destino = gera_operando_registrador(gera_nome_registrador());
+	if(destino == NULL){
+		destino = gera_operando_registrador(gera_nome_registrador());
+	}
 
 	char *rotulo_true = gera_nome_rotulo();
 	char *rotulo_false = gera_nome_rotulo();
@@ -211,6 +302,7 @@ void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco) {
 
 	print_ILOC_intermed("Codigo while", nodo->codigo);
 }
+
 //comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_atribuicao')' bloco_comandos
 void codigo_for(Nodo *nodo, Nodo *atribuicao_inicial, Nodo *expressao, Nodo *atribuicao_final, Nodo *bloco) {
 	char *rotulo_expressao 	= gera_nome_rotulo();
@@ -240,8 +332,14 @@ void codigo_for(Nodo *nodo, Nodo *atribuicao_inicial, Nodo *expressao, Nodo *atr
 	print_ILOC_intermed("Codigo for", nodo->codigo);
 }
 
+// taca buraco
 void converte_para_logica(Nodo *expressao) {
-	if(tem_buracos(expressao) || !expressao->reg_resultado) return;
+
+	char *rotulo = gera_nome_rotulo();
+
+	if(tem_buracos(expressao) || expressao->reg_resultado == NULL) {
+		return;
+	}
 
 	OperandoILOC *op_remendo_true = gera_operando_remendo();
 	OperandoILOC *op_remendo_false = gera_operando_remendo();
@@ -249,11 +347,15 @@ void converte_para_logica(Nodo *expressao) {
 	OperandoILOC *reg_resultado = copia_operando(expressao->reg_resultado);
 
 	CodigoILOC *codigo = codigo_compara_logico(reg_resultado, op_remendo_true, op_remendo_false);
+	codigo->label = rotulo;
 
 	_append(expressao, codigo);
 
 	expressao->remendos_true = append_remendo(expressao->remendos_true, op_remendo_true);
 	expressao->remendos_false = append_remendo(expressao->remendos_false, op_remendo_false);
+
+		print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
+
 }
 /*
 S -> 	if { B.t=rot(); B.f=rot(); }
@@ -272,7 +374,9 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	CodigoILOC *codigo_nop_false		 = NULL;
 	CodigoILOC *codigo_jump_fim_copia = NULL;
 
+	print_ILOC_intermed("Codigo if else expressao", expressao->codigo);
 	converte_para_logica(expressao);
+	//_imprime_arvore(expressao, 0);
 
 	expressao->remendos_true 		= remenda(expressao->remendos_true, gera_operando_rotulo(copia_nome(rotulo_true)));
 
@@ -282,7 +386,6 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	if(bloco_false != NULL) {
 		rotulo_false = gera_nome_rotulo();
 		codigo_nop_false 	= instrucao_nop(copia_nome(rotulo_false));
-
 		codigo_jump_fim_copia = copia_codigo(codigo_jump_fim);
 	} else {
 		rotulo_false = copia_nome(rotulo_fim);
@@ -308,20 +411,52 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	print_ILOC_intermed("Codigo if else", nodo->codigo);
 }
 
+  
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
 
-	remenda_argumentos_chamada_funcao(nodo, lista_argumentos);
-	
+	int offset = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
+
+	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+
+	//	loadI PC + 5 => r1 // guarda o endereço de retorno
+	_append(nodo, instrucao_addi(reg_rpc(), 5, r1));
+	// storeAI r1 => rsp, 0
+	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
+	// storeAI rsp => rsp, 4
+	_append(nodo, instrucao_storeai(reg_rsp(), reg_rsp(), 4));
+	// storeAI rfp => rsp, 8
+	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));
+
+	// jumpI => L0 // pula pra funcao chamada
+	char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
+	_append(nodo, instrucao_jumpI(gera_operando_rotulo(rotulo_ptr)));
+
+	//loadAI rsp, 12 => r0 // pega o retorno da funcao
+	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+	_append(nodo, instrucao_loadai(reg_rsp(), (offset * 4) + 12, r0)); //TODO esse 12 aqui é relativo não? acho que esse ta certo mas o de chamada de funcao não, pq esse eh rsp e o outro eh rfp. nao mas o rfp faz copia do rsp na chamada
+	//storeAI r0 => rfp, 0
+	//_append(nodo, instrucao_storeai(copia_operando(r0), reg_rfp(), 0));
+	nodo->reg_resultado = r0;
 }
 
-void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {
+//ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1
+CodigoILOC *instrucao_storeai(OperandoILOC *r1, OperandoILOC *r2, int valor) {
+	return _cria_codigo(r1, STOREAI, lista(r2, gera_operando_imediato(valor)));
+}
+//ex: r1, c2 => r3 // r3 = Memoria(r1 + c2)
+CodigoILOC *instrucao_loadai(OperandoILOC *r1, int valor, OperandoILOC *r3) {
+	return _cria_codigo(lista(r1, gera_operando_imediato(valor)), LOADAI, r3);
+}
+
+int empilha_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumentos) {
 	Nodo *arg_lst = lista_argumentos;
+	int count = 0;
 
 	while(arg_lst != NULL) {
 
 		if(tem_buracos(arg_lst)) {
 			char *rotulo_fim_arg = gera_nome_rotulo();
-			CodigoILOC *codigo = atribui_booleano(arg_lst, rotulo_fim_arg);
+			CodigoILOC *codigo = atribui_booleano(arg_lst, rotulo_fim_arg, NULL);
 			codigo_append_nodo(chamada_funcao, arg_lst);
 			_append(chamada_funcao, codigo);
 
@@ -330,8 +465,13 @@ void remenda_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argumen
 		} else {
 			codigo_append_nodo(chamada_funcao, arg_lst);
 		}
+
+		count++;
+		OperandoILOC *origem = copia_operando(arg_lst->reg_resultado);
+		_append(chamada_funcao, instrucao_storeai(origem, reg_rsp(), (count * 4) + 8));
 		arg_lst = arg_lst->irmao;
-	}	
+	}
+	return count;
 }
 
 
@@ -346,7 +486,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 
 	if(tem_buracos(expressao)) {
 		rotulo_store = gera_nome_rotulo();
-		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store);
+		CodigoILOC *codigo = atribui_booleano(expressao, rotulo_store, NULL);
 		codigo_append_nodo(atribuicao, expressao);
 		_append(atribuicao, codigo);
 	} else {
@@ -438,6 +578,11 @@ void codigo_expr_logica_and(Nodo *esq, Nodo *operador, Nodo *dir) {
 	char *rotulo = gera_nome_rotulo();
 	char *rotulo_copia = copia_nome(rotulo);
 
+	if(!tem_buracos(esq))
+		converte_para_logica(esq);
+	if(!tem_buracos(dir))
+		converte_para_logica(dir);
+
 	esq->remendos_true = remenda(esq->remendos_true, gera_operando_rotulo(rotulo));
 
 	operador->remendos_true = dir->remendos_true;
@@ -453,6 +598,11 @@ void codigo_expr_logica_or(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 	char *rotulo = gera_nome_rotulo();
 	char *rotulo_copia = copia_nome(rotulo);
+
+	if(!tem_buracos(esq))
+		converte_para_logica(esq);
+	if(!tem_buracos(dir))
+		converte_para_logica(dir);
 
 	esq->remendos_false = remenda(esq->remendos_false, gera_operando_rotulo(rotulo));
 
@@ -482,6 +632,8 @@ void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
 }
 
 void codigo_not(Nodo *operador, Nodo *expr) {
+
+	converte_para_logica(expr);
 
 	operador->remendos_true = expr->remendos_false;
 	operador->remendos_false =  expr->remendos_true;
@@ -541,10 +693,6 @@ CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true,
 // rsubI r1, 0 => r3 // r3 = 0 - r1
 void codigo_sub(Nodo *operador, Nodo *expr) {
 
-    //int nextInstructionLabel = this->getLabel();
-
-    // resolveArithmetic(operador, expr, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
-
 	OperandoILOC *origem_1 = copia_operando(operador->reg_resultado);
 	OperandoILOC *origem_2 = gera_operando_imediato(0);
 	
@@ -574,7 +722,7 @@ CodigoILOC* instrucao_cbr(OperandoILOC *r1, OperandoILOC *op_label_true, Operand
 // cmp_NE r1, r2 -> r3 
 CodigoILOC* intrucoes_cmp_NE_0(OperandoILOC *r1) {
 
-   	CodigoILOC *codigo_0 = instrucao_loadI(0, NULL);
+   CodigoILOC *codigo_0 = instrucao_loadI(0, NULL);
 
 	OperandoILOC *r2 = copia_operando(codigo_0->destino);
 	OperandoILOC *r3 = gera_operando_registrador(gera_nome_registrador());
