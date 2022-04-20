@@ -274,6 +274,7 @@ void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco) {
 
 	print_ILOC_intermed("Codigo while", nodo->codigo);
 }
+
 //comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_atribuicao')' bloco_comandos
 void codigo_for(Nodo *nodo, Nodo *atribuicao_inicial, Nodo *expressao, Nodo *atribuicao_final, Nodo *bloco) {
 	char *rotulo_expressao 	= gera_nome_rotulo();
@@ -310,7 +311,7 @@ void converte_para_logica(Nodo *expressao) {
 
 	if(tem_buracos(expressao) || expressao->reg_resultado == NULL) {
 		return;
-	};
+	}
 
 	OperandoILOC *op_remendo_true = gera_operando_remendo();
 	OperandoILOC *op_remendo_false = gera_operando_remendo();
@@ -599,6 +600,8 @@ void codigo_expr_logica_booleano(Nodo *nodo, int valor) {
 
 void codigo_not(Nodo *operador, Nodo *expr) {
 
+	converte_para_logica(expr);
+
 	operador->remendos_true = expr->remendos_false;
 	operador->remendos_false =  expr->remendos_true;
 
@@ -656,10 +659,6 @@ CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true,
 
 // rsubI r1, 0 => r3 // r3 = 0 - r1
 void codigo_sub(Nodo *operador, Nodo *expr) {
-
-    //int nextInstructionLabel = this->getLabel();
-
-    // resolveArithmetic(operador, expr, getRegister(), nextInstructionLabel); TODO curto ciruito, depende do BoolFLOW
 
 	OperandoILOC *origem_1 = copia_operando(operador->reg_resultado);
 	OperandoILOC *origem_2 = gera_operando_imediato(0);
