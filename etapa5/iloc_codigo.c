@@ -15,6 +15,7 @@ Pra evitar double free ao liberar memória.
 - Como estamos construindo o código das folhas para raíz, ele está na ordem invertida de como é impresso. Por isso o codigo
 de um nodo (CodigoILOC, que é uma linked list) tem o atributo "anterior" para indicar outro elemento da lista. 
 Dá pra pensar nele como uma pilha, o ponteiro de código de cada nodo retorna a última instrução adicionada.
+- Recomendado ver o vídeo de exemplos de código ILOC pra fazer código de função e chamada de função.
 
 PREPARO CHAMAR UMA FUNÇÃO: (pilha, de baixo para cima)
 
@@ -46,7 +47,7 @@ void codigo_finaliza(Nodo *arvore) {
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
 
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss())); //TODO checar
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss()));
 
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
 
@@ -126,7 +127,7 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 	codigo_carrega_parametros(cabecalho);
 
-	codigo_append_nodo(cabecalho, corpo); //com o return viu
+	codigo_append_nodo(cabecalho, corpo); //com o resultado de return viu
 
 	codigo_retorna_funcao(cabecalho);
 }
@@ -400,32 +401,30 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
 	
 	//eu não tenho TEMPO pra refatorar isso aqui, bear with me:
 
-	char *rotulo_fim 			= gera_nome_rotulo();
-	char *rotulo_true 		= gera_nome_rotulo();
-	char *rotulo_false 		= NULL;
-	CodigoILOC *codigo_nop_false		 = NULL;
+	char *rotulo_fim = gera_nome_rotulo();
+	char *rotulo_true = gera_nome_rotulo();
+	char *rotulo_false = NULL;
+	CodigoILOC *codigo_nop_false = NULL;
 	CodigoILOC *codigo_jump_fim_copia = NULL;
 
-	print_ILOC_intermed("Codigo if else expressao", expressao->codigo);
 	converte_para_logica(expressao);
-	//_imprime_arvore(expressao, 0);
 
-	expressao->remendos_true 		= remenda(expressao->remendos_true, gera_operando_rotulo(copia_nome(rotulo_true)));
+	expressao->remendos_true = remenda(expressao->remendos_true, gera_operando_rotulo(copia_nome(rotulo_true)));
 
-	CodigoILOC *codigo_nop_true 	= instrucao_nop(rotulo_true);
-	CodigoILOC *codigo_jump_fim 	= instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_fim)));
+	CodigoILOC *codigo_nop_true = instrucao_nop(rotulo_true);
+	CodigoILOC *codigo_jump_fim = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_fim)));
 
 	if(bloco_false != NULL) {
 		rotulo_false = gera_nome_rotulo();
-		codigo_nop_false 	= instrucao_nop(copia_nome(rotulo_false));
+		codigo_nop_false = instrucao_nop(copia_nome(rotulo_false));
 		codigo_jump_fim_copia = copia_codigo(codigo_jump_fim);
 	} else {
 		rotulo_false = copia_nome(rotulo_fim);
 	}
 
-	expressao->remendos_false		 = remenda(expressao->remendos_false, gera_operando_rotulo(rotulo_false));
+	expressao->remendos_false = remenda(expressao->remendos_false, gera_operando_rotulo(rotulo_false));
 
-	CodigoILOC *codigo_nop_fim 	 = instrucao_nop(rotulo_fim);
+	CodigoILOC *codigo_nop_fim = instrucao_nop(rotulo_fim);
 
 	codigo_append_nodo(nodo, expressao);
 	_append(nodo, codigo_nop_true);
@@ -507,7 +506,7 @@ int empilha_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argument
 }
 
 
-// storeAI r0 => r1 (rfp ou rbss), deslocamento // TODO: n passar o load da variavel
+// storeAI r0 => r1 (rfp ou rbss), deslocamento
 void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	
 	int offset_params = busca_quantidade_parametros_funcao_atual();
@@ -529,8 +528,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	origem = copia_operando(expressao->reg_resultado);
 	_cria_codigo_com_label_append(atribuicao, copia_nome(rotulo_store), origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
 	
-	atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
-	//agr eu preciso kk
+	atribuicao->reg_resultado = destino_1_ponteiro;
 
 	print_ILOC_intermed("Codigo atribuicao", atribuicao->codigo);
 }
@@ -675,7 +673,6 @@ void codigo_not(Nodo *operador, Nodo *expr) {
 	codigo_append_nodo(operador, expr);
 }
 
-//dar um jeito nesse monte de repeticao de operadores no codigo inteiro.. 
 int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
    switch(nodo_operador->tipo_operacao) {
       case nodo_EQ: return CMP_EQ; break;

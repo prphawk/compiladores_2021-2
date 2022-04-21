@@ -131,10 +131,6 @@ OperandoILOC *copia_operando(OperandoILOC *operando) {
 
    if(operando == NULL) return NULL;
 
-   // if(operando->tipo == REMENDO) {
-   //    return operando;
-   // }
-
     OperandoILOC *copia = malloc(sizeof(OperandoILOC));
     copia->nome = copia_nome_operando(operando->nome, operando->tipo);
     copia->valor = operando->valor;
