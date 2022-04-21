@@ -2,7 +2,8 @@
 
 #define FALSE 0
 #define TRUE 1
-#define MIN_OFFSET_PARAMS 12 // (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
+
+const int MIN_OFFSET_PARAMS = 12; // (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
 
 extern int print_ILOC_intermed_global;
 
@@ -120,7 +121,8 @@ void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 
 	/* se estamos numa funcao chamada, offset_params_atual_global é o valor 12 de return (rfp, 12) + o deslocamento 
 	do empilhamento de parametros / o offset (16) pula o rsp e rfp antigos e o valor de retorno. se for a main, nao precisa */
-	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), busca_offset_base_vars_locais_funcao_atual() + deslocamento_var_locais, reg_rsp()); 
+	int deslocamento_total = busca_offset_base_vars_locais_funcao_atual() + deslocamento_var_locais;
+	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), deslocamento_total, reg_rsp()); 
 
 	_append(cabecalho, codigo_atualiza_rsp);
 }
@@ -144,7 +146,7 @@ void codigo_carrega_parametros(Nodo *cabecalho) {
 		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(args->nome);
 		OperandoILOC *destino_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
 
-		_append(cabecalho, instrucao_storeai(copia_operando(r0), destino_ponteiro, busca.deslocamento + (offset_variaveis_em_chamada_global + 4)));
+		_append(cabecalho, instrucao_storeai(copia_operando(r0), destino_ponteiro, busca.deslocamento + busca_offset_base_vars_locais_funcao_atual()));
 
 		args = args->proximo;
 		count++;
@@ -217,7 +219,7 @@ void codigo_carrega_variavel(Nodo *nodo) {
    int deslocamento = busca.deslocamento;
 
    OperandoILOC *origem_1_registrador = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
-   OperandoILOC *origem_2_deslocamento = gera_operando_imediato(deslocamento + (offset_params ? (offset_params * 4 + MIN_OFFSET_PARAMS) : 0));
+   OperandoILOC *origem_2_deslocamento = gera_operando_imediato(deslocamento + busca_offset_base_vars_locais_funcao_atual());
 
    OperandoILOC *destino = gera_operando_registrador(gera_nome_registrador());
 
@@ -489,7 +491,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	OperandoILOC *origem;
 	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
 	OperandoILOC *destino_1_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
-	OperandoILOC *destino_2_deslocamento = gera_operando_imediato(busca.deslocamento + (offset_params ? (offset_params * 4 + MIN_OFFSET_PARAMS) : 0));
+	OperandoILOC *destino_2_deslocamento = gera_operando_imediato(busca.deslocamento + busca_offset_base_vars_locais_funcao_atual());
 
 	if(tem_buracos(expressao)) {
 		rotulo_store = gera_nome_rotulo();
