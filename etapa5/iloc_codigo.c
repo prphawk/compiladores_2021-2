@@ -1,10 +1,6 @@
 #include "iloc_codigo.h"
 
 /*
-abandon hope, all ye who enter here 
-
-just kidding.
-
 INFOS:
 - Código em uma só passagem, com remendos nas expressoes booleanas/de controle de fluxo.
 - A tabela tabela de símbolos ajuda bastante na hora de controlar o valor de offset dos ponteiros que carregam/escrevem em variáveis.
@@ -32,7 +28,7 @@ rfp + 0 -> endereço de retorno
 #define FALSE 0
 #define TRUE 1
 
-const int MIN_OFFSET_PARAMS = 12; // (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
+const int MIN_OFFSET_PARAMS = 12; // 12 -> (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
 extern int print_ILOC_intermed_global;
 
 char *rotulo_main_global = NULL;
@@ -133,8 +129,6 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 }
 
 void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
-
-	CodigoILOC *codigo_lst = NULL;
 
 	if(!eh_main) { //TODO talvez n precise
 		CodigoILOC *codigo_copia_rsp_para_rfp = _cria_codigo(reg_rsp(), I2I, reg_rfp());

@@ -14,6 +14,7 @@ int conta_instrucoes(CodigoILOC *codigo) {
 	}
 	return count;
 }
+
 //#region Cria
 
 char *gera_nome_rotulo()
@@ -153,6 +154,9 @@ CodigoILOC *copia_codigo(CodigoILOC *codigo) {
    return copia;
 }
 
+/* ao fazer deep copy do codigo de um nodo para outro, o endereço do operando que estava na lista de remendos acaba 
+apontando pra um operando não mais utilizado no código final. atualizamos o endereço do remendo com o novo endereço 
+do resultado de deep copy para que a função remenda() consiga encontrar o operando correto. */
 CodigoILOC *copia_codigo_repassa_remendo(Remendo *lst_true, Remendo *lst_false, CodigoILOC *codigo) {
 
 	if(codigo == NULL) return NULL;
@@ -276,7 +280,6 @@ void libera_codigo(CodigoILOC *codigo) {
     libera_operando(codigo->destino);
 
     free(codigo);
-    codigo = NULL;
 }
 
 void libera_nome(char *nome) {
@@ -288,14 +291,12 @@ void libera_operando(OperandoILOC *operando) {
 
     libera_operando(operando->proximo);
 
-
    if(operando->tipo != REGISTRADOR_PONTEIRO) {
      libera_nome(operando->nome);
       operando->nome = NULL;
    }
 
    free(operando); 
-   operando = NULL;
 }
 
 void libera_head_remendo(Remendo *remendo) {

@@ -651,7 +651,7 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
 
         char* chave = _chave_label(global_ultima_funcao);
 
-        EntradaHash *busca_funcao = _busca_pilha(chave);
+        EntradaHash *busca_funcao = _busca_pilha(chave); //TODO mudar na etapa 4
 
         free(chave);
 
@@ -726,7 +726,8 @@ void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
     //escopo global ou main o offset inicial de variaveis é (rfp, 0)
     if(global_ultima_funcao == NULL || eh_a_main()) return 0;
 
-    int offset_params_empilhados_e_return = (4 * busca_quantidade_parametros_funcao_atual()) + MIN_OFFSET_PARAMS;
+    // se não tiver parametros esse é o offset 12 para o valor de retorno
+    int offset_params_empilhados_e_return = (4 * busca_quantidade_parametros_funcao_atual()) + MIN_OFFSET_PARAMS; 
    
     return offset_params_empilhados_e_return + 4; //+4 indica o espaço vago para a primeira var local
 }

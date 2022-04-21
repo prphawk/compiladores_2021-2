@@ -1,1 +1,0 @@
-line 3: syntax error, unexpected ':', expecting TK_OC_AND or TK_OC_OR

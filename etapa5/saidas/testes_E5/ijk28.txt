@@ -1,1 +1,0 @@
-[ERR_WRONG_PAR_RETURN] linha 7: Tipo de "1" é retorno incompatível com função.
