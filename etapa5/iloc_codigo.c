@@ -4,10 +4,7 @@
 #define TRUE 1
 
 const int MIN_OFFSET_PARAMS = 12; // (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
-
 extern int print_ILOC_intermed_global;
-
-int offset_variaveis_em_chamada_global = 0; //global e main as variaveis começam em rfp, 0. em funcoes chamadas não, no minimo (rfp, 16).
 
 char *rotulo_main_global = NULL;
 
