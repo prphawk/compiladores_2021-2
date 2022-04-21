@@ -19,7 +19,7 @@ int main (int argc, char **argv)
   int ret = yyparse(); 
   //exporta_arvore();
   //print_arvore();
-  //exporta_codigo_ILOC();
+  exporta_codigo_ILOC();
   free_mem();
   yylex_destroy();
   return ret;

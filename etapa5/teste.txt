@@ -1,8 +1,8 @@
-int f(int y) {
-	return y;
+int f() {
+	return 73;
 }
 
 int main() {
 	int x;
-	x = f(x);
+	x = f();
 }
