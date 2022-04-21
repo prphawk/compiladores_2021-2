@@ -7,6 +7,7 @@ char *global_ultima_funcao = NULL; // para buscar a função atual e seu tipo ao
 int E4_CHECK_FLAG = 1; // existe pra habilitar/desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
 extern int print_simbolos_global;
+extern int MIN_OFFSET_PARAMS;
 
 /*
 TABELA HASH - a tabela hash usa open adressing.
@@ -718,6 +719,16 @@ void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
     }
 
     return NULL;
+}
+
+ int busca_offset_base_vars_locais_funcao_atual() {
+
+    //escopo global ou main o offset inicial de variaveis é (rfp, 0)
+    if(global_ultima_funcao == NULL || eh_a_main()) return 0;
+
+    int offset_params_empilhados_e_return = (4 * busca_quantidade_parametros_funcao_atual()) + MIN_OFFSET_PARAMS;
+   
+    return offset_params_empilhados_e_return + 4; //+4 indica o espaço vago para a primeira var local
 }
 
  int busca_quantidade_parametros_funcao_atual() {
