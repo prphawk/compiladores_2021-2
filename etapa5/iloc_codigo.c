@@ -1,5 +1,33 @@
 #include "iloc_codigo.h"
 
+/*
+abandon hope, all ye who enter here 
+
+just kidding.
+
+INFOS:
+- Código em uma só passagem, com remendos nas expressoes booleanas/de controle de fluxo.
+- A tabela tabela de símbolos ajuda bastante na hora de controlar o valor de offset dos ponteiros que carregam/escrevem em variáveis.
+Sua atualização de tamanho total de rsp (topo da pilha depois do tamanho total das variáveis locais da função) das pode ser maior ou menor
+dependendo se vc tem guardado variáveis literais no escopo global ou junto com as variáveis locais no escopo atual.
+- Tem que fazer deep copy de todo ponteiro (rótulo/operando/instrução) cujo conteúdo vc queira reutilizar em outra instrução. 
+Pra evitar double free ao liberar memória.
+- Como estamos construindo o código das folhas para raíz, ele está na ordem invertida de como é impresso. Por isso o codigo
+de um nodo (CodigoILOC, que é uma linked list) tem o atributo "anterior" para indicar outro elemento da lista. 
+Dá pra pensar nele como uma pilha, o ponteiro de código de cada nodo retorna a última instrução adicionada.
+
+PREPARO CHAMAR UMA FUNÇÃO: (pilha, de baixo para cima)
+
+rfp + 20 -> endereço do valor de retorno
+
+rfp + 16 -> empilha parametro 2 (e desloca em +4 o endereço do valor de retorno, que é o ultimo)
+rfp + 12 -> empilha parametro 1 (e desloca em +4 o endereço do valor de retorno, que é o ultimo)
+
+rfp + 8 -> o rsp atual
+rfp + 4 -> o rfp atual
+rfp + 0 -> endereço de retorno
+*/
+
 #define FALSE 0
 #define TRUE 1
 
@@ -498,7 +526,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	} else {
 		codigo_append_nodo(atribuicao, expressao);
 	}
-	origem = copia_operando(expressao->reg_resultado); //TODO CUIDAR!!!!!!!!!! TEM Q COPIAR SE FOR USAR EM NOVA INSTRUÇAO
+	origem = copia_operando(expressao->reg_resultado);
 	_cria_codigo_com_label_append(atribuicao, copia_nome(rotulo_store), origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
 	
 	atribuicao->reg_resultado = destino_1_ponteiro; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
