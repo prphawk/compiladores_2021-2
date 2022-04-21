@@ -13,12 +13,12 @@ for file in ../testes_E5/*
     echo "$print\n"
 done
 
-for file in ../testes_laura_E5/*
-    do
-    "$executable" < "$file" #> "saidas/testes_laura_E5/$file.txt"
-    result=$?
+# for file in ../testes_laura_E5/*
+#     do
+#     "$executable" < "$file" #> "saidas/testes_laura_E5/$file.txt"
+#     result=$?
     
-    print="FROM:${file}"
-    echo "$print\n"
-done
+#     print="FROM:${file}"
+#     echo "$print\n"
+# done
   

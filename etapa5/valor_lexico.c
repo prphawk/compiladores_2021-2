@@ -58,7 +58,6 @@ char* append_str_malloc(char* str1, char* str2) {
    result[size] = '\0';
    strcpy(result, str1);
    strcat(result, str2);
-   printf("\n>>%s", result);
    return result;
 }
 
