@@ -162,7 +162,10 @@ void codigo_return(Nodo *nodo, Nodo *expressao) {
 		codigo_append_nodo(nodo, expressao);
 	}
 	origem = copia_operando(expressao->reg_resultado);
-	OperandoILOC *destino = lista(reg_rfp(), gera_operando_imediato(12)); //TODO eh 12 mesmo?
+	
+	int quantidade_params = busca_quantidade_parametros_funcao_atual();
+	OperandoILOC *destino = lista(reg_rfp(), gera_operando_imediato((quantidade_params * 4) + 12));
+
 	_cria_codigo_com_label_append(nodo, copia_nome(rotulo_store), origem, STOREAI, destino);
 	
 	nodo->reg_resultado = destino; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.

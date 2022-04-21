@@ -720,6 +720,23 @@ void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
     return NULL;
 }
 
+ int busca_quantidade_parametros_funcao_atual() {
+
+    if(global_ultima_funcao == NULL) return 0;
+
+    char* chave = _chave_label(global_ultima_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        return _conta_argumentos(busca_funcao->conteudo.argumentos);
+    }
+
+    return 0;
+}
+
 void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *operador) {
 
     _verifica_op_str_char_erro(validacao, operador->valor_lexico);
