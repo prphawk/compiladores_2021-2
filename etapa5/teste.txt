@@ -1,11 +1,8 @@
-int g(int i, int j, int k){
+int f() {
+	return 73;
 }
-int f(){
-    float a <= 1;
-    int b;
-    int c;
-    a = 1;
-    b = 2;
-    c = 3;
-    g(a, b, c);
+
+int main() {
+	int x;
+	x = f();
 }

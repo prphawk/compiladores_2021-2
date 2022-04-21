@@ -2,31 +2,23 @@
 
 SUCCESS=0
 executable="./etapa5"
-evaluation=""
 
-
-# o que NAO deve dar erro
-
-echo "------------- STARTING CORRECT TEST CASES -------------\n"
-for file in ../testes_E4/right/*
+echo "------------- STARTING TEST CASES -------------\n"
+for file in ../testes_E5/*
     do
-    "$executable" < "$file"
+    "$executable" < "$file" #> "saidas/testes_E5/$file.txt"
     result=$?
     
     print="FROM:${file}"
     echo "$print\n"
 done
-  
 
-# o que deve dar erro
-
-echo "\n------------- STARTING ERRONEOUS TEST CASES -------------\n"
-for file in ../testes_E4/wrong/*
-    do
-    "$executable" < "$file"
-    result=$?
-    evaluation=$(head -1 "$file")
+# for file in ../testes_laura_E5/*
+#     do
+#     "$executable" < "$file" #> "saidas/testes_laura_E5/$file.txt"
+#     result=$?
     
-    print="FROM:${file} RESULT:${evaluation}"
-    echo "$print\n"
-done
+#     print="FROM:${file}"
+#     echo "$print\n"
+# done
+  

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "valor_lexico.h"
-
+#include "iloc.h"
 typedef enum tipo
 {
     TIPO_INT,
@@ -13,12 +13,39 @@ typedef enum tipo
     TIPO_OUTRO,
 } Tipo;
 
+typedef enum operador
+{
+    nodo_null,
+    nodo_mult,
+    nodo_div,
+    nodo_add,
+    nodo_sub,
+    nodo_LT,
+    nodo_GT,
+    nodo_LE,
+    nodo_EQ,
+    nodo_GE,
+    nodo_NE,
+    nodo_neg,
+    nodo_not,
+    nodo_and,
+    nodo_or,
+    nodo_attr
+} Operador;
+
 typedef struct Nodo {
     Tipo tipo;
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
+    Operador tipo_operacao;
+
+    CodigoILOC *codigo;
+    OperandoILOC *reg_resultado;
+    Remendo *remendos_true;
+    Remendo *remendos_false;
 } Nodo;
+
 
 Nodo *adiciona_nodo(ValorLexico valor_lexico);
 Nodo *adiciona_nodo_label(char *label);
@@ -43,3 +70,5 @@ void _imprime_filhos(Nodo *nodo);
 void print_arvore();
 void exporta_arvore();
 void libera_arvore();
+
+void exporta_codigo_ILOC();

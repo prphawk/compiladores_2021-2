@@ -47,9 +47,15 @@ int tem_valor_string(ValorLexico valor_lexico) {
    return (valor_lexico.tipo_vlex_literal == VLEX_LITERAL_STRING);
 }
 
+int tem_valor_literal_int(ValorLexico valor_lexico) {
+   return (valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL && valor_lexico.tipo_vlex_literal == VLEX_LITERAL_INT);
+}
+
 char* append_str_malloc(char* str1, char* str2) {
-   char* result = malloc((strlen(str1)+strlen(str2)+1)*sizeof(char));
-   result[strlen(result) - 1] = '\0';
+
+   int size = (strlen(str1)+strlen(str2));
+   char* result = malloc((size+1)*sizeof(char));
+   result[size] = '\0';
    strcpy(result, str1);
    strcat(result, str2);
    return result;

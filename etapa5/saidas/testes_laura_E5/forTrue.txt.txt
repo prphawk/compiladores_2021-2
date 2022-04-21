@@ -1,0 +1,27 @@
+loadi 1024 => rsp
+loadi 1024 => rfp
+loadi 27 => rbss
+jumpi  => L4
+L4: nop
+addi rsp, 20 => rsp
+loadi 0 => r2
+storeai r2 => rfp, 0
+L1: nop
+loadai rfp, 0 => r3
+loadi 10 => r4
+cmp_lt r3, r4 => r5
+loadi 0 => r6
+cmp_ne r5, r6 => r7
+cbr r7 => L2, L3
+L2: nop
+loadai rfp, 0 => r13
+loadi 2 => r14
+add r13, r14 => r15
+storeai r15 => rfp, 0
+loadai rfp, 0 => r9
+loadi 1 => r10
+add r9, r10 => r11
+storeai r11 => rfp, 0
+jumpi  => L1
+L3: nop
+halt

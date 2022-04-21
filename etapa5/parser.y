@@ -4,6 +4,7 @@
 #include "main.h"
 #include "ast.h"
 #include "tabela_simbolos.h"
+#include "iloc_codigo.h"
 int yylex(void);
 int yyerror (char const *s);
 extern int get_line_number (void);
@@ -72,6 +73,7 @@ extern int E4_CHECK_FLAG;
 %type<nodo> variavel_ou_vetor
 %type<nodo> lista_nome_variavel_local
 %type<nodo> declaracao_var_local
+%type<nodo> tipo_e_lista_var_local
 %type<nodo> comando_simples
 %type<nodo> comando_atribuicao
 %type<nodo> comando_entrada
@@ -86,13 +88,14 @@ extern int E4_CHECK_FLAG;
 %type<nodo> operador_binario_prec2
 %type<nodo> operador_binario_prec3
 %type<nodo> operador_binario_prec4
-%type<nodo> operador_binario_prec5
+%type<nodo> operador_binario_relacional
 %type<nodo> operador_unario
 %type<nodo> operador_asterisco
 %type<nodo> operador_binario_logico
 %type<nodo> operando_logico
 %type<nodo> expr_ternaria
 %type<nodo> expr_bin_aritmetica
+%type<nodo> expr_bin_aritmetica_0
 %type<nodo> expr_bin_aritmetica_1
 %type<nodo> expr_bin_aritmetica_2
 %type<nodo> expr_bin_aritmetica_3
@@ -105,6 +108,8 @@ extern int E4_CHECK_FLAG;
 %type<nodo> chamada_funcao
 %type<nodo> lista_comandos
 %type<nodo> corpo
+/* %type<nodo> corpo_1
+%type<nodo> corpo_2 */
 %type<nodo> lista_argumentos
 %type<nodo> argumentos
 %type<nodo> cabecalho
@@ -121,9 +126,13 @@ extern int E4_CHECK_FLAG;
 
 programa: declaracoes { $$ = $1; arvore = $$; };
 
-declaracoes: declaracao declaracoes 
+declaracoes: declaracao declaracoes
             {
-                if ($1!=NULL) { adiciona_filho($1, $2); $$ = $1; }
+                if ($1!=NULL) { 
+                    adiciona_filho($1, $2); 
+                    $$ = $1; 
+                    codigo_append_nodo($$, $2);
+                }
                 else $$ = $2;       
             } 
             | { $$ = NULL;}
@@ -148,20 +157,20 @@ nome_variavel_global: TK_IDENTIFICADOR
                         libera_vlex($1); libera_vlex($3); 
                     };
 
-corpo: '{' lista_comandos corpo_1 { $$ = $2; }
-corpo_1: '}' { desempilha(); libera_ultima_funcao(); }
+corpo: '{' lista_comandos '}' { $$ = $2; };
 
 declaracao_funcao: cabecalho corpo
                 {
                     adiciona_filho($1, $2);
+                    codigo_declaracao_funcao($1, $2);
                     $$ = $1;
+                    desempilha(); libera_ultima_funcao();
                 };
 
 cabecalho: TK_PR_STATIC cabecalho_1 { $$ = $2; } | cabecalho_1 { $$ = $1; };
 cabecalho_1: cabecalho_2 cabecalho_3 parametros ')' 
             { 
-                adiciona_parametros_escopo_anterior($1); /* como a gramática não permite declarar funções 
-                dentro de funções é certo que a função procurada vai estar no escopo imediatamente anterior*/
+                adiciona_parametros_escopo_anterior($1);
                 $$ = $1; 
             }
 cabecalho_2: tipo TK_IDENTIFICADOR
@@ -178,8 +187,8 @@ parametros: lista_parametros | ;
 
 lista_parametros: parametro | parametro ',' lista_parametros;
 
-parametro: tipo TK_IDENTIFICADOR            { insere_parametro_sem_funcao($1, $2); libera_vlex($2); } 
-        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_parametro_sem_funcao($2, $3); libera_vlex($3); };
+parametro: tipo TK_IDENTIFICADOR            { insere_parametro_sem_funcao($1, $2); } 
+        | TK_PR_CONST tipo TK_IDENTIFICADOR { insere_parametro_sem_funcao($2, $3); };
 
 tipo: TK_PR_INT     { $$ = TIPO_INT;    }
     | TK_PR_FLOAT   { $$ = TIPO_FLOAT;  }
@@ -191,7 +200,10 @@ tipo: TK_PR_INT     { $$ = TIPO_INT;    }
 lista_comandos: comando_simples ';' lista_comandos 
                 { 
                     if($1==NULL) $$ = $3;
-                    else { adiciona_filho($1, $3); $$ = $1; }
+                    else { 
+                        adiciona_filho($1, $3); $$ = $1; 
+                        codigo_append_nodo($1, $3);
+                    }
                 }
                 | { $$ = NULL; };
 
@@ -204,6 +216,7 @@ chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' {
                 adiciona_filho(novo_nodo, $3);
                 if(E4_CHECK_FLAG) verifica_funcao_no_escopo($1, $3, novo_nodo);
                 $$ = novo_nodo;
+                codigo_chamada_funcao(novo_nodo, $1.label, $3);
                 libera_vlex($1);
             };
 
@@ -221,17 +234,26 @@ comando_simples: declaracao_var_local   { $$ = $1;}
                | bloco_comandos         { $$ = $1;}
                ;
 
-declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo lista_nome_variavel_local   { $$ = $4; insere_tipo_identificador_pilha($3); if(E4_CHECK_FLAG) verifica_inicializacao($3, $4); }
-                     | TK_PR_CONST tipo lista_nome_variavel_local               { $$ = $3; insere_tipo_identificador_pilha($2); if(E4_CHECK_FLAG) verifica_inicializacao($2, $3); }
-                     | TK_PR_STATIC tipo lista_nome_variavel_local              { $$ = $3; insere_tipo_identificador_pilha($2); if(E4_CHECK_FLAG) verifica_inicializacao($2, $3); }
-                     | tipo lista_nome_variavel_local                           { $$ = $2; insere_tipo_identificador_pilha($1); if(E4_CHECK_FLAG) verifica_inicializacao($1, $2); }
+declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo_e_lista_var_local   { $$ = $3; }
+                     | TK_PR_CONST tipo_e_lista_var_local               { $$ = $2; }
+                     | TK_PR_STATIC tipo_e_lista_var_local              { $$ = $2; }
+                     | tipo_e_lista_var_local                           { $$ = $1; }
                      ;
+
+tipo_e_lista_var_local: tipo lista_nome_variavel_local //TODO mudar no resto das etapas
+                    { 
+                        $$ = $2;
+                        insere_tipo_identificador_pilha($1); 
+                        verifica_inicializacao($1, $2);
+                        codigo_update_deslocamento($$);
+                    };
 
 lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_variavel_local
                         {
                             if ($1!=NULL) {
                                 adiciona_filho($1, $3);
                                 $$ = $1;
+                                codigo_append_nodo($1, $3);
                             }
                             else $$ = $3;       
                         }   
@@ -240,16 +262,18 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
 
 cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel_ou_literal {
                                     Nodo *novo_nodo = adiciona_nodo($2);
-                                    adiciona_filho(novo_nodo, adiciona_nodo($1));
+                                    novo_nodo->tipo_operacao = nodo_attr;
+                                    Nodo *identificador_nodo = adiciona_nodo($1);
+                                    adiciona_filho(novo_nodo, identificador_nodo);
                                     adiciona_filho(novo_nodo, $3);
                                     $$ = novo_nodo;
                                     insere_variavel_sem_tipo_pilha($1);
+                                    codigo_atribuicao(identificador_nodo, $$, $3);
                                 }
                                 | TK_IDENTIFICADOR { 
                                     insere_variavel_sem_tipo_pilha($1);
                                     libera_vlex($1), $$ = NULL;
-                                }
-                                ;
+                                };
 
 variavel_ou_literal: variavel { $$ = $1; } | literal { $$ = $1; };
 
@@ -262,6 +286,7 @@ comando_atribuicao: variavel_ou_vetor '=' expressao
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
                         if(E4_CHECK_FLAG) verifica_atribuicao($1, novo_nodo, $3);
+                        codigo_atribuicao($1, $$, $3);
                     };
 
 comando_entrada: TK_PR_INPUT variavel
@@ -306,23 +331,26 @@ comando_retorno: TK_PR_RETURN expressao
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
                     if(E4_CHECK_FLAG) verifica_return(novo_nodo, $2);
+                    codigo_return($$, $2);
                 };
 
 comando_condicional: TK_PR_IF '(' expressao ')' bloco_comandos 
-                        {
-                            Nodo *novo_nodo = adiciona_nodo_label("if");
-                            adiciona_filho(novo_nodo, $3);
-                            adiciona_filho(novo_nodo, $5);
-                            $$ = novo_nodo;
-                        }
+                    {
+                        Nodo *novo_nodo = adiciona_nodo_label("if");
+                        adiciona_filho(novo_nodo, $3);
+                        adiciona_filho(novo_nodo, $5);
+                        $$ = novo_nodo;
+                        codigo_if_else($$, $3, $5, NULL);
+                    }
                      | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos
-                        {
-                            Nodo *novo_nodo = adiciona_nodo_label("if");
-                            adiciona_filho(novo_nodo, $3);
-                            adiciona_filho(novo_nodo, $5);
-                            adiciona_filho(novo_nodo, $7);
-                            $$ = novo_nodo;
-                        }
+                    {
+                        Nodo *novo_nodo = adiciona_nodo_label("if");
+                        adiciona_filho(novo_nodo, $3);
+                        adiciona_filho(novo_nodo, $5);
+                        adiciona_filho(novo_nodo, $7);
+                        $$ = novo_nodo;
+                        codigo_if_else($$, $3, $5, $7);
+                    }
                      ;
 
 comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_atribuicao')' bloco_comandos
@@ -333,6 +361,7 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                         adiciona_filho(novo_nodo, $7);
                         adiciona_filho(novo_nodo, $9);
                         $$ = novo_nodo;
+                        codigo_for(novo_nodo, $3, $5, $7, $9);
                     }
                   | TK_PR_WHILE '('expressao')' TK_PR_DO bloco_comandos
                   {
@@ -340,11 +369,11 @@ comando_iterativo: TK_PR_FOR '(' comando_atribuicao ':' expressao ':' comando_at
                       adiciona_filho(novo_nodo, $3);
                       adiciona_filho(novo_nodo, $6);
                       $$ = novo_nodo;
+                      codigo_while(novo_nodo, $3, $6);
+
                   }
                   ;
 
-/* mudança de lista de filhos para lista de irmãos para poder corretamente contabilizar o número e 
-verificar o tipo de argumentos formados por expressões passados em uma função ex: foo(10+30,40+2) */
 argumentos: expressao',' argumentos 
             {
                 adiciona_irmao($1, $3);
@@ -359,42 +388,41 @@ literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_
          | TK_LIT_TRUE      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL,   $1);}
          | TK_LIT_FALSE     { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL,   $1);}
          | TK_LIT_FLOAT     { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT,  $1);}
-         | TK_LIT_INT       { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT,    $1);}
+         | TK_LIT_INT       { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT,    $1); codigo_carrega_literal($$); }
          ;
 
 operador_binario_prec1: '^'     { $$ = adiciona_nodo($1); };
-operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); } 
-                        | '/'   { $$ = adiciona_nodo($1); } 
+operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_mult; }
+                        | '/'   { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_div;  }
                         | '%'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); } 
-                        | '-'   { $$ = adiciona_nodo($1); }
+operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_add; } 
+                        | '-'   { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_sub; }
                         ;
 operador_binario_prec4: '&'     { $$ = adiciona_nodo($1); } 
                         | '|'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_prec5: '<'         { $$ = adiciona_nodo($1); } 
-                        | '>'       { $$ = adiciona_nodo($1); } 
-                        | TK_OC_LE  { $$ = adiciona_nodo($1); }
-                        | TK_OC_EQ  { $$ = adiciona_nodo($1); }
-                        | TK_OC_GE  { $$ = adiciona_nodo($1); }
-                        | TK_OC_NE  { $$ = adiciona_nodo($1); }
-                        | operador_binario_logico { $$ = $1; }
+operador_binario_relacional: '<'    { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LT; } 
+                        | '>'       { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_GT; } 
+                        | TK_OC_LE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LE; }
+                        | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_EQ; }
+                        | TK_OC_GE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_GE; }
+                        | TK_OC_NE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_NE; }
                         ;
 
 operador_asterisco: '*' { $$ = adiciona_nodo($1); } 
 
-operador_unario: '-' { $$ = adiciona_nodo($1); }
+operador_unario: '-' { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_neg; }
                | '+' { $$ = adiciona_nodo($1); } 
-               | '!' { $$ = adiciona_nodo($1); } 
+               | '!' { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_not; }
                | '&' { $$ = adiciona_nodo($1); } 
                | '?' { $$ = adiciona_nodo($1); }
                | '#' { $$ = adiciona_nodo($1); }
                ;
 
-operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); } | TK_OC_AND { $$ = adiciona_nodo($1); };
+operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_or; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_and; };
 
-expressao: expr_ternaria        { $$ = $1; } //fazer escadinha? pra evitar a repetição ali do ternario. v
+expressao: expr_ternaria        { $$ = $1; }
         | expr_bin_aritmetica   { $$ = $1; }
         | expr_bin_logica       { $$ = $1; }
         ;
@@ -420,13 +448,23 @@ expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao
                 if(E4_CHECK_FLAG) verifica_expr_ternaria($1, $3, $5, novo_nodo);
             };
 
-expr_bin_aritmetica: expr_bin_aritmetica_1 { $$ = $1; }
-                | expr_bin_aritmetica operador_binario_prec5 expr_bin_aritmetica_1
+expr_bin_aritmetica: expr_bin_aritmetica_0 { $$ = $1; }
+                | expr_bin_aritmetica operador_binario_logico expr_bin_aritmetica_0
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
+                    codigo_expr_logica($1, $2, $3);
+                };
+expr_bin_aritmetica_0: expr_bin_aritmetica_1 { $$ = $1; }
+                | expr_bin_aritmetica_0 operador_binario_relacional expr_bin_aritmetica_1 //TODO MUDAR NAS OUTRAS ETAPAS
+                {
+                    adiciona_filho($2, $1);
+                    adiciona_filho($2, $3);
+                    $$ = $2;
+                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
+                    codigo_expr_logica($1, $2, $3);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                 | expr_bin_aritmetica_1 operador_binario_prec4 expr_bin_aritmetica_2
@@ -435,6 +473,7 @@ expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_aritmetica($1, $2, $3);
                 }
 			    ;
 expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
@@ -444,6 +483,7 @@ expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_aritmetica($1, $2, $3);
                 }
 				;
 expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
@@ -453,6 +493,7 @@ expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
 						adiciona_filho($2, $3);
 						$$ = $2;
                         if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                        codigo_expr_aritmetica($1, $2, $3);
 					}
 					;
 expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
@@ -462,6 +503,7 @@ expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
 						adiciona_filho($2, $3);
 						$$ = $2;
                         if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                        codigo_expr_aritmetica($1, $2, $3);
 					}
 					;            
 expr_unaria_aritmetica: expr_parenteses_aritmetica 
@@ -473,14 +515,14 @@ expr_unaria_aritmetica: expr_parenteses_aritmetica
 					adiciona_filho($1, $2);
 					$$ = $1;
                     if(E4_CHECK_FLAG) verifica_expr_unaria($1, $2);
+                    codigo_expr_unaria($1, $2);
 				}
 				| operador_asterisco expr_unaria_aritmetica
 				{
 					adiciona_filho($1, $2);
 					$$ = $1;
                     if(E4_CHECK_FLAG) verifica_expr_unaria($1, $2);
-				}
-				;
+				};
 
 expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; } 
                         | '(' expr_bin_aritmetica ')'   { $$ = $2; }
@@ -489,8 +531,8 @@ expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; }
 operando_aritmetico: variavel           { $$ = $1; }
                     | vetor             { $$ = $1; }
                     | chamada_funcao    { $$ = $1; }
-                    | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); }
-                    | TK_LIT_INT        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT, $1); }
+                    | TK_LIT_FLOAT      { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_FLOAT, $1); codigo_carrega_literal($$); }
+                    | TK_LIT_INT        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_INT, $1);   codigo_carrega_literal($$); }
                     ;
 
 variavel: TK_IDENTIFICADOR 
@@ -498,6 +540,7 @@ variavel: TK_IDENTIFICADOR
             Nodo *novo_nodo = adiciona_nodo($1); 
             if(E4_CHECK_FLAG) verifica_variavel_no_escopo(novo_nodo); 
             $$ = novo_nodo;
+            codigo_carrega_variavel($$);
         };
 
 vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'
@@ -516,6 +559,8 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_logica($1, $2, $3);
+
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_logica 
                 {
@@ -523,6 +568,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_logica($1, $2, $3);
                 }
                 | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica
                 {
@@ -530,6 +576,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_logica($1, $2, $3);
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica
                 {
@@ -537,12 +584,13 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $3);
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    codigo_expr_logica($1, $2, $3);
                 };
 
 expr_parenteses_logica: operando_logico { $$ = $1; } | '(' expr_bin_logica ')' { $$ = $2; };
 
-operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); } 
-                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); };
+operando_logico: TK_LIT_TRUE    { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_expr_logica_booleano($$, 1); } 
+                | TK_LIT_FALSE  { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_BOOL, $1); codigo_expr_logica_booleano($$, 0); };
 
 %%
 int yyerror (char const *s) {

@@ -1,6 +1,5 @@
 
 #include "ast.h"
-#include "valor_lexico.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +7,7 @@
 void *arvore = NULL;
 
 extern char*_tipo_str(Tipo tipo);
+extern void codigo_finaliza(Nodo *arvore);
 
 Tipo _get_tipo_nodo(ValorLexico valor_lexico) {
     if(valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL) {
@@ -58,6 +58,12 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     nodo->valor_lexico = valor_lexico;
     nodo->tipo = _get_tipo_nodo(valor_lexico);
 
+    nodo->codigo = NULL;
+    nodo->reg_resultado = NULL;
+    nodo->tipo_operacao = nodo_null;
+
+    nodo->remendos_false = NULL;
+    nodo->remendos_true = NULL;
     return nodo;
 }
 
@@ -77,15 +83,7 @@ Nodo *adiciona_nodo_label(char *label)
     valor_lexico.label = strdup(label);
     valor_lexico.valor_string = NULL;
 
-    Nodo *nodo;
-    nodo = malloc(sizeof(Nodo));
-
-    nodo->valor_lexico = valor_lexico;
-    nodo->filho = NULL;
-    nodo->irmao = NULL;
-    nodo->tipo = TIPO_OUTRO;
-
-    return nodo;
+    return adiciona_nodo(valor_lexico);
 }
 
 void adiciona_filho(Nodo *nodo, Nodo *filho) 
@@ -136,6 +134,8 @@ Nodo *_acha_ultimo_irmao(Nodo *nodo_irmao)
 {
     Nodo *aux_nodo = nodo_irmao;
 
+    if(aux_nodo == NULL) return NULL;
+
     while(aux_nodo->irmao!=NULL)
     {
         aux_nodo = aux_nodo->irmao;
@@ -180,6 +180,8 @@ void _libera(void *pai)
 
     libera_vlex(pai_arvore->valor_lexico);
 
+    libera_codigo(pai_arvore->codigo);
+
     free(pai_arvore);
 }
 
@@ -214,7 +216,6 @@ void _exporta(void *arvore)
         _exporta(nodo_f);
         nodo_f = nodo_f->irmao;
     }
-
 }
 
 void _imprime_filhos(Nodo *nodo) {
@@ -227,4 +228,12 @@ void _imprime_filhos(Nodo *nodo) {
 
         nodo_f = nodo_f->irmao;
     }
+}
+
+void exporta_codigo_ILOC()
+{
+    Nodo *root = arvore;
+    if(root == NULL) return;
+    codigo_finaliza(root);
+    print_codigo(root->codigo);
 }

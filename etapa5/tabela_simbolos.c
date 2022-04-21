@@ -6,7 +6,8 @@ VariavelSemTipoLst *global_variaveis_sem_tipo = NULL; // para inserir e atualiza
 char *global_ultima_funcao = NULL; // para buscar a função atual e seu tipo ao analisar o tipo de um retorno
 int E4_CHECK_FLAG = 1; // existe pra habilitar/desabilitar as verificações de tipos da E4 e testar outras etapas livremente.
 
-extern int print_simbolos;
+extern int print_simbolos_global;
+extern int MIN_OFFSET_PARAMS;
 
 /*
 TABELA HASH - a tabela hash usa open adressing.
@@ -18,13 +19,32 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 
 //#region Auxiliares
 
+int eh_a_main() {
+    return (global_ultima_funcao != NULL && compare_eq_str(global_ultima_funcao, "main"));
+}
+
+int _eh_escopo_global(PilhaHash *pilha) {
+    return pilha->resto == NULL;
+}
+
 int _conta_tabelas(PilhaHash *pilha, int count) {
     
-    PilhaHash *aux_pilha = pilha;
-
-    if(aux_pilha == NULL) return count;
+    if(pilha == NULL) return count;
 
     return _conta_tabelas(pilha->resto, ++count);
+}
+
+int _pelo_menos_x_tabelas(PilhaHash *pilha, int x) {
+    
+    int count = 0;
+    PilhaHash *aux_pilha = pilha;
+
+    while(aux_pilha != NULL && count < x) {
+        aux_pilha = aux_pilha->resto;
+        count++;
+    }
+
+    return count >= x;
 }
 
 int _conta_argumentos(ArgumentoFuncaoLst *args) {
@@ -139,6 +159,7 @@ Conteudo _novo_conteudo(ValorLexico valor_lexico, Tipo tipo, NaturezaSimbolo nat
     conteudo.tipo = tipo;
     conteudo.natureza = natureza;
     conteudo.argumentos = NULL;
+    conteudo.rotulo = NULL;
     conteudo.valor_lexico = _malloc_copia_vlex(valor_lexico);
     return conteudo;
 }
@@ -150,6 +171,42 @@ Conteudo _novo_conteudo_literal(ValorLexico valor_lexico, Tipo tipo) {
 //#endregion Auxiliares
 
 //#region Busca
+
+DeslocamentoEscopo busca_deslocamento_e_escopo(char *label) {
+
+    PilhaHash *pilha = global_pilha_hash; 
+
+    EntradaHash *busca = NULL;
+
+    char* chave_malloc = _chave_label(label);
+
+    DeslocamentoEscopo resposta;
+
+    while(pilha != NULL) {
+
+        busca = _busca_topo_pilha(chave_malloc, pilha);
+
+        if(busca != NULL) {
+            resposta.deslocamento = busca->deslocamento;
+            resposta.eh_escopo_global = _eh_escopo_global(pilha);
+            free(chave_malloc);
+            return resposta;
+        }
+        
+        pilha = pilha->resto;
+    }
+    free(chave_malloc);
+    //TODO throwUnexpectedError
+}
+
+int busca_deslocamento_rsp() {
+
+    PilhaHash *pilha = global_pilha_hash;
+
+    if(pilha == NULL) return -1;
+        
+    return pilha->deslocamento;
+}
 
 //  função que retorna uma entrada específica da hash a partir de sua chave
 EntradaHash *_busca_pilha(char *chave) {
@@ -206,7 +263,7 @@ void insere_variavel_sem_tipo_pilha(ValorLexico valor_lexico) {
 
     char* chave = _chave(valor_lexico);
 
-    _insere_identificador_sem_tipo_pilha(chave, 0);
+    _adiciona_identificador_sem_tipo(chave, 0);
     _declara_em_escopo(NATUREZA_VARIAVEL, TIPO_PENDENTE, valor_lexico, 0);
 }
 
@@ -214,12 +271,12 @@ void insere_vetor_sem_tipo_pilha(ValorLexico valor_lexico, int tamanho_vetor) {
 
     char* chave = _chave(valor_lexico);
 
-    _insere_identificador_sem_tipo_pilha(chave, tamanho_vetor);
+    _adiciona_identificador_sem_tipo(chave, tamanho_vetor);
     _declara_em_escopo(NATUREZA_VETOR, TIPO_PENDENTE, valor_lexico, 0);
 }
 
 // identificador = variavel ou vetor
-void _insere_identificador_sem_tipo_pilha(char* chave, int tamanho_vetor) {
+void _adiciona_identificador_sem_tipo(char* chave, int tamanho_vetor) {
 
     VariavelSemTipoLst *nova_vst;
     nova_vst = malloc(sizeof(VariavelSemTipoLst));
@@ -251,8 +308,10 @@ void insere_tipo_identificador_pilha(TipoSimbolo tipo) {
 
             busca->conteudo.tipo = tipo;
             busca->conteudo.tamanho = _tamanho(busca->conteudo.valor_lexico, tipo, vst->tamanho_vetor);
+            busca->deslocamento = pilha->deslocamento;
+            _atualiza_deslocamento_topo(busca->conteudo.tamanho);
 
-            if(print_simbolos) print_pilha();
+            if(print_simbolos_global) print_pilha();
         }
 
         VariavelSemTipoLst *antigo_vst = vst;
@@ -272,6 +331,7 @@ void insere_parametro_sem_funcao(TipoSimbolo tipo, ValorLexico valor_lexico) {
 
     novo_arg_lst = malloc(sizeof(ArgumentoFuncaoLst));
     novo_arg_lst->tipo = tipo;
+    novo_arg_lst->nome = valor_lexico.label;
 
     if(global_pilha_hash == NULL) throwUnexpectedError(valor_lexico.linha, ">> Não tá empilhando antes dos parâmetros.");
 
@@ -335,6 +395,11 @@ ValorLexico _malloc_copia_vlex(ValorLexico valor_lexico) {
     return new_vlex;
 }
 
+void _atualiza_deslocamento_topo(int tamanho) {
+    PilhaHash *pilha = global_pilha_hash;
+    pilha->deslocamento += tamanho; 
+}
+
 // função que adiciona uma entrada na hash e retorna a recém-adicionada entrada
 EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, ValorLexico valor_lexico, int tamanho_vetor) {
 
@@ -357,11 +422,6 @@ EntradaHash *_declara_em_escopo(NaturezaSimbolo natureza, TipoSimbolo tipo, Valo
     Conteudo conteudo = _novo_conteudo(valor_lexico, tipo, natureza, tamanho_vetor);
 
     EntradaHash *resposta = _insere_topo_pilha(chave_malloc, pilha, conteudo);
-
-    if(print_simbolos) {
-        printf("\n>> OP: DECLARAÇÃO\n");
-        print_pilha();
-    }
 
     return resposta;
 }
@@ -404,10 +464,18 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
 
             tabela[indice].chave = chave;
             tabela[indice].conteudo = conteudo;
-
             pilha->quantidade_atual++;
-            
+
+            if(conteudo.tipo != TIPO_PENDENTE) {
+                tabela[indice].deslocamento = pilha->deslocamento;
+                _atualiza_deslocamento_topo(conteudo.tamanho);
+            }
             _verifica_ocupacao_tabela(pilha);
+
+            if(print_simbolos_global) {
+                printf("\n>> OP: DECLARAÇÃO\n");
+                print_pilha();
+            }
 
             return &tabela[indice]; 
         }
@@ -419,8 +487,14 @@ EntradaHash *_insere_topo_pilha(char *chave, PilhaHash *pilha, Conteudo conteudo
 // função que "empilha" uma nova hash em cima da atual
 void empilha()
 {
-    PilhaHash *pilha_aux;
-    pilha_aux = malloc(sizeof(PilhaHash));
+    
+    PilhaHash *pilha_aux = malloc(sizeof(PilhaHash));
+
+    if(_pelo_menos_x_tabelas(global_pilha_hash, 2)) { //se estamos empilhando bloco aninhado à função
+        pilha_aux->deslocamento = global_pilha_hash->deslocamento;
+    } else {
+        pilha_aux->deslocamento = 0;
+    }
 
     pilha_aux->quantidade_atual = 0;
     pilha_aux->tamanho_tabela = TAMANHO_INICIAL_HASH;
@@ -431,7 +505,7 @@ void empilha()
 
     global_pilha_hash = pilha_aux;
 
-    if(print_simbolos) printf("\n>> OP: EMPILHANDO\n");
+    if(print_simbolos_global) printf("\n>> OP: EMPILHANDO\n");
 }
 
 //aloca novo array de EntradaHash (com valores NULL pls)
@@ -449,11 +523,13 @@ EntradaHash *_malloc_tabela() {
 
 void _inicializa_entrada(EntradaHash *entrada) {
     entrada->chave = NULL;
+    entrada->deslocamento = -1;
     entrada->conteudo.tipo = -1;
     entrada->conteudo.natureza = -1;
     entrada->conteudo.linha = -1;
     entrada->conteudo.tamanho = -1;
     entrada->conteudo.argumentos = NULL;
+    entrada->conteudo.rotulo = NULL;
 }
 
 //#endregion Insere
@@ -478,13 +554,20 @@ void desempilha()
 
     PilhaHash *antiga_pilha = global_pilha_hash;
 
+    if(_pelo_menos_x_tabelas(nova_pilha, 2)) { //se vamos desempílhar um bloco aninhado
+        nova_pilha->deslocamento = antiga_pilha->deslocamento;
+    }
+
     _libera_tabela(antiga_pilha->topo, antiga_pilha->tamanho_tabela);
 
     free(antiga_pilha);
 
     global_pilha_hash = nova_pilha;
 
-    if(print_simbolos) printf("\n>> OP: DESEMPILHANDO\n");
+    if(print_simbolos_global) {
+        printf("\n>> OP: DESEMPILHANDO\n");
+        print_pilha();
+    }
 }
 
 // função que libera a tabela hash e tudo que há dentro dela
@@ -545,6 +628,9 @@ void _libera_argumentos(ArgumentoFuncaoLst *argumento) {
 
     _libera_argumentos(argumento->proximo);
 
+    if(argumento->nome != NULL)
+        free(argumento->nome);
+
     free(argumento);
 }
 
@@ -565,7 +651,7 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
 
         char* chave = _chave_label(global_ultima_funcao);
 
-        EntradaHash *busca_funcao = _busca_topo_pilha(chave, global_pilha_hash->resto);
+        EntradaHash *busca_funcao = _busca_pilha(chave);
 
         free(chave);
 
@@ -586,6 +672,80 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
         }
     }
     throwReturnError(expr1->valor_lexico.linha, expr1->valor_lexico.label);
+}
+
+void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
+
+    if(global_pilha_hash == NULL) return;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        busca_funcao->conteudo.rotulo = rotulo;
+    }
+}
+
+ char* busca_rotulo_funcao(char* nome_funcao) {
+
+    if(global_pilha_hash == NULL) return NULL;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        return busca_funcao->conteudo.rotulo;
+    }
+}
+
+ ArgumentoFuncaoLst *busca_parametros_funcao(char* nome_funcao) {
+
+    if(global_pilha_hash == NULL) return NULL;
+
+    char* chave = _chave_label(nome_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+         return busca_funcao->conteudo.argumentos;
+    }
+
+    return NULL;
+}
+
+ int busca_offset_base_vars_locais_funcao_atual() {
+
+    //escopo global ou main o offset inicial de variaveis é (rfp, 0)
+    if(global_ultima_funcao == NULL || eh_a_main()) return 0;
+
+    int offset_params_empilhados_e_return = (4 * busca_quantidade_parametros_funcao_atual()) + MIN_OFFSET_PARAMS;
+   
+    return offset_params_empilhados_e_return + 4; //+4 indica o espaço vago para a primeira var local
+}
+
+ int busca_quantidade_parametros_funcao_atual() {
+
+    if(global_ultima_funcao == NULL) return 0;
+
+    char* chave = _chave_label(global_ultima_funcao);
+
+    EntradaHash *busca_funcao = _busca_pilha(chave);
+
+    free(chave);
+
+    if(busca_funcao != NULL) {
+        return _conta_argumentos(busca_funcao->conteudo.argumentos);
+    }
+
+    return 0;
 }
 
 void verifica_expr_ternaria(Nodo *validacao, Nodo *expr1, Nodo *expr2, Nodo *operador) {
@@ -725,7 +885,7 @@ void _verifica_tamanho_maximo_string(Tipo tipo_dir, ValorLexico esq, ValorLexico
             if(inicializacao) { //senao é atribuicao
                 busca_esq->conteudo.tamanho = busca_dir->conteudo.tamanho;
 
-                if(print_simbolos) print_pilha();
+                if(print_simbolos_global) print_pilha();
 
             } else if(busca_esq->conteudo.tamanho < busca_dir->conteudo.tamanho) {
                 throwStringSizeError(busca_dir->conteudo.valor_lexico.linha, busca_dir->conteudo.valor_lexico.label, busca_esq->conteudo.linha);
@@ -862,8 +1022,8 @@ void print_pilha() {
 
         int capacidade = aux_pilha->tamanho_tabela;
 
-        printf("\n\n - ESCOPO Nº%02i DA PILHA - | CAPACIDADE: %i | OCUPAÇÃO: %03i\n", (total-profundidade), capacidade, aux_pilha->quantidade_atual);
-        char* str = " -------------------------------------------------------------------------------------------------------------------";
+        printf("\n\n - ESCOPO Nº%02i %sDA PILHA - | DESLOCAMENTO: %03i | CAPACIDADE: %i | OCUPAÇÃO: %03i |\n", (total-profundidade), eh_escopo_global_str(aux_pilha), aux_pilha->deslocamento, capacidade, aux_pilha->quantidade_atual);
+        char* str = " -----------------------------------------------------------------------------------------------------------------------------------------";
         printf("%s\n", str);
         _print_tabela(aux_pilha->topo, capacidade);
         printf("%s\n\n", str);
@@ -874,6 +1034,12 @@ void print_pilha() {
     }
 }
 
+char* eh_escopo_global_str(PilhaHash *pilha) {
+    if(_eh_escopo_global(pilha)) return "(GLOBAL) ";
+    if(_pelo_menos_x_tabelas(pilha, 3)) return "(BLOCO) ";
+    return "(FUNÇÃO) ";
+}
+
 //printa pilha com tabela e seus valores
 void _print_tabela(EntradaHash *tabela, int tamanho) {
 
@@ -881,12 +1047,14 @@ void _print_tabela(EntradaHash *tabela, int tamanho) {
 
         char* chave = tabela[i].chave;
 
+        int deslocamento = tabela[i].deslocamento;
+
         if(chave == NULL) continue;
 
         Conteudo conteudo = tabela[i].conteudo;
 
-        printf(" | ITEM %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | CHAVE: %20s |", 
-                i+1, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, chave
+        printf(" | ITEM %03i |  DESLOCAMENTO: %03i | NATUREZA: %9s | TIPO: %7s | TAMANHO: %4i | CHAVE: %20s |", 
+                i+1, deslocamento, _natureza_str(conteudo.natureza), _tipo_str(conteudo.tipo), conteudo.tamanho, chave
         );
 
         _print_argumentos(conteudo.argumentos);
