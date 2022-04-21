@@ -2,9 +2,11 @@
 
 #define FALSE 0
 #define TRUE 1
-#define OFFSET_PARAMS 12
+#define MIN_OFFSET_PARAMS 12 // (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
 
 extern int print_ILOC_intermed_global;
+
+int offset_variaveis_em_chamada_global = 0; //global e main as variaveis começam em rfp, 0. em funcoes chamadas não, no minimo (rfp, 16).
 
 char *rotulo_main_global = NULL;
 
@@ -105,11 +107,9 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 
-	//if(lista_comandos_funcao == NULL) return;
-
 	CodigoILOC *codigo_lst = NULL;
 
-	if(!eh_main) {
+	if(!eh_main) { //TODO talvez n precise
 		CodigoILOC *codigo_copia_rsp_para_rfp = _cria_codigo(reg_rsp(), I2I, reg_rfp());
 		_append(cabecalho, codigo_copia_rsp_para_rfp);
 	}
@@ -118,7 +118,9 @@ void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 
 	int quantidade_params = busca_quantidade_parametros_funcao_atual();
 
-	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), (eh_main ? 0 : (quantidade_params * 4 + OFFSET_PARAMS)) + deslocamento_var_locais, reg_rsp()); // o offset (16) pula o rsp e rfp antigos e o valor de retorno. se for a main, nao precisa
+	/* se estamos numa funcao chamada, offset_params_atual_global é o valor 12 de return (rfp, 12) + o deslocamento 
+	do empilhamento de parametros / o offset (16) pula o rsp e rfp antigos e o valor de retorno. se for a main, nao precisa */
+	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), busca_offset_base_vars_locais_funcao_atual() + deslocamento_var_locais, reg_rsp()); 
 
 	_append(cabecalho, codigo_atualiza_rsp);
 }
@@ -137,12 +139,12 @@ void codigo_carrega_parametros(Nodo *cabecalho) {
 
 		OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 
-		_append(cabecalho, instrucao_loadai(reg_rfp(), (OFFSET_PARAMS + (4 * count)), r0));
+		_append(cabecalho, instrucao_loadai(reg_rfp(), (MIN_OFFSET_PARAMS + (4 * count)), r0));
 
 		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(args->nome);
 		OperandoILOC *destino_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
 
-		_append(cabecalho, instrucao_storeai(copia_operando(r0), destino_ponteiro, busca.deslocamento + (offset_quantidade_parametros * 4 + OFFSET_PARAMS)));
+		_append(cabecalho, instrucao_storeai(copia_operando(r0), destino_ponteiro, busca.deslocamento + (offset_variaveis_em_chamada_global + 4)));
 
 		args = args->proximo;
 		count++;
@@ -215,7 +217,7 @@ void codigo_carrega_variavel(Nodo *nodo) {
    int deslocamento = busca.deslocamento;
 
    OperandoILOC *origem_1_registrador = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
-   OperandoILOC *origem_2_deslocamento = gera_operando_imediato(deslocamento + (offset_params ? (offset_params * 4 + OFFSET_PARAMS) : 0));
+   OperandoILOC *origem_2_deslocamento = gera_operando_imediato(deslocamento + (offset_params ? (offset_params * 4 + MIN_OFFSET_PARAMS) : 0));
 
    OperandoILOC *destino = gera_operando_registrador(gera_nome_registrador());
 
@@ -428,18 +430,16 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 	// storeAI rfp => rsp, 8
 	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));
 
-	int quant_params = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
+	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
 
 	// jumpI => L0 // pula pra funcao chamada
 	char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
 	_append(nodo, instrucao_jumpI(gera_operando_rotulo(rotulo_ptr)));
 
-	//loadAI rsp, 12 => r0 // pega o retorno da funcao
+	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+	_append(nodo, instrucao_loadai(reg_rsp(), offset_return, r0));
 
-	_append(nodo, instrucao_loadai(reg_rsp(), (quant_params * 4) + OFFSET_PARAMS, r0)); //TODO esse 12 aqui é relativo não? acho que esse ta certo mas o de chamada de funcao não, pq esse eh rsp e o outro eh rfp. nao mas o rfp faz copia do rsp na chamada
-	//storeAI r0 => rfp, 0
-	//_append(nodo, instrucao_storeai(copia_operando(r0), reg_rfp(), 0));
 	nodo->reg_resultado = r0;
 }
 
@@ -470,12 +470,13 @@ int empilha_argumentos_chamada_funcao(Nodo *chamada_funcao, Nodo *lista_argument
 			codigo_append_nodo(chamada_funcao, arg_lst);
 		}
 
-		count++;
 		OperandoILOC *origem = copia_operando(arg_lst->reg_resultado);
-		_append(chamada_funcao, instrucao_storeai(origem, reg_rsp(), (count * 4) + OFFSET_PARAMS));
+		_append(chamada_funcao, instrucao_storeai(origem, reg_rsp(), MIN_OFFSET_PARAMS + (count * 4)));
 		arg_lst = arg_lst->irmao;
+		count++;
 	}
-	return count;
+	
+	return MIN_OFFSET_PARAMS + (count * 4);
 }
 
 
@@ -488,7 +489,7 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 	OperandoILOC *origem;
 	DeslocamentoEscopo busca = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
 	OperandoILOC *destino_1_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
-	OperandoILOC *destino_2_deslocamento = gera_operando_imediato(busca.deslocamento + (offset_params ? (offset_params * 4 + OFFSET_PARAMS) : 0));
+	OperandoILOC *destino_2_deslocamento = gera_operando_imediato(busca.deslocamento + (offset_params ? (offset_params * 4 + MIN_OFFSET_PARAMS) : 0));
 
 	if(tem_buracos(expressao)) {
 		rotulo_store = gera_nome_rotulo();

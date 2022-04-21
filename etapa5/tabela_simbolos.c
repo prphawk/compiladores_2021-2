@@ -720,6 +720,16 @@ void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
     return NULL;
 }
 
+ int busca_offset_base_vars_locais_funcao_atual() {
+
+    //escopo global ou main o offset inicial de variaveis é (rfp, 0)
+    if(global_ultima_funcao == NULL || eh_a_main()) return 0;
+
+    int offset_params_empilhados_e_return = (4 * busca_quantidade_parametros_funcao_atual()) + 4;
+   
+    return offset_params_empilhados_e_return + 4;
+}
+
  int busca_quantidade_parametros_funcao_atual() {
 
     if(global_ultima_funcao == NULL) return 0;
