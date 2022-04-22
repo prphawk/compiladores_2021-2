@@ -35,16 +35,21 @@ char *rotulo_main_global = NULL;
 
 void codigo_finaliza(Nodo *arvore) {
 
+	// append halt ------------------
 	_append(arvore, instrucao_halt());
 
+	// prepend codigo de inicialização ----------------------------------------------------------------------
 	int num_instr_incompleto = conta_instrucoes(arvore->codigo);
 
+	// inicializa rsp e rfp (opcional)
 	CodigoILOC *codigo_lst = NULL;
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
 
+	// inicializa rbss com o endereço imediatamente depois da instrução halt
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss()));
 
+	// pula pro rotulo equivalente a main() (o rotulo de cada funcao é reconhecido na declaracao)
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
 
 	codigo_lst = _append_codigo(codigo_lst, codigo_jump_main);
@@ -86,6 +91,7 @@ void _cria_codigo_com_label_append(Nodo *nodo, char *label, OperandoILOC *origem
    _append(nodo, codigo);
 }
 
+// copia e append codigo de um nodo filho a nodo pai
 void codigo_append_nodo(Nodo *pai, Nodo *filho) {
 
 	if(pai == NULL || filho == NULL) return;
@@ -113,6 +119,7 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 	char *rotulo = gera_nome_rotulo();
 	_append(cabecalho, instrucao_nop(rotulo));
 
+	// rotulo Lx da funcao para fazer jumpI, guardamos na tabela de simbolos para a chamar a partir do nome da funcao
 	insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
 
 	int eh_main = compare_eq_str(cabecalho->valor_lexico.label, "main");
@@ -128,6 +135,7 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 	codigo_retorna_funcao(cabecalho);
 }
 
+// inicialização de rsp e rfp em funcoes chamadas
 void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 
 	if(!eh_main) { //TODO talvez n precise
@@ -139,8 +147,7 @@ void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 
 	int quantidade_params = busca_quantidade_parametros_funcao_atual();
 
-	/* se estamos numa funcao chamada, offset_params_atual_global é o valor 12 de return (rfp, 12) + o deslocamento 
-	do empilhamento de parametros / o offset (16) pula o rsp e rfp antigos e o valor de retorno. se for a main, nao precisa */
+	// se estamos numa funcao chamada, offset_params_atual_global é o valor 12 de return (rfp, 12) + o deslocamento do empilhamento de parametros
 	int deslocamento_total = busca_offset_base_vars_locais_funcao_atual() + deslocamento_var_locais;
 	CodigoILOC *codigo_atualiza_rsp = instrucao_addi(reg_rsp(), deslocamento_total, reg_rsp()); 
 
