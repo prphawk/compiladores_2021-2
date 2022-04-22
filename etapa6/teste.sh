@@ -9,22 +9,22 @@ evaluation=""
 # gcc -c small.s
 # gcc small.o -o small
 
-# echo "\n------------- STARTING TEST CASES -------------\n"
-# for file in ../testes_E6/*
-#     do
-#     "$executable" < "$file" > "saidas_E6/saida_$file.s"
-#     gcc -c "saidas_E6/saida_$file.s" -o "saidas_E6/programa_$file"
-
-#     result=$?
-#     evaluation=$(head -1 "$file")
-    
-#     print="FROM:${file} EXPECTED RESULT:${evaluation} RESULT:${result}"
-#     echo "$print\n"
-# done
-
-echo "\n------------- STARTING ACTUAL GCC COMPILING -------------\n"
-for file in ../testes_E6/c/* 
+echo "\n------------- STARTING TEST CASES -------------\n"
+for file in ../testes_E6/*
     do
-    new_name="$file" | cut -f 1 -d '.'
-    gcc -S "$file" > "$file.S"
+    "$executable" < "$file" > "saidas_E6/saida_$file.s"
+    gcc -c "saidas_E6/saida_$file.s" -o "saidas_E6/programa_$file"
+
+    result=$?
+    evaluation=$(head -1 "$file")
+    
+    print="FROM:${file} EXPECTED RESULT:${evaluation} RESULT:${result}"
+    echo "$print\n"
 done
+
+# echo "\n------------- STARTING ACTUAL GCC COMPILING -------------\n"
+# for file in ../testes_E6/c/* 
+#     do
+#     new_name="$file" | cut -f 1 -d '.'
+#     gcc -S "$file" > "saida/$new_name.S"
+# done
