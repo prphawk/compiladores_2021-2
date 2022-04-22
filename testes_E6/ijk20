@@ -1,0 +1,19 @@
+//69
+int main()
+{
+  int a;
+  int b;
+  int c;
+  int d;
+  int x;
+  a = 1;
+  b = 0;
+  c = 2;
+  d = 3;
+  if (a < b && c < d) {
+     x = 293;
+  }else{
+     x = 325;
+  };
+  return x;
+}

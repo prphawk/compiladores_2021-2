@@ -1,0 +1,12 @@
+int d(int a, int b) {
+	return b;
+}
+
+int main() {
+
+	int x;
+	x = 6;
+	x = d(x, 2) + 10;
+	return x;
+
+}
