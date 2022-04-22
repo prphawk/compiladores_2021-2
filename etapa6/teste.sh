@@ -23,10 +23,8 @@ evaluation=""
 # done
 
 echo "\n------------- STARTING ACTUAL GCC COMPILING -------------\n"
-for file in ../testes_E6/* 
+for file in ../testes_E6/c/* 
     do
+    new_name="$file" | cut -f 1 -d '.'
     gcc -S "$file" > "$file.S"
-
-    
-    echo "$print\n"
 done
