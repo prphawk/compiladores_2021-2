@@ -1,0 +1,13 @@
+//76
+int main()
+{
+  int a;
+  int b;
+  int c;
+  b = 14;
+  c = 16;
+  a = b + c;
+  b = a + c;
+  c = a + b;
+  return c;
+}
