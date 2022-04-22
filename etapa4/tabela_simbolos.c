@@ -565,7 +565,7 @@ void verifica_return(Nodo *operador, Nodo *expr1) {
 
         char* chave = _chave_label(global_ultima_funcao);
 
-        EntradaHash *busca_funcao = _busca_topo_pilha(chave, global_pilha_hash->resto);
+        EntradaHash *busca_funcao = _busca_pilha(chave);
 
         free(chave);
 
