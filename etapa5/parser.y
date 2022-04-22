@@ -240,7 +240,7 @@ declaracao_var_local: TK_PR_STATIC TK_PR_CONST tipo_e_lista_var_local   { $$ = $
                      | tipo_e_lista_var_local                           { $$ = $1; }
                      ;
 
-tipo_e_lista_var_local: tipo lista_nome_variavel_local //TODO mudar no resto das etapas
+tipo_e_lista_var_local: tipo lista_nome_variavel_local
                     { 
                         $$ = $2;
                         insere_tipo_identificador_pilha($1); 
@@ -458,7 +458,7 @@ expr_bin_aritmetica: expr_bin_aritmetica_0 { $$ = $1; }
                     codigo_expr_logica($1, $2, $3);
                 };
 expr_bin_aritmetica_0: expr_bin_aritmetica_1 { $$ = $1; }
-                | expr_bin_aritmetica_0 operador_binario_relacional expr_bin_aritmetica_1 //TODO MUDAR NAS OUTRAS ETAPAS
+                | expr_bin_aritmetica_0 operador_binario_relacional expr_bin_aritmetica_1
                 {
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
@@ -474,8 +474,7 @@ expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
                     codigo_expr_aritmetica($1, $2, $3);
-                }
-			    ;
+                };
 expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
                 | expr_bin_aritmetica_2 operador_binario_prec3 expr_bin_aritmetica_3
                 {
@@ -484,8 +483,7 @@ expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
                     $$ = $2;
                     if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
                     codigo_expr_aritmetica($1, $2, $3);
-                }
-				;
+                };
 expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
 					| expr_bin_aritmetica_3 operador_binario_prec2 expr_bin_aritmetica_4
 					{
@@ -494,8 +492,7 @@ expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
 						$$ = $2;
                         if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
                         codigo_expr_aritmetica($1, $2, $3);
-					}
-					;
+					};
 expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
 					| expr_bin_aritmetica_4 operador_binario_prec1 expr_unaria_aritmetica
 					{
@@ -504,8 +501,7 @@ expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
 						$$ = $2;
                         if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
                         codigo_expr_aritmetica($1, $2, $3);
-					}
-					;            
+					};            
 expr_unaria_aritmetica: expr_parenteses_aritmetica 
                 { 
                     $$ = $1;

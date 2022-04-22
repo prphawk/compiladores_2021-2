@@ -8,7 +8,7 @@
 #include "tabela_simbolos.h"
 #include "mem.h"
 
-int print_simbolos = 1;
+int print_simbolos = 0;
 
 extern int yyparse(void);
 extern int yylex_destroy(void);
