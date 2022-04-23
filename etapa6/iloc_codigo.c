@@ -35,6 +35,8 @@ char *rotulo_main_global = NULL;
 
 void codigo_finaliza(Nodo *arvore) {
 
+	if(arvore == NULL) return;
+
 	// append halt ------------------
 	_append(arvore, instrucao_halt());
 

@@ -71,4 +71,6 @@ void print_arvore();
 void exporta_arvore();
 void libera_arvore();
 
+void finaliza_codigo_ILOC();
 void exporta_codigo_ILOC();
+void exporta_codigo_ASM();

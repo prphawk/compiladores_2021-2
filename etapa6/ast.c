@@ -8,6 +8,7 @@ void *arvore = NULL;
 
 extern char*_tipo_str(Tipo tipo);
 extern void codigo_finaliza(Nodo *arvore);
+extern void generateAsm(Nodo *arvore);
 
 Tipo _get_tipo_nodo(ValorLexico valor_lexico) {
     if(valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL) {
@@ -230,10 +231,18 @@ void _imprime_filhos(Nodo *nodo) {
     }
 }
 
+void finaliza_codigo_ILOC()
+{
+    codigo_finaliza(arvore);
+}
+
 void exporta_codigo_ILOC()
 {
     Nodo *root = arvore;
     if(root == NULL) return;
-    codigo_finaliza(root);
     print_codigo(root->codigo);
+}
+
+void exporta_codigo_ASM() {
+    generateAsm(arvore);
 }
