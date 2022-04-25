@@ -19,7 +19,7 @@ PILHA       - uma estrutura da pilha guarda algumas informações da tabela e a 
 
 //#region Auxiliares
 
-PilhaHash *escopo_global () {
+PilhaHash *get_escopo_global () {
     PilhaHash *aux = global_pilha_hash;
 
     while(aux != NULL && aux->resto != NULL) {

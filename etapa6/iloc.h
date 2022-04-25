@@ -61,6 +61,29 @@ typedef enum OperacaoILOC
     HALT
 } OperacaoILOC;
 
+typedef enum tipoCodigo
+{
+    cod_null,
+    cod_attr_pend,
+    cod_mult,
+    cod_div,
+    cod_add,
+    cod_sub,
+    cod_LT,
+    cod_GT,
+    cod_LE,
+    cod_EQ,
+    cod_GE,
+    cod_NE,
+    cod_neg,
+    cod_not,
+    cod_and,
+    cod_or,
+    cod_decl_func,
+    cod_cham_func,
+    cod_fim_func,
+} TipoCodigo;
+
 typedef enum TipoOperando {
     REGISTRADOR, 
     LABEL,
@@ -84,6 +107,7 @@ typedef struct CodigoILOC
     OperacaoILOC operacao;
     OperandoILOC *destino;
     struct CodigoILOC *anterior;
+    TipoCodigo tipo_cod;
 } CodigoILOC;
 
 typedef struct Remendo {

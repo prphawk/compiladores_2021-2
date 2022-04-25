@@ -118,21 +118,27 @@ int tem_buracos(Nodo *nodo) {
 
 void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
-	char *rotulo = gera_nome_rotulo();
-	_append(cabecalho, instrucao_nop(rotulo));
+	//char *rotulo = gera_nome_rotulo();
+	//_append(cabecalho, instrucao_nop(rotulo);
+	CodigoILOC *codigo = instrucao_nop(cabecalho->valor_lexico.label);
+	codigo->tipo_cod = cod_decl_func;
+	_append(cabecalho, codigo);
 
-	// rotulo Lx da funcao para fazer jumpI, guardamos na tabela de simbolos para a chamar a partir do nome da funcao
-	insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
+	//insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
 
 	int eh_main = compare_eq_str(cabecalho->valor_lexico.label, "main");
 
-	if(eh_main) rotulo_main_global = rotulo;
+	//if(eh_main) rotulo_main_global = rotulo;
+	if(eh_main) rotulo_main_global = "main";
 
 	codigo_rsp_e_rfp_declaracao_funcao(cabecalho, eh_main);
 
 	codigo_carrega_parametros(cabecalho);
 
 	codigo_append_nodo(cabecalho, corpo); //com o resultado de return viu
+
+	CodigoILOC *codigo = instrucao_nop("ret");
+	codigo->tipo_cod = cod_fim_func;
 
 	codigo_retorna_funcao(cabecalho);
 }
@@ -450,23 +456,21 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 
 	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
 
-	//	loadI PC + 5 => r1 // guarda o endereço de retorno
-	_append(nodo, instrucao_addi(reg_rpc(), 5, r1));
-	// storeAI r1 => rsp, 0
-	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
-	// storeAI rsp => rsp, 4
-	_append(nodo, instrucao_storeai(reg_rsp(), reg_rsp(), 4));
-	// storeAI rfp => rsp, 8
-	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));
+	_append(nodo, instrucao_addi(reg_rpc(), 5, r1));							//	loadI PC + 5 => r1 // guarda o endereço de retorno
+	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0)); 	// storeAI r1 => rsp, 0
+	_append(nodo, instrucao_storeai(reg_rsp(), reg_rsp(), 4));				// storeAI rsp => rsp, 4
+	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));				// storeAI rfp => rsp, 8
 
 	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
 
-	// jumpI => L0 // pula pra funcao chamada
-	char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
-	_append(nodo, instrucao_jumpI(gera_operando_rotulo(rotulo_ptr)));
+	//char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
+	char* rotulo_ptr = copia_nome(nome_funcao);
+	CodigoILOC *codigo = instrucao_jumpI(gera_operando_rotulo(rotulo_ptr))
+	codigo->tipo_cod = cod_cham_func;
+	_append(nodo, codigo); 																// jumpI => L0 // pula pra funcao chamada
 
-	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
-	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
+	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador()); 	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
+
 	_append(nodo, instrucao_loadai(reg_rsp(), offset_return, r0));
 
 	nodo->reg_resultado = r0;
@@ -540,7 +544,7 @@ void codigo_update_deslocamento(Nodo *nodo) {
 
 	if(nodo == NULL) return;
 
-	if(nodo->tipo_operacao == nodo_attr) {
+	if(nodo->tipo_cod == cod_attr_pend) {
 		Nodo *identificador = nodo->filho;
 		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(identificador->valor_lexico.label);
 
@@ -553,6 +557,8 @@ void codigo_update_deslocamento(Nodo *nodo) {
 			Nodo *prox_attr = identificador->irmao->irmao;
 			codigo_update_deslocamento(prox_attr);
 		}
+
+		nodo->tipo_cod = cod_null; //so pra ajudar nessa funcao mesmo.
 	}
 }
 
@@ -574,10 +580,10 @@ void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir) {
 
-	if(nodo_operador->tipo_operacao == nodo_and) {
+	if(nodo_operador->tipo_cod == cod_and) {
 		codigo_expr_logica_and(esq, nodo_operador, dir);
 	}
-	else if(nodo_operador->tipo_operacao == nodo_or)
+	else if(nodo_operador->tipo_cod == cod_or)
 		codigo_expr_logica_or(esq, nodo_operador, dir);
 	else
 		codigo_expr_logica_relacional(esq, nodo_operador, dir);
@@ -677,27 +683,27 @@ void codigo_not(Nodo *operador, Nodo *expr) {
 }
 
 int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
-   switch(nodo_operador->tipo_operacao) {
-      case nodo_EQ: return CMP_EQ; break;
-      case nodo_NE: return CMP_NE; break;
-      case nodo_LE: return CMP_LE; break;
-      case nodo_GE: return CMP_GE; break;
-      case nodo_GT: return CMP_GT; break;
-      case nodo_LT: return CMP_LT; break;
-      case nodo_add: return ADD; break;
-      case nodo_sub: return SUB; break;
-      case nodo_mult: return MULT; break;
-      case nodo_div: return DIV; break;
+   switch(nodo_operador->tipo_cod) {
+      case cod_EQ: return CMP_EQ; break;
+      case cod_NE: return CMP_NE; break;
+      case cod_LE: return CMP_LE; break;
+      case cod_GE: return CMP_GE; break;
+      case cod_GT: return CMP_GT; break;
+      case cod_LT: return CMP_LT; break;
+      case cod_add: return ADD; break;
+      case cod_sub: return SUB; break;
+      case cod_mult: return MULT; break;
+      case cod_div: return DIV; break;
       default: return NOP; break;
    }
 }
 
 void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 
-	if(operador->tipo_operacao == nodo_sub) {
+	if(operador->tipo_cod == cod_sub) {
 		codigo_sub(operador, expr);
 	}
-	else if(operador->tipo_operacao == nodo_not) {
+	else if(operador->tipo_cod == cod_not) {
 		codigo_not(operador, expr);
 	}
 	else {

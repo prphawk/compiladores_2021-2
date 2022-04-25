@@ -13,32 +13,12 @@ typedef enum tipo
     TIPO_OUTRO,
 } Tipo;
 
-typedef enum operador
-{
-    nodo_null,
-    nodo_mult,
-    nodo_div,
-    nodo_add,
-    nodo_sub,
-    nodo_LT,
-    nodo_GT,
-    nodo_LE,
-    nodo_EQ,
-    nodo_GE,
-    nodo_NE,
-    nodo_neg,
-    nodo_not,
-    nodo_and,
-    nodo_or,
-    nodo_attr
-} Operador;
-
 typedef struct Nodo {
     Tipo tipo;
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
-    Operador tipo_operacao;
+    TipoCodigo tipo_cod;
 
     CodigoILOC *codigo;
     OperandoILOC *reg_resultado;
@@ -62,7 +42,7 @@ void _libera(void *pai);
 void _imprime_label_nodo(Nodo *nodo);
 void _imprime_arestas(Nodo *nodo);
 int possui_tipo(Tipo t1, Tipo t2, Tipo tipo);
-int possui_tipo_nodo(Nodo *nodo1, Nodo *nodo2, Tipo tipo);
+int possui_tipo_cod(Nodo *nodo1, Nodo *nodo2, Tipo tipo);
 Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2);
 char* _get_label_nodo(Nodo *nodo);
 void _imprime_filhos(Nodo *nodo);

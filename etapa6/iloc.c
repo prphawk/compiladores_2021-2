@@ -97,6 +97,7 @@ CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoIL
     codigo->operacao = operacao;
     codigo->destino = destino;
     codigo->anterior = NULL;
+    codigo->tipo_cod = cod_null;
 
     return codigo;
 }

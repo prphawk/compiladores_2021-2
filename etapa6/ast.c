@@ -10,7 +10,7 @@ extern char*_tipo_str(Tipo tipo);
 extern void codigo_finaliza(Nodo *arvore);
 extern void generateAsm(Nodo *arvore);
 
-Tipo _get_tipo_nodo(ValorLexico valor_lexico) {
+Tipo _get_tipo_cod(ValorLexico valor_lexico) {
     if(valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL) {
         switch (valor_lexico.tipo_vlex_literal) {
             case VLEX_LITERAL_INT: return TIPO_INT; break;
@@ -27,21 +27,21 @@ Tipo get_tipo_inferencia(Nodo *nodo1, Nodo *nodo2) {
 
     if(nodo1->tipo == nodo2->tipo) return nodo1->tipo;
 
-    if(possui_tipo_nodo(nodo1, nodo2, TIPO_INT)) {
-        if(possui_tipo_nodo(nodo1, nodo2, TIPO_FLOAT))
+    if(possui_tipo_cod(nodo1, nodo2, TIPO_INT)) {
+        if(possui_tipo_cod(nodo1, nodo2, TIPO_FLOAT))
             return TIPO_FLOAT;
-        if(possui_tipo_nodo(nodo1, nodo2, TIPO_BOOL))
+        if(possui_tipo_cod(nodo1, nodo2, TIPO_BOOL))
             return TIPO_INT;
     }
 
-    if(possui_tipo_nodo(nodo1, nodo2, TIPO_FLOAT) 
-    && possui_tipo_nodo(nodo1, nodo2, TIPO_BOOL))
+    if(possui_tipo_cod(nodo1, nodo2, TIPO_FLOAT) 
+    && possui_tipo_cod(nodo1, nodo2, TIPO_BOOL))
         return TIPO_FLOAT;
 
     return TIPO_OUTRO;
 }
 
-int possui_tipo_nodo(Nodo *nodo1, Nodo *nodo2, Tipo tipo) {
+int possui_tipo_cod(Nodo *nodo1, Nodo *nodo2, Tipo tipo) {
     return (nodo1->tipo == tipo || nodo2->tipo == tipo);
 }
 
@@ -57,11 +57,11 @@ Nodo *adiciona_nodo(ValorLexico valor_lexico)
     nodo->filho = NULL;
     nodo->irmao = NULL;
     nodo->valor_lexico = valor_lexico;
-    nodo->tipo = _get_tipo_nodo(valor_lexico);
+    nodo->tipo = _get_tipo_cod(valor_lexico);
 
     nodo->codigo = NULL;
     nodo->reg_resultado = NULL;
-    nodo->tipo_operacao = nodo_null;
+    nodo->tipo_cod = cod_null;
 
     nodo->remendos_false = NULL;
     nodo->remendos_true = NULL;

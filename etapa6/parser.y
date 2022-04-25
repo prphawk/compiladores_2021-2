@@ -262,7 +262,7 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
 
 cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel_ou_literal {
                                     Nodo *novo_nodo = adiciona_nodo($2);
-                                    novo_nodo->tipo_operacao = nodo_attr;
+                                    novo_nodo->tipo_cod = cod_attr_pend;
                                     Nodo *identificador_nodo = adiciona_nodo($1);
                                     adiciona_filho(novo_nodo, identificador_nodo);
                                     adiciona_filho(novo_nodo, $3);
@@ -392,35 +392,35 @@ literal: TK_LIT_CHAR        { $$ = adiciona_nodo($1); insere_literal_pilha(TIPO_
          ;
 
 operador_binario_prec1: '^'     { $$ = adiciona_nodo($1); };
-operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_mult; }
-                        | '/'   { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_div;  }
+operador_binario_prec2: '*'     { $$ = adiciona_nodo($1); $$->tipo_cod = cod_mult; }
+                        | '/'   { $$ = adiciona_nodo($1); $$->tipo_cod = cod_div;  }
                         | '%'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_add; } 
-                        | '-'   { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_sub; }
+operador_binario_prec3: '+'     { $$ = adiciona_nodo($1); $$->tipo_cod = cod_add; } 
+                        | '-'   { $$ = adiciona_nodo($1); $$->tipo_cod = cod_sub; }
                         ;
 operador_binario_prec4: '&'     { $$ = adiciona_nodo($1); } 
                         | '|'   { $$ = adiciona_nodo($1); }
                         ;
-operador_binario_relacional: '<'    { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LT; } 
-                        | '>'       { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_GT; } 
-                        | TK_OC_LE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_LE; }
-                        | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_EQ; }
-                        | TK_OC_GE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_GE; }
-                        | TK_OC_NE  { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_NE; }
+operador_binario_relacional: '<'    { $$ = adiciona_nodo($1); $$->tipo_cod = cod_LT; } 
+                        | '>'       { $$ = adiciona_nodo($1); $$->tipo_cod = cod_GT; } 
+                        | TK_OC_LE  { $$ = adiciona_nodo($1); $$->tipo_cod = cod_LE; }
+                        | TK_OC_EQ  { $$ = adiciona_nodo($1); $$->tipo_cod = cod_EQ; }
+                        | TK_OC_GE  { $$ = adiciona_nodo($1); $$->tipo_cod = cod_GE; }
+                        | TK_OC_NE  { $$ = adiciona_nodo($1); $$->tipo_cod = cod_NE; }
                         ;
 
 operador_asterisco: '*' { $$ = adiciona_nodo($1); } 
 
-operador_unario: '-' { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_neg; }
+operador_unario: '-' { $$ = adiciona_nodo($1); $$->tipo_cod = cod_neg; }
                | '+' { $$ = adiciona_nodo($1); } 
-               | '!' { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_not; }
+               | '!' { $$ = adiciona_nodo($1); $$->tipo_cod = cod_not; }
                | '&' { $$ = adiciona_nodo($1); } 
                | '?' { $$ = adiciona_nodo($1); }
                | '#' { $$ = adiciona_nodo($1); }
                ;
 
-operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_or; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->tipo_operacao = nodo_and; };
+operador_binario_logico: TK_OC_OR { $$ = adiciona_nodo($1); $$->tipo_cod = cod_or; } | TK_OC_AND { $$ = adiciona_nodo($1); $$->tipo_cod = cod_and; };
 
 expressao: expr_ternaria        { $$ = $1; }
         | expr_bin_aritmetica   { $$ = $1; }
