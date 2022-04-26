@@ -65,6 +65,7 @@ typedef enum tipoCodigo
 {
     cod_null,
     cod_attr_pend,
+    cod_attr,
     cod_mult,
     cod_div,
     cod_add,
@@ -81,6 +82,7 @@ typedef enum tipoCodigo
     cod_or,
     cod_decl_func,
     cod_cham_func,
+    cod_return,
     cod_fim_func,
 } TipoCodigo;
 
