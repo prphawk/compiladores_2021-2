@@ -15,10 +15,5 @@ main:
 	movl	(%rsp), %eax
 	addq	$4, (%rsp)
 	movl	%eax, -4(%rbp)
-	subq	$4, (%rsp)
-	movl	$0, (%rsp)
-	movl	(%rsp), %eax
-	addq	$4, (%rsp)
-	movl	%eax, -16(%rbp)
 	popq	%rbp
 	ret

@@ -24,6 +24,8 @@ typedef struct Nodo {
     OperandoILOC *reg_resultado;
     Remendo *remendos_true;
     Remendo *remendos_false;
+
+    //DeslocamentoEscopo desl_escopo;
 } Nodo;
 
 

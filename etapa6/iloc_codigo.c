@@ -208,14 +208,21 @@ void codigo_return(Nodo *nodo, Nodo *expressao) {
 	} else {
 		codigo_append_nodo(nodo, expressao);
 	}
+
 	origem = copia_operando(expressao->reg_resultado);
 	
 	int quantidade_params = busca_quantidade_parametros_funcao_atual();
-	OperandoILOC *destino = lista(reg_rfp(), gera_operando_imediato((quantidade_params * 4) + 12));
+	OperandoILOC *destino = lista(reg_rfp(), eh_a_main() ? 0 : gera_operando_imediato((quantidade_params * 4) + 12)); // TODO mudei o eh_main
 
 	CodigoILOC *codigo = _cria_codigo_com_label(copia_nome(rotulo_store), origem, STOREAI, destino);
-	codigo->tipo_cod = cod_return;
 	_append(nodo, codigo);
+
+	nodo->codigo->tipo_cod = cod_skip;
+	// nodo->codigo->desl_escopo = busca_deslocamento_e_escopo(variavel->valor_lexico.label);
+
+	// DeslocamentoEscopo busca = ;
+	// OperandoILOC *destino_1_ponteiro = busca.eh_escopo_global ? reg_rbss() : reg_rfp();
+	// OperandoILOC *destino_2_deslocamento = gera_operando_imediato(busca.deslocamento + busca_offset_base_vars_locais_funcao_atual());
 	
 	nodo->reg_resultado = destino;
 

@@ -59,10 +59,10 @@ void asm_seg_codigo_com_tipo(CodigoILOC *codigo) {
          asm_funcao_inicio(codigo); break;
       case cod_fim_func:
          asm_funcao_fim(); break;
+      case cod_return: 
+         
+      break;
       case cod_skip: break;
-      // case cod_return:
-      //    ops_storeai();
-      //    ops_storeai();
       default: break;
    }
 }
