@@ -46,10 +46,13 @@ void codigo_finaliza(Nodo *arvore) {
 	// inicializa rsp e rfp (opcional)
 	CodigoILOC *codigo_lst = NULL;
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
+	codigo_lst->tipo_cod = cod_skip;
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
+	codigo_lst->tipo_cod = cod_skip;
 
 	// inicializa rbss com o endereço imediatamente depois da instrução halt
 	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss()));
+	codigo_lst->tipo_cod = cod_skip;
 
 	// pula pro rotulo equivalente a main() (o rotulo de cada funcao é reconhecido na declaracao)
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
@@ -137,8 +140,10 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 
 	codigo_append_nodo(cabecalho, corpo); //com o resultado de return viu
 
-	CodigoILOC *codigo = instrucao_nop("ret");
-	codigo->tipo_cod = cod_fim_func;
+	CodigoILOC *codigo_fim_func = instrucao_nop(copia_nome("ret"));
+	codigo_fim_func->tipo_cod = cod_fim_func;
+
+	_append(cabecalho, codigo_fim_func);
 
 	codigo_retorna_funcao(cabecalho);
 }
@@ -208,14 +213,13 @@ void codigo_return(Nodo *nodo, Nodo *expressao) {
 	int quantidade_params = busca_quantidade_parametros_funcao_atual();
 	OperandoILOC *destino = lista(reg_rfp(), gera_operando_imediato((quantidade_params * 4) + 12));
 
-	_cria_codigo_com_label_append(nodo, copia_nome(rotulo_store), origem, STOREAI, destino);
+	CodigoILOC *codigo = _cria_codigo_com_label(copia_nome(rotulo_store), origem, STOREAI, destino);
+	codigo->tipo_cod = cod_return;
+	_append(nodo, codigo);
 	
-	nodo->reg_resultado = destino; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
-	//agr eu preciso kk
+	nodo->reg_resultado = destino;
 
 	print_ILOC_intermed("Codigo return", nodo->codigo);
-
-	//instrucao_loadI_reg()
 }
 
 /*
@@ -465,7 +469,7 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 
 	//char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
 	char* rotulo_ptr = copia_nome(nome_funcao);
-	CodigoILOC *codigo = instrucao_jumpI(gera_operando_rotulo(rotulo_ptr))
+	CodigoILOC *codigo = instrucao_jumpI(gera_operando_rotulo(rotulo_ptr));
 	codigo->tipo_cod = cod_cham_func;
 	_append(nodo, codigo); 																// jumpI => L0 // pula pra funcao chamada
 
@@ -533,7 +537,9 @@ void codigo_atribuicao(Nodo *variavel, Nodo *atribuicao, Nodo *expressao) {
 		codigo_append_nodo(atribuicao, expressao);
 	}
 	origem = copia_operando(expressao->reg_resultado);
-	_cria_codigo_com_label_append(atribuicao, copia_nome(rotulo_store), origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
+	CodigoILOC *codigo = _cria_codigo_com_label(copia_nome(rotulo_store), origem, STOREAI, lista(destino_1_ponteiro, destino_2_deslocamento));
+	codigo->tipo_cod = cod_attr;
+	_append(atribuicao, codigo);
 	
 	atribuicao->reg_resultado = destino_1_ponteiro;
 

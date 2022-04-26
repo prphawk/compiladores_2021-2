@@ -64,6 +64,7 @@ typedef enum OperacaoILOC
 typedef enum tipoCodigo
 {
     cod_null,
+    cod_skip,
     cod_attr_pend,
     cod_attr,
     cod_mult,
