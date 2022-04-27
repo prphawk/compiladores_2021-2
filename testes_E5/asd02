@@ -1,0 +1,7 @@
+// local
+int main()
+{
+  int i;
+  i = 123;
+  return 0;
+}

@@ -388,7 +388,7 @@ void converte_para_logica(Nodo *expressao) {
 	expressao->remendos_true = append_remendo(expressao->remendos_true, op_remendo_true);
 	expressao->remendos_false = append_remendo(expressao->remendos_false, op_remendo_false);
 
-		print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
+	print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
 
 }
 /*
@@ -538,7 +538,7 @@ void codigo_update_deslocamento(Nodo *nodo) {
 
 	if(nodo == NULL) return;
 
-	if(nodo->tipo_operacao == nodo_attr) {
+	if(nodo->tipo_nodo == nodo_attr_pend) {
 		Nodo *identificador = nodo->filho;
 		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(identificador->valor_lexico.label);
 
@@ -572,10 +572,10 @@ void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir) {
 
-	if(nodo_operador->tipo_operacao == nodo_and) {
+	if(nodo_operador->tipo_nodo == nodo_and) {
 		codigo_expr_logica_and(esq, nodo_operador, dir);
 	}
-	else if(nodo_operador->tipo_operacao == nodo_or)
+	else if(nodo_operador->tipo_nodo == nodo_or)
 		codigo_expr_logica_or(esq, nodo_operador, dir);
 	else
 		codigo_expr_logica_relacional(esq, nodo_operador, dir);
@@ -675,7 +675,7 @@ void codigo_not(Nodo *operador, Nodo *expr) {
 }
 
 int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
-   switch(nodo_operador->tipo_operacao) {
+   switch(nodo_operador->tipo_nodo) {
       case nodo_EQ: return CMP_EQ; break;
       case nodo_NE: return CMP_NE; break;
       case nodo_LE: return CMP_LE; break;
@@ -692,10 +692,10 @@ int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
 
 void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 
-	if(operador->tipo_operacao == nodo_sub) {
+	if(operador->tipo_nodo == nodo_sub) {
 		codigo_sub(operador, expr);
 	}
-	else if(operador->tipo_operacao == nodo_not) {
+	else if(operador->tipo_nodo == nodo_not) {
 		codigo_not(operador, expr);
 	}
 	else {

@@ -7,7 +7,7 @@ int main()
   a = 10;
   b = 2;
   c = 0;
-  while (b == 2 && a > 6) do {
+  while (b == 2 && a > 5) do {
     a = a - 1;
     c = c + 123;
   };

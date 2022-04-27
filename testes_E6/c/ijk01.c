@@ -1,0 +1,13 @@
+//99
+int z;
+int main()
+{
+  int d;
+  int c;
+  int b;
+  int a;
+  z = 923;
+  b = 456;
+  a = z + b;
+  return a;
+}

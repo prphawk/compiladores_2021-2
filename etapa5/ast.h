@@ -30,15 +30,15 @@ typedef enum operador
     nodo_not,
     nodo_and,
     nodo_or,
-    nodo_attr
-} Operador;
+    nodo_attr_pend
+} TipoOperacao;
 
 typedef struct Nodo {
     Tipo tipo;
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
-    Operador tipo_operacao;
+    TipoOperacao tipo_nodo;
 
     CodigoILOC *codigo;
     OperandoILOC *reg_resultado;

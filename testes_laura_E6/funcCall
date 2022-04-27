@@ -1,0 +1,12 @@
+int d() {
+
+return 20;
+}
+
+int main() {
+
+int x;
+x = d() + 10;
+return x;
+
+}
