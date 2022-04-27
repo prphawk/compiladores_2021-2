@@ -344,10 +344,10 @@ void print_codigo(CodigoILOC *codigo)
          case XORI: printf("xorI"); break;
          case LOAD: printf("load"); break;
          case LOADAI: printf("loadAI"); break;
-         case LOADA0: printf("loadA0"); break;
+         case LOADAO: printf("loadAO"); break;
          case CLOAD: printf("cload"); break;
          case CLOADAI: printf("cloadAI"); break;
-         case CLOADA0: printf("cloadA0"); break;
+         case CLOADAO: printf("cloadAO"); break;
          case LOADI: printf("loadI"); break;
          case STORE: printf("store"); break;
          case STOREAI: printf("storeAI"); break;
