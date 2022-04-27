@@ -1,4 +1,4 @@
-//Expressões booleanas por controle de fluxo com curto-circuito: and
+//Expressoes booleanas por controle de fluxo com curto-circuito: and
 int main()
 {
   int a;

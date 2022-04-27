@@ -1,4 +1,4 @@
-//Expressões aritméticas, com operações binárias, e imediatos
+//Expressoes aritmeticas, com operacoes binarias, e imediatos
 int main()
 {
   int a;

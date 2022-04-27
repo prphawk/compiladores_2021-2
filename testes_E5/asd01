@@ -1,0 +1,7 @@
+// global
+int i;
+int main()
+{
+  i = 123;
+  return 0;
+}

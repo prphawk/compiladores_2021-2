@@ -1,4 +1,4 @@
-//O comando de atribuição com variável
+//O comando de atribuicao com variavel
 int z;
 int main()
 {

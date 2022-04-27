@@ -1,4 +1,4 @@
-//Endereço de variáveis globais são um deslocamento =rbss=
+//Endereco de variaveis globais sao um deslocamento =rbss=
 int a;
 int b;
 int z;
