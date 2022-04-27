@@ -155,7 +155,7 @@ CodigoILOC *copia_codigo(CodigoILOC *codigo) {
 }
 
 /* ao fazer deep copy do codigo de um nodo para outro, o endereço do operando que estava na lista de remendos acaba 
-apontando pra um operando não mais utilizado no código final. atualizamos o endereço do remendo com o novo endereço 
+apontando pra um operando não mAIs utilizado no código final. atualizamos o endereço do remendo com o novo endereço 
 do resultado de deep copy para que a função remenda() consiga encontrar o operando correto. */
 CodigoILOC *copia_codigo_repassa_remendo(Remendo *lst_true, Remendo *lst_false, CodigoILOC *codigo) {
 
@@ -326,47 +326,47 @@ void print_codigo(CodigoILOC *codigo)
          case SUB: printf("sub"); break;
          case MULT: printf("mult"); break;
          case DIV: printf("div"); break;
-         case ADDI: printf("addi"); break;
-         case SUBI: printf("subi"); break;
-         case RSUBI: printf("rsubi"); break;
-         case MULTI: printf("multi"); break;
-         case DIVI: printf("divi"); break;
-         case RDIVI: printf("rdivi"); break;
+         case ADDI: printf("addI"); break;
+         case SUBI: printf("subI"); break;
+         case RSUBI: printf("rsubI"); break;
+         case MULTI: printf("multI"); break;
+         case DIVI: printf("divI"); break;
+         case RDIVI: printf("rdivI"); break;
          case LSHIFT: printf("lshift"); break;
-         case LSHIFTI: printf("lshifti"); break;
-         case RSHIFT: printf("rshifti"); break;
-         case RSHIFTI: printf("rshifti"); break;
+         case LSHIFTI: printf("lshiftI"); break;
+         case RSHIFT: printf("rshiftI"); break;
+         case RSHIFTI: printf("rshiftI"); break;
          case AND: printf("and"); break;
-         case ANDI: printf("andi"); break;
+         case ANDI: printf("andI"); break;
          case OR: printf("or"); break;
-         case ORI: printf("ori"); break;
+         case ORI: printf("orI"); break;
          case XOR: printf("xor"); break;
-         case XORI: printf("xori"); break;
+         case XORI: printf("xorI"); break;
          case LOAD: printf("load"); break;
-         case LOADAI: printf("loadai"); break;
-         case LOADA0: printf("loada0"); break;
+         case LOADAI: printf("loadAI"); break;
+         case LOADA0: printf("loadA0"); break;
          case CLOAD: printf("cload"); break;
-         case CLOADAI: printf("cloadai"); break;
-         case CLOADA0: printf("cloada0"); break;
-         case LOADI: printf("loadi"); break;
+         case CLOADAI: printf("cloadAI"); break;
+         case CLOADA0: printf("cloadA0"); break;
+         case LOADI: printf("loadI"); break;
          case STORE: printf("store"); break;
-         case STOREAI: printf("storeai"); break;
-         case STOREA0: printf("storea0"); break;
+         case STOREAI: printf("storeAI"); break;
+         case STOREAO: printf("storeAO"); break;
          case CSTORE: printf("cstore"); break;
-         case CSTOREAI: printf("cstoreai"); break;
-         case CSTOREA0: printf("cstorea0"); break;
+         case CSTOREAI: printf("cstoreAI"); break;
+         case CSTOREAO: printf("cstoreAO"); break;
          case I2I: printf("i2i"); break;
          case C2C: printf("c2c"); break;
          case C2I: printf("c2i"); break;
          case I2C: printf("i2c"); break;
-         case CMP_LT: printf("cmp_lt"); break;
-         case CMP_LE: printf("cmp_le"); break;
-         case CMP_EQ: printf("cmp_eq"); break;
-         case CMP_GE: printf("cmp_ge"); break;
-         case CMP_GT: printf("cmp_gt"); break;
-         case CMP_NE: printf("cmp_ne"); break;
+         case CMP_LT: printf("cmp_LT"); break;
+         case CMP_LE: printf("cmp_LE"); break;
+         case CMP_EQ: printf("cmp_EQ"); break;
+         case CMP_GE: printf("cmp_GE"); break;
+         case CMP_GT: printf("cmp_GT"); break;
+         case CMP_NE: printf("cmp_NE"); break;
          case CBR: printf("cbr"); break;
-         case JUMPI: printf("jumpi"); break;
+         case JUMPI: printf("jumpI"); break;
          case JUMP: printf("jump"); break;
          default: break;
       }

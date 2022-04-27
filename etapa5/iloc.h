@@ -41,10 +41,10 @@ typedef enum OperacaoILOC
     LOADI, // recebe um inteiro como argumento e coloca este inteiro dentro do registrador alvo. ex: loadI c1 => r2 // r2 = c1
     STORE, // ex: store r1 => r2 // Memoria(r2) = r1
     STOREAI, // ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1
-    STOREA0, // ex: storeAO r1 => r2, r3 // Memoria(r2 + r3) = r1
+    STOREAO, // ex: storeAO r1 => r2, r3 // Memoria(r2 + r3) = r1
     CSTORE, // caractere store. ex: cstore r1 => r2
     CSTOREAI, // caractere storeAI. ex: cstoreAI r1 => r2, c3
-    CSTOREA0, // caractere storeAO. ex: cstoreAO r1 => r2, r3
+    CSTOREAO, // caractere storeAO. ex: cstoreAO r1 => r2, r3
     I2I, // copia um valor de um registrador para outro, sem conversão. ex: i2i r1 => r2 // r2 = r1 para inteiros
     C2C, // copia um valor de um registrador para outro, sem conversão. ex: c2c r1 => r2 // r2 = r1 para caracteres
     C2I, // realiza conversões considerando a codificação de caracteres ASCII. ex: c2i r1 => r2 // converte um caractere para um inteiro

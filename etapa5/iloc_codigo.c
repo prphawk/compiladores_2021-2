@@ -388,7 +388,7 @@ void converte_para_logica(Nodo *expressao) {
 	expressao->remendos_true = append_remendo(expressao->remendos_true, op_remendo_true);
 	expressao->remendos_false = append_remendo(expressao->remendos_false, op_remendo_false);
 
-		print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
+	print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
 
 }
 /*
