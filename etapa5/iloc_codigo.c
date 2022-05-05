@@ -692,7 +692,8 @@ int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
 
 void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 
-	if(operador->tipo_nodo == nodo_sub) {
+	if(operador->tipo_nodo == nodo_sub || operador->tipo_nodo == nodo_neg) {
+		//print_codigo(expr->codigo);
 		codigo_sub(operador, expr);
 	}
 	else if(operador->tipo_nodo == nodo_not) {
@@ -725,7 +726,11 @@ CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true,
 // rsubI r1, 0 => r3 // r3 = 0 - r1
 void codigo_sub(Nodo *operador, Nodo *expr) {
 
-	OperandoILOC *origem_1 = copia_operando(operador->reg_resultado);
+	if(operador->tipo_nodo == nodo_neg) {
+		codigo_append_nodo(operador, expr);
+	}
+
+	OperandoILOC *origem_1 = copia_operando(expr->reg_resultado);
 	OperandoILOC *origem_2 = gera_operando_imediato(0);
 	
 	OperandoILOC *destino = gera_operando_registrador(gera_nome_registrador());
@@ -733,6 +738,8 @@ void codigo_sub(Nodo *operador, Nodo *expr) {
 	_cria_codigo_append(operador, lista(origem_1, origem_2), RSUBI, destino);
 
    operador->reg_resultado = destino;
+
+	print_ILOC_intermed("codigo sub", operador->codigo);
 }
    
 //#endregion Código 
