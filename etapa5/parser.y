@@ -262,7 +262,7 @@ lista_nome_variavel_local: cabeca_lista_nome_variavel_local ',' lista_nome_varia
 
 cabeca_lista_nome_variavel_local: TK_IDENTIFICADOR TK_OC_LE variavel_ou_literal {
                                     Nodo *novo_nodo = adiciona_nodo($2);
-                                    novo_nodo->tipo_operacao = nodo_attr;
+                                    novo_nodo->tipo_operacao = nodo_attr_pend;
                                     Nodo *identificador_nodo = adiciona_nodo($1);
                                     adiciona_filho(novo_nodo, identificador_nodo);
                                     adiciona_filho(novo_nodo, $3);
