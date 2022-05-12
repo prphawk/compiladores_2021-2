@@ -38,7 +38,7 @@ typedef struct Nodo {
     ValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
-    TipoOperacao tipo_nodo;
+    TipoOperacao tipo_operacao;
 
     CodigoILOC *codigo;
     OperandoILOC *reg_resultado;

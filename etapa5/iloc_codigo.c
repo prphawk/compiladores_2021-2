@@ -538,7 +538,7 @@ void codigo_update_deslocamento(Nodo *nodo) {
 
 	if(nodo == NULL) return;
 
-	if(nodo->tipo_nodo == nodo_attr_pend) {
+	if(nodo->tipo_operacao == nodo_attr_pend) {
 		Nodo *identificador = nodo->filho;
 		DeslocamentoEscopo busca = busca_deslocamento_e_escopo(identificador->valor_lexico.label);
 
@@ -572,10 +572,10 @@ void codigo_expr_aritmetica(Nodo *esq, Nodo *operador, Nodo *dir) {
 
 void codigo_expr_logica(Nodo *esq, Nodo *nodo_operador, Nodo *dir) {
 
-	if(nodo_operador->tipo_nodo == nodo_and) {
+	if(nodo_operador->tipo_operacao == nodo_and) {
 		codigo_expr_logica_and(esq, nodo_operador, dir);
 	}
-	else if(nodo_operador->tipo_nodo == nodo_or)
+	else if(nodo_operador->tipo_operacao == nodo_or)
 		codigo_expr_logica_or(esq, nodo_operador, dir);
 	else
 		codigo_expr_logica_relacional(esq, nodo_operador, dir);
@@ -675,7 +675,7 @@ void codigo_not(Nodo *operador, Nodo *expr) {
 }
 
 int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
-   switch(nodo_operador->tipo_nodo) {
+   switch(nodo_operador->tipo_operacao) {
       case nodo_EQ: return CMP_EQ; break;
       case nodo_NE: return CMP_NE; break;
       case nodo_LE: return CMP_LE; break;
@@ -692,11 +692,11 @@ int operacao_iloc_binaria_nodo(Nodo *nodo_operador) {
 
 void codigo_expr_unaria(Nodo *operador, Nodo *expr) {
 
-	if(operador->tipo_nodo == nodo_sub || operador->tipo_nodo == nodo_neg) {
+	if(operador->tipo_operacao == nodo_sub || operador->tipo_operacao == nodo_neg) {
 		//print_codigo(expr->codigo);
 		codigo_sub(operador, expr);
 	}
-	else if(operador->tipo_nodo == nodo_not) {
+	else if(operador->tipo_operacao == nodo_not) {
 		codigo_not(operador, expr);
 	}
 	else {
@@ -726,7 +726,7 @@ CodigoILOC *codigo_compara_logico(OperandoILOC *r1, OperandoILOC *op_label_true,
 // rsubI r1, 0 => r3 // r3 = 0 - r1
 void codigo_sub(Nodo *operador, Nodo *expr) {
 
-	if(operador->tipo_nodo == nodo_neg) {
+	if(operador->tipo_operacao == nodo_neg) {
 		codigo_append_nodo(operador, expr);
 	}
 
