@@ -15,7 +15,7 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
    while(codigo_lst != NULL) {
 
       if(codigo_lst->operacao == NOP) {
-         codigo_lst = nops(codigo_anterior, codigo_lst);
+         //codigo_lst = nops(codigo_anterior, codigo_lst);
       }
       else if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
          imediatos_comuns(codigo_lst);
@@ -84,7 +84,6 @@ CodigoILOC* nops(CodigoILOC *cod_anterior, CodigoILOC *codigo) {
    if(cod_atual->proximo == NULL || cod_atual->proximo->label != NULL) return codigo;
    
    cod_atual->proximo->label = copia_nome(cod_atual->label);
-   printf("\n>> %s", cod_atual->label);
    return deleta_instrucao_atual(cod_anterior);
 }
 
