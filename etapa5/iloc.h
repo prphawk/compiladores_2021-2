@@ -93,6 +93,7 @@ typedef struct Remendo {
     struct Remendo *proximo;
 } Remendo;
 
+void codigo_morto(CodigoILOC *codigo);
 int conta_instrucoes(CodigoILOC *codigo);
 CodigoILOC* reverte(CodigoILOC* head);
 void imediatos_comuns(CodigoILOC* cod_ref);

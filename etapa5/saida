@@ -1,6 +1,6 @@
+loadI 64 => rbss
 loadI 1024 => rsp
 loadI 1024 => rfp
-loadI 73 => rbss
 jumpI  => L4
 L3: nop
 i2i rsp => rfp
@@ -22,7 +22,6 @@ loadAI rfp, 8 => r9
 i2i r8 => rsp
 i2i r9 => rfp
 jump  => r7
-jumpI  => L1
 L1: nop
 storeAI r14 => rsp, 0
 storeAI rsp => rsp, 4
@@ -44,12 +43,6 @@ loadAI rfp, 8 => r21
 i2i r20 => rsp
 i2i r21 => rfp
 jump  => r19
-loadAI rfp, 0 => r23
-loadAI rfp, 4 => r24
-loadAI rfp, 8 => r25
-i2i r24 => rsp
-i2i r25 => rfp
-jump  => r23
 L4: nop
 addI rsp, 16 => rsp
 loadI 6 => r27

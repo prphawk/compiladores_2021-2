@@ -20,6 +20,9 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
          imediatos_comuns(codigo_lst);
       }
+      if(codigo_lst->operacao == JUMP) {
+         codigo_morto(codigo_lst);
+      }
 
       codigo_lst = codigo_lst->proximo;
    }
@@ -32,6 +35,21 @@ int eq_str(char* str1, char* str2) {
    return !strcmp(str1, str2);
 }
 
+void codigo_morto(CodigoILOC *codigo) {
+   CodigoILOC* cod_atual = codigo->proximo;
+   CodigoILOC* cod_anterior = codigo;
+   
+   while(cod_atual != NULL) {
+
+      if(cod_atual->label == NULL) {
+         cod_atual = deleta_instrucao_atual(cod_anterior);
+      } else break;
+      cod_anterior = cod_atual;
+      cod_atual = cod_atual->proximo;
+   }
+}
+
+// substitui novos registradores de valores imediatos com registradores já existentes que possuem mesmo valor
 void imediatos_comuns(CodigoILOC* cod_ref) {
 
    if(cod_ref == NULL) return;
@@ -48,7 +66,6 @@ void imediatos_comuns(CodigoILOC* cod_ref) {
 
          if(imediatos_iguais && regs_diferentes) {
             substitui_operando(cod_atual->proximo, cod_atual->destino, cod_ref->destino);
-            //cod_atual->destino = copia_operando(cod_ref->destino);
             cod_atual = deleta_instrucao_atual(cod_anterior);
          }
       }

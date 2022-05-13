@@ -8,6 +8,7 @@ void *arvore = NULL;
 
 extern char*_tipo_str(Tipo tipo);
 extern void codigo_finaliza(Nodo *arvore);
+extern void codigo_define_seg_dados(Nodo *arvore);
 extern int otim_flag_global;
 
 Tipo _get_tipo_nodo(ValorLexico valor_lexico) {
@@ -243,5 +244,8 @@ void exporta_codigo_ILOC()
     if(otim_flag_global) {
         root->codigo = otimiza_ILOC(root->codigo);
     }
+
+    codigo_define_seg_dados(root);
+
     print_codigo(root->codigo);
 }
