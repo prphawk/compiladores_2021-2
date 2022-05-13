@@ -85,7 +85,7 @@ typedef struct CodigoILOC
     OperandoILOC *origem;
     OperacaoILOC operacao;
     OperandoILOC *destino;
-    struct CodigoILOC *anterior;
+    struct CodigoILOC *proximo;
 } CodigoILOC;
 
 typedef struct Remendo {
@@ -95,7 +95,9 @@ typedef struct Remendo {
 
 int conta_instrucoes(CodigoILOC *codigo);
 CodigoILOC* reverte(CodigoILOC* head);
-
+void imediatos_comuns(CodigoILOC* cod_ref);
+CodigoILOC* deleta_instrucao_atual(CodigoILOC* codigo_anterior);
+void substitui_operando(CodigoILOC *codigo, OperandoILOC *original, OperandoILOC *sub);
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
 char *_gera_nome(int eh_rotulo);
@@ -110,6 +112,7 @@ void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
 void libera_nome(char *nome);
 void libera_head_remendo(Remendo *remendo);
+void libera_head_codigo(CodigoILOC *codigo);
 
 OperandoILOC *_cria_operando_rotulo_ponteiro(char** nome_ptr);
 OperandoILOC *gera_operando_remendo();

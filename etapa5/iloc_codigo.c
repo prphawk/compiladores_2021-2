@@ -9,7 +9,7 @@ dependendo se vc tem guardado variáveis literais no escopo global ou junto com 
 - Tem que fazer deep copy de todo ponteiro (rótulo/operando/instrução) cujo conteúdo vc queira reutilizar em outra instrução. 
 Pra evitar double free ao liberar memória.
 - Como estamos construindo o código das folhas para raíz, ele está na ordem invertida de como é impresso. Por isso o codigo
-de um nodo (CodigoILOC, que é uma linked list) tem o atributo "anterior" para indicar outro elemento da lista. 
+de um nodo (CodigoILOC, que é uma linked list) tem o atributo "proximo" para indicar outro elemento da lista. 
 Dá pra pensar nele como uma pilha, o ponteiro de código de cada nodo retorna a última instrução adicionada.
 - Recomendado ver o vídeo de exemplos de código ILOC pra fazer código de função e chamada de função.
 
@@ -69,10 +69,10 @@ CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst)
 	if(new_lst == NULL) return lst;
 
 	CodigoILOC *aux_new_lst = new_lst; //new_lst é o ponteiro que aponta para o FINAL de lista de codigo 
-	while(aux_new_lst->anterior != NULL) { //subo até o topo da instrução
-		aux_new_lst = aux_new_lst->anterior;
+	while(aux_new_lst->proximo != NULL) { //subo até o topo da instrução
+		aux_new_lst = aux_new_lst->proximo;
 	} //chega no inicio do codigo a ser adicionado
-	aux_new_lst->anterior = lst; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
+	aux_new_lst->proximo = lst; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
 	lst = new_lst; //codigo inteiro no primeiro nodo
 
 	return lst;

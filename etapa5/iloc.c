@@ -12,31 +12,83 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
 
    int imediato = -1;
    int found = 0;
-   CodigoILOC* codigo_lst = reverte(codigo);
+   CodigoILOC* codigo_lst = codigo;
    CodigoILOC* codigo_copia = NULL;
-   do {
-      if(codigo_lst->operacao == LOADI) {
-         if(!found) {
-            codigo_copia = codigo_lst;
-            found = 1;
-         }
-         else {
-            if(codigo_lst->origem->proximo->valor == codigo_copia->origem->proximo->valor) {
-               codigo_lst->destino =  codigo_copia->destino;
-               found = 1;
-            }
-         }
 
-         codigo_lst = codigo_lst->anterior;
+   while(codigo_lst != NULL) {
+
+      if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
+         imediatos_comuns(codigo_lst);
       }
+
+      codigo_lst = codigo_lst->proximo;
    }
-   while(found);
 
    return codigo;
 }
 
-void imediatos_comuns() {
+int eq_str(char* str1, char* str2) {
+   if(str1 == NULL || str2 == NULL) return 0;
+   return !strcmp(str1, str2);
+}
 
+void imediatos_comuns(CodigoILOC* cod_ref) {
+
+   if(cod_ref == NULL) return;
+
+   CodigoILOC* cod_atual = cod_ref->proximo;
+   CodigoILOC* cod_anterior = cod_ref;
+
+   while(cod_atual != NULL) {
+
+      if(cod_atual->operacao == LOADI && cod_atual->destino->tipo == REGISTRADOR) {
+
+         int regs_diferentes = !eq_str(cod_atual->origem->nome, cod_ref->origem->nome);
+         int imediatos_iguais = cod_atual->origem->valor == cod_ref->origem->valor;
+
+         if(imediatos_iguais && regs_diferentes) {
+            substitui_operando(cod_atual->proximo, cod_atual->destino, cod_ref->destino);
+            //cod_atual->destino = copia_operando(cod_ref->destino);
+            cod_atual = deleta_instrucao_atual(cod_anterior);
+         }
+      }
+
+      cod_anterior = cod_atual;
+      cod_atual = cod_atual->proximo;
+   }
+}
+
+//so ate achar um, nao vai td lista
+void substitui_operando(CodigoILOC *codigo, OperandoILOC *original, OperandoILOC *sub) {
+
+   CodigoILOC *aux_codigo = codigo;
+
+   while(aux_codigo != NULL) {
+
+      OperandoILOC* operando = aux_codigo->origem;
+
+      while (operando != NULL) // eu sei q sao so dois mas n queria repitir o compare....
+      {
+         if(eq_str(operando->nome , original->nome)) {
+            libera_operando(operando);
+            operando = copia_operando(sub);
+            return;
+         }
+         operando = operando->proximo;
+      }
+      aux_codigo = aux_codigo->proximo;
+   }
+}
+
+CodigoILOC* deleta_instrucao_atual(CodigoILOC* codigo_anterior) {
+   CodigoILOC* codigo_deletar = codigo_anterior->proximo;
+
+   if(codigo_deletar != NULL) {
+      codigo_anterior->proximo = codigo_deletar->proximo;
+      libera_head_codigo(codigo_deletar);
+   }
+
+   return codigo_anterior;
 }
 //#endregion Otimizacao
 
@@ -44,13 +96,13 @@ void imediatos_comuns() {
 
 CodigoILOC* reverte(CodigoILOC* head) {
 
-    if(head == NULL || head->anterior == NULL) return head;
+    if(head == NULL || head->proximo == NULL) return head;
 
-    CodigoILOC* rest = reverte(head->anterior);
+    CodigoILOC* rest = reverte(head->proximo);
 
-    head->anterior->anterior = head;
+    head->proximo->proximo = head;
 
-    head->anterior = NULL;
+    head->proximo = NULL;
 
     return rest;
 }
@@ -59,7 +111,7 @@ int conta_instrucoes(CodigoILOC *codigo) {
 	CodigoILOC *aux = codigo;
 	int count = 0;
 	while(aux != NULL) {
-		aux = aux->anterior;
+		aux = aux->proximo;
 		count++;
 	}
 	return count;
@@ -162,7 +214,7 @@ CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoIL
     codigo->origem = origem;
     codigo->operacao = operacao;
     codigo->destino = destino;
-    codigo->anterior = NULL;
+    codigo->proximo = NULL;
 
     return codigo;
 }
@@ -215,7 +267,7 @@ CodigoILOC *copia_codigo(CodigoILOC *codigo) {
 	copia->origem = copia_operando(codigo->origem);
 	copia->operacao = codigo->operacao;
 	copia->destino = copia_operando(codigo->destino);
-	copia->anterior = copia_codigo(codigo->anterior);
+	copia->proximo = copia_codigo(codigo->proximo);
 
    return copia;
 }
@@ -232,7 +284,7 @@ CodigoILOC *copia_codigo_repassa_remendo(Remendo *lst_true, Remendo *lst_false, 
 	copia->origem = copia_operando_repassa_remendo(lst_true, lst_false, codigo->origem);
 	copia->operacao = codigo->operacao;
 	copia->destino = copia_operando_repassa_remendo(lst_true, lst_false, codigo->destino);
-	copia->anterior = copia_codigo_repassa_remendo(lst_true, lst_false, codigo->anterior);
+	copia->proximo = copia_codigo_repassa_remendo(lst_true, lst_false, codigo->proximo);
 
    return copia;
 }
@@ -336,10 +388,8 @@ Remendo *cria_remendo() {
 
 //#region Libera
 
-void libera_codigo(CodigoILOC *codigo) {
+void libera_head_codigo(CodigoILOC *codigo) {
     if(codigo == NULL) return;
-
-    libera_codigo(codigo->anterior);
 
     libera_nome(codigo->label);
     codigo->label = NULL;
@@ -348,6 +398,15 @@ void libera_codigo(CodigoILOC *codigo) {
     libera_operando(codigo->destino);
 
     free(codigo);
+}
+
+void libera_codigo(CodigoILOC *codigo) {
+
+   if(codigo == NULL) return;
+
+    libera_codigo(codigo->proximo);
+
+    libera_head_codigo(codigo);
 }
 
 void libera_nome(char *nome) {
@@ -386,8 +445,8 @@ void print_codigo(CodigoILOC *codigo)
       
       switch(codigo->operacao)
       {
-         case HALT: printf("halt\n"); return print_codigo(codigo->anterior); break;
-         case NOP: printf("nop\n"); return print_codigo(codigo->anterior); break;
+         case HALT: printf("halt\n"); return print_codigo(codigo->proximo); break;
+         case NOP: printf("nop\n"); return print_codigo(codigo->proximo); break;
          case ADD: printf("add"); break;
          case SUB: printf("sub"); break;
          case MULT: printf("mult"); break;
@@ -447,7 +506,7 @@ void print_codigo(CodigoILOC *codigo)
 
       printf("\n");
 
-      print_codigo(codigo->anterior);
+      print_codigo(codigo->proximo);
 
    }
 }
