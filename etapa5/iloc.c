@@ -380,16 +380,14 @@ void print_codigo(CodigoILOC *codigo)
 {
    if(codigo!=NULL)
    {
-      print_codigo(codigo->anterior);
-
       if(codigo->label != NULL) {
          printf("%s: ", codigo->label);
       }
       
       switch(codigo->operacao)
       {
-         case HALT: printf("halt\n"); return; break;
-         case NOP: printf("nop\n"); return; break;
+         case HALT: printf("halt\n"); return print_codigo(codigo->anterior); break;
+         case NOP: printf("nop\n"); return print_codigo(codigo->anterior); break;
          case ADD: printf("add"); break;
          case SUB: printf("sub"); break;
          case MULT: printf("mult"); break;
@@ -448,6 +446,8 @@ void print_codigo(CodigoILOC *codigo)
       print_operandos(codigo->destino);
 
       printf("\n");
+
+      print_codigo(codigo->anterior);
 
    }
 }

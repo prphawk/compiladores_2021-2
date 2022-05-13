@@ -239,7 +239,7 @@ void exporta_codigo_ILOC()
     if(root == NULL) return;
     codigo_finaliza(root);
 
-    //root->codigo = reverte(root->codigo);
+    root->codigo = reverte(root->codigo);
     if(otim_flag_global) {
         root->codigo = otimiza_ILOC(root->codigo);
     }
