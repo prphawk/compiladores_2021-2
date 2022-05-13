@@ -13,17 +13,21 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
    int imediato = -1;
    int found = 0;
    CodigoILOC* codigo_lst = codigo;
-   CodigoILOC* codigo_copia = NULL;
+   CodigoILOC* codigo_anterior = NULL;
 
    while(codigo_lst != NULL) {
 
-      if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
+      if(codigo_lst->operacao == NOP) {
+         codigo_lst = nops(codigo_anterior, codigo_lst);
+      }
+      else if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
          imediatos_comuns(codigo_lst);
       }
-      if(codigo_lst->operacao == JUMP) {
+      else if(codigo_lst->operacao == JUMP) {
          codigo_morto(codigo_lst);
       }
 
+      codigo_anterior = codigo_lst;
       codigo_lst = codigo_lst->proximo;
    }
 
@@ -35,12 +39,23 @@ int eq_str(char* str1, char* str2) {
    return !strcmp(str1, str2);
 }
 
+CodigoILOC* nops(CodigoILOC *cod_anterior, CodigoILOC *codigo) {
+   CodigoILOC* cod_atual = codigo;
+   
+   if(cod_anterior == NULL) return codigo;
+   if(cod_atual->label == NULL) return codigo;
+   if(cod_atual->proximo == NULL || cod_atual->proximo->label != NULL) return codigo;
+   
+   cod_atual->proximo->label = copia_nome(cod_atual->label);
+   printf("\n>> %s", cod_atual->label);
+   return deleta_instrucao_atual(cod_anterior);
+}
+
 void codigo_morto(CodigoILOC *codigo) {
    CodigoILOC* cod_atual = codigo->proximo;
    CodigoILOC* cod_anterior = codigo;
    
    while(cod_atual != NULL) {
-
       if(cod_atual->label == NULL) {
          cod_atual = deleta_instrucao_atual(cod_anterior);
       } else break;
