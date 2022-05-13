@@ -31,6 +31,8 @@ rfp + 0 -> endereço de retorno
 const int MIN_OFFSET_PARAMS = 12; // 12 -> (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
 extern int print_ILOC_intermed_global;
 
+extern int otim_flag_global;
+
 char *rotulo_main_global = NULL;
 
 Remendo *remendos_rotulo_funcao_global = NULL;
@@ -486,6 +488,9 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 	_append(nodo, instrucao_loadai(reg_rsp(), offset_return, r0));
+
+	// para fins de nao cagar a otimização
+	nodo->codigo->label = copia_nome("ret");
 
 	nodo->reg_resultado = r0;
 }

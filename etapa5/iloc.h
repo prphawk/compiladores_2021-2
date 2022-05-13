@@ -94,6 +94,7 @@ typedef struct Remendo {
 } Remendo;
 
 int conta_instrucoes(CodigoILOC *codigo);
+CodigoILOC* reverte(CodigoILOC* head);
 
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
@@ -140,3 +141,5 @@ void print_operando(OperandoILOC *operando);
 void print_remendos(Remendo *remendo_lst);
 
 void print_ILOC_intermed(char* str, CodigoILOC *codigo);
+
+CodigoILOC* otimiza_ILOC(CodigoILOC* codigo);

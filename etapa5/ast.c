@@ -8,6 +8,7 @@ void *arvore = NULL;
 
 extern char*_tipo_str(Tipo tipo);
 extern void codigo_finaliza(Nodo *arvore);
+extern int otim_flag_global;
 
 Tipo _get_tipo_nodo(ValorLexico valor_lexico) {
     if(valor_lexico.tipo_vlex == VLEX_TIPO_LITERAL) {
@@ -230,10 +231,17 @@ void _imprime_filhos(Nodo *nodo) {
     }
 }
 
+
+
 void exporta_codigo_ILOC()
 {
     Nodo *root = arvore;
     if(root == NULL) return;
     codigo_finaliza(root);
+
+    //root->codigo = reverte(root->codigo);
+    if(otim_flag_global) {
+        root->codigo = otimiza_ILOC(root->codigo);
+    }
     print_codigo(root->codigo);
 }

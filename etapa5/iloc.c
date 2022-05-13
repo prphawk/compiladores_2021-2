@@ -5,7 +5,55 @@ int global_num_registradores = 1;
 
 extern int print_ILOC_intermed_global;
 extern Remendo *remendos_rotulo_funcao_global;
-;
+
+//#region Otimizacao
+
+CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
+
+   int imediato = -1;
+   int found = 0;
+   CodigoILOC* codigo_lst = reverte(codigo);
+   CodigoILOC* codigo_copia = NULL;
+   do {
+      if(codigo_lst->operacao == LOADI) {
+         if(!found) {
+            codigo_copia = codigo_lst;
+            found = 1;
+         }
+         else {
+            if(codigo_lst->origem->proximo->valor == codigo_copia->origem->proximo->valor) {
+               codigo_lst->destino =  codigo_copia->destino;
+               found = 1;
+            }
+         }
+
+         codigo_lst = codigo_lst->anterior;
+      }
+   }
+   while(found);
+
+   return codigo;
+}
+
+void imediatos_comuns() {
+
+}
+//#endregion Otimizacao
+
+//#region Aux
+
+CodigoILOC* reverte(CodigoILOC* head) {
+
+    if(head == NULL || head->anterior == NULL) return head;
+
+    CodigoILOC* rest = reverte(head->anterior);
+
+    head->anterior->anterior = head;
+
+    head->anterior = NULL;
+
+    return rest;
+}
 
 int conta_instrucoes(CodigoILOC *codigo) {
 	CodigoILOC *aux = codigo;
@@ -16,6 +64,7 @@ int conta_instrucoes(CodigoILOC *codigo) {
 	}
 	return count;
 }
+//#endregion Aux
 
 //#region Cria
 
