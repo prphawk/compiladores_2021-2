@@ -212,6 +212,8 @@ void codigo_return(Nodo *nodo, Nodo *expressao) {
 	nodo->reg_resultado = destino; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
 	//agr eu preciso kk
 
+	codigo_retorna_funcao(nodo);
+
 	print_ILOC_intermed("Codigo return", nodo->codigo);
 
 	//instrucao_loadI_reg()
