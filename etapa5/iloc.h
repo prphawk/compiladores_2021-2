@@ -94,6 +94,7 @@ typedef struct Remendo {
 } Remendo;
 
 void codigo_morto_jump(CodigoILOC *codigo);
+CodigoILOC* nops(CodigoILOC *cod_anterior, CodigoILOC *codigo);
 int conta_instrucoes(CodigoILOC *codigo);
 CodigoILOC* reverte(CodigoILOC* head);
 void imediatos_comuns(CodigoILOC* cod_ref);
