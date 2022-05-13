@@ -1,8 +1,6 @@
-int f() {
-	return 73;
-}
-
 int main() {
-	int x;
-	x = f();
+	int x, y, z;
+	x = 0;
+	y = 1;
+	z = y;
 }

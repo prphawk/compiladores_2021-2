@@ -9,9 +9,6 @@ extern Remendo *remendos_rotulo_funcao_global;
 //#region Otimizacao
 
 CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
-
-   int imediato = -1;
-   int found = 0;
    CodigoILOC* codigo_lst = codigo;
    CodigoILOC* codigo_copia = NULL;
 
@@ -20,8 +17,11 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
          imediatos_comuns(codigo_lst);
       }
-      if(codigo_lst->operacao == JUMP) {
-         codigo_morto(codigo_lst);
+      else if(codigo_lst->operacao == JUMP) {
+         codigo_morto_jump(codigo_lst);
+      }
+      else if(codigo_lst->operacao == STOREAI && codigo_lst->destino->tipo == REGISTRADOR_PONTEIRO) {
+         propag_copias(codigo_lst);
       }
 
       codigo_lst = codigo_lst->proximo;
@@ -30,12 +30,49 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
    return codigo;
 }
 
+/*
+storeAI r17 => rfp, 24
+loadAI rfp, 24 => r18
+storeAI r18 => rfp, 16
+*/
+void propag_copias(CodigoILOC *cod_ref) {
+
+   OperandoILOC* op_ponteiro = cod_ref->destino; 
+
+   CodigoILOC* cod_atual = cod_ref->proximo;
+   CodigoILOC* cod_anterior = cod_ref;
+   
+   while(cod_atual != NULL) {
+
+      // se for entrada de laço ou se for instrução modificando o valor do reg_ponteiro
+      if(cod_atual->label != NULL || eq_reg_ptr(cod_atual->destino, op_ponteiro)) {
+         return;
+                           // rfp, 24        rfp, 24
+      } else if(cod_atual->operacao == LOADAI && eq_reg_ptr(cod_atual->origem, op_ponteiro)) {
+         OperandoILOC* op_reg_original = cod_atual->destino; // r18
+
+         substitui_operando(cod_atual->proximo, op_reg_original, cod_ref->origem); // r18 -> r17
+         cod_atual = deleta_instrucao_atual(cod_anterior);
+         return;
+      }
+      cod_anterior = cod_atual;
+      cod_atual = cod_atual->proximo;
+   }
+}
+
+
 int eq_str(char* str1, char* str2) {
    if(str1 == NULL || str2 == NULL) return 0;
    return !strcmp(str1, str2);
 }
+int eq_reg_ptr(OperandoILOC* dest1, OperandoILOC* dest2) {
+   if(dest1 == NULL || dest2 == NULL) return 0;
+   if(dest1->tipo != REGISTRADOR_PONTEIRO || dest2->tipo != REGISTRADOR_PONTEIRO) return 0;
+   if(dest1->proximo == NULL || dest2->proximo == NULL) return 0;
+   return eq_str(dest1->nome, dest2->nome) && dest1->proximo->valor == dest2->proximo->valor;
+}
 
-void codigo_morto(CodigoILOC *codigo) {
+void codigo_morto_jump(CodigoILOC *codigo) {
    CodigoILOC* cod_atual = codigo->proximo;
    CodigoILOC* cod_anterior = codigo;
    
@@ -87,8 +124,10 @@ void substitui_operando(CodigoILOC *codigo, OperandoILOC *original, OperandoILOC
       while (operando != NULL) // eu sei q sao so dois mas n queria repitir o compare....
       {
          if(eq_str(operando->nome , original->nome)) {
-            libera_operando(operando);
-            operando = copia_operando(sub);
+
+            libera_nome(operando->nome);
+            operando->nome = copia_nome(sub->nome);
+            operando->tipo = sub->tipo;
             return;
          }
          operando = operando->proximo;
@@ -556,7 +595,7 @@ void print_operando(OperandoILOC *operando)
 }
 
 void print_remendos(Remendo *remendo_lst) {
-   //if(!print_ILOC_intermed_global) return;
+   if(!print_ILOC_intermed_global) return;
 
    Remendo *aux = remendo_lst;
    printf("\nImprimindo lista de remendos");

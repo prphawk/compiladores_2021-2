@@ -93,7 +93,7 @@ typedef struct Remendo {
     struct Remendo *proximo;
 } Remendo;
 
-void codigo_morto(CodigoILOC *codigo);
+void codigo_morto_jump(CodigoILOC *codigo);
 int conta_instrucoes(CodigoILOC *codigo);
 CodigoILOC* reverte(CodigoILOC* head);
 void imediatos_comuns(CodigoILOC* cod_ref);
@@ -147,3 +147,5 @@ void print_remendos(Remendo *remendo_lst);
 void print_ILOC_intermed(char* str, CodigoILOC *codigo);
 
 CodigoILOC* otimiza_ILOC(CodigoILOC* codigo);
+void propag_copias(CodigoILOC *cod_ref);
+int eq_reg_ptr(OperandoILOC* dest1, OperandoILOC* dest2);
