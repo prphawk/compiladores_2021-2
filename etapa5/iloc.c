@@ -15,7 +15,7 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
    while(codigo_lst != NULL) {
 
       if(codigo_lst->operacao == NOP) {
-         //codigo_lst = nops(codigo_anterior, codigo_lst);
+         codigo_lst = nops(codigo_anterior, codigo_lst);
       }
       else if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
          imediatos_comuns(codigo_lst);
