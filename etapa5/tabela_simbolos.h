@@ -142,7 +142,7 @@ void _print_argumentos(ArgumentoFuncaoLst *argLst);
 
 DeslocamentoEscopo busca_deslocamento_e_escopo(char *chave);
 void insere_rotulo_funcao(char* nome_funcao, char* rotulo);
-char* busca_rotulo_funcao(char* nome_funcao);
+char** busca_rotulo_funcao(char* nome_funcao);
 ArgumentoFuncaoLst *busca_parametros_funcao(char* nome_funcao);
  int busca_quantidade_parametros_funcao_atual();
   int busca_offset_base_vars_locais_funcao_atual();

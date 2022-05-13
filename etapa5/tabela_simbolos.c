@@ -583,6 +583,8 @@ void _libera_tabela(EntradaHash *tabela, int tamanho_tabela) {
 
             libera_vlex(tabela[i].conteudo.valor_lexico);
 
+            free(tabela[i].conteudo.rotulo);
+
             _libera_argumentos(tabela[i].conteudo.argumentos);
         }
     }
@@ -689,7 +691,7 @@ void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
     }
 }
 
- char* busca_rotulo_funcao(char* nome_funcao) {
+ char** busca_rotulo_funcao(char* nome_funcao) {
 
     if(global_pilha_hash == NULL) return NULL;
 
@@ -700,7 +702,7 @@ void insere_rotulo_funcao(char* nome_funcao, char* rotulo) {
     free(chave);
 
     if(busca_funcao != NULL) {
-        return busca_funcao->conteudo.rotulo;
+        return &busca_funcao->conteudo.rotulo;
     }
 }
 

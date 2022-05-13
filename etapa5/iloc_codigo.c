@@ -33,6 +33,8 @@ extern int print_ILOC_intermed_global;
 
 char *rotulo_main_global = NULL;
 
+Remendo *remendos_rotulo_funcao_global = NULL;
+
 void codigo_finaliza(Nodo *arvore) {
 
 	// append halt ------------------
@@ -120,7 +122,12 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 	_append(cabecalho, instrucao_nop(rotulo));
 
 	// rotulo Lx da funcao para fazer jumpI, guardamos na tabela de simbolos para a chamar a partir do nome da funcao
-	insere_rotulo_funcao(cabecalho->valor_lexico.label, rotulo);
+	insere_rotulo_funcao(cabecalho->valor_lexico.label, copia_nome(rotulo));
+
+	if(remendos_rotulo_funcao_global) {
+		OperandoILOC *operando = gera_operando_rotulo(copia_nome(rotulo));
+		remendos_rotulo_funcao_global = remenda(remendos_rotulo_funcao_global, operando);
+	}
 
 	int eh_main = compare_eq_str(cabecalho->valor_lexico.label, "main");
 
@@ -448,8 +455,6 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 
 	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
 
-	//	loadI PC + 5 => r1 // guarda o endereço de retorno
-	_append(nodo, instrucao_addi(reg_rpc(), 5, r1));
 	// storeAI r1 => rsp, 0
 	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
 	// storeAI rsp => rsp, 4
@@ -459,9 +464,22 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 
 	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
 
+	//	loadI PC + 2 => r1 // guarda o endereço de retorno
+	_append(nodo, instrucao_addi(reg_rpc(), 2, r1));
+
 	// jumpI => L0 // pula pra funcao chamada
-	char* rotulo_ptr = copia_nome(busca_rotulo_funcao(nome_funcao));
-	_append(nodo, instrucao_jumpI(gera_operando_rotulo(rotulo_ptr)));
+	char **rotulo_ptr = busca_rotulo_funcao(nome_funcao);
+	OperandoILOC *operando = NULL;
+
+	// caso esteja se chamando recursivamente e não tem label ainda
+	if(rotulo_ptr && *rotulo_ptr == NULL) {
+		operando = gera_operando_remendo();
+		remendos_rotulo_funcao_global = append_remendo(remendos_rotulo_funcao_global, operando);
+	} else {
+		operando = gera_operando_rotulo(copia_nome(rotulo_ptr ? *rotulo_ptr : NULL));
+	}
+	
+	_append(nodo, instrucao_jumpI(operando));
 
 	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());

@@ -66,12 +66,14 @@ typedef enum TipoOperando {
     LABEL,
     IMEDIATO,
     REGISTRADOR_PONTEIRO,
+    ROTULO_PONTEIRO,
     REMENDO
 } TipoOperando;
 
 typedef struct OperandoILOC
 {
     char *nome;
+    char **nome_ptr;
     TipoOperando tipo;
     int valor;
     struct OperandoILOC *proximo;
@@ -100,13 +102,15 @@ OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo);
 OperandoILOC *gera_operando_imediato(int valor);
 OperandoILOC *gera_operando_rotulo(char *nome);
 OperandoILOC *gera_operando_registrador(char* nome);
+OperandoILOC *gera_operando_rotulo_ponteiro(char** nome_ptr);
+
 OperandoILOC *lista(OperandoILOC *primeiro, OperandoILOC *segundo);
 void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
 void libera_nome(char *nome);
 void libera_head_remendo(Remendo *remendo);
 
-OperandoILOC *_cria_operando_registrador_ponteiro(char* nome);
+OperandoILOC *_cria_operando_rotulo_ponteiro(char** nome_ptr);
 OperandoILOC *gera_operando_remendo();
 OperandoILOC *gera_operando_remendo();
 

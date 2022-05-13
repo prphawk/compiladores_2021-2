@@ -2,7 +2,7 @@ Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
 
 Simulador:
 
-> ./etapa5 < teste > saida
+> ./etapa5 < ../testes_E5_incorretos/ijk25 > saida
 > python3 ilocsim.py -s saida
 
 Em etapa5, para compilar as files:

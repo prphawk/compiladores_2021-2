@@ -4,6 +4,8 @@ int global_num_rotulos = 1;
 int global_num_registradores = 1;
 
 extern int print_ILOC_intermed_global;
+extern Remendo *remendos_rotulo_funcao_global;
+;
 
 int conta_instrucoes(CodigoILOC *codigo) {
 	CodigoILOC *aux = codigo;
@@ -64,6 +66,10 @@ OperandoILOC *gera_operando_rotulo(char* nome) {
    return _cria_operando(nome, 0, LABEL);
 }
 
+OperandoILOC *gera_operando_rotulo_ponteiro(char** nome_ptr) {
+   return _cria_operando_rotulo_ponteiro(nome_ptr);
+}
+
 OperandoILOC *reg_rfp() {
    return _cria_operando(RFP, 0, REGISTRADOR_PONTEIRO);
 }
@@ -81,12 +87,23 @@ OperandoILOC *reg_rpc() {
 }
 
 OperandoILOC *_cria_operando(char* nome, int valor, TipoOperando tipo) {
-    OperandoILOC *operando = malloc(sizeof(OperandoILOC));
-    operando->nome = nome;
-    operando->valor = valor;
-    operando->tipo = tipo;
-    operando->proximo = NULL;
-    return operando;
+   OperandoILOC *operando = malloc(sizeof(OperandoILOC));
+   operando->nome = nome;
+   operando->nome_ptr = NULL;
+   operando->valor = valor;
+   operando->tipo = tipo;
+   operando->proximo = NULL;
+   return operando;
+}
+
+OperandoILOC *_cria_operando_rotulo_ponteiro(char** nome_ptr) {
+   OperandoILOC *operando = malloc(sizeof(OperandoILOC));
+   operando->nome = NULL;
+   operando->nome_ptr = nome_ptr;
+   operando->valor = 0;
+   operando->tipo = ROTULO_PONTEIRO;
+   operando->proximo = NULL;
+   return operando;
 }
 
 CodigoILOC *_cria_codigo(OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino)
@@ -183,6 +200,7 @@ OperandoILOC *copia_operando_repassa_remendo(Remendo *lst_true, Remendo *lst_fal
    if(operando->tipo == REMENDO) {
       substitui_remendo(lst_true, operando, copia);
       substitui_remendo(lst_false, operando, copia);
+      substitui_remendo(remendos_rotulo_funcao_global, operando, copia);
    }
 
     copia->proximo = copia_operando_repassa_remendo(lst_true, lst_false, operando->proximo);
@@ -229,7 +247,8 @@ Remendo *remenda(Remendo *buraco_lst, OperandoILOC *argamassa) {
 
 		operando->tipo = argamassa->tipo;
 		operando->nome = copia_nome_operando(argamassa->nome, argamassa->tipo);
-		
+
+
 		aux_buraco = buraco_lst;
 		buraco_lst = buraco_lst->proximo;
 
@@ -291,8 +310,8 @@ void libera_operando(OperandoILOC *operando) {
 
     libera_operando(operando->proximo);
 
-   if(operando->tipo != REGISTRADOR_PONTEIRO) {
-     libera_nome(operando->nome);
+   if(operando->tipo != REGISTRADOR_PONTEIRO && operando->tipo != ROTULO_PONTEIRO) {
+      libera_nome(operando->nome);
       operando->nome = NULL;
    }
 
@@ -403,6 +422,8 @@ void print_operando(OperandoILOC *operando)
         printf("%i", operando->valor);
     else if(operando->tipo == REMENDO)
         printf("REMENDO");
+    else if(operando->tipo == ROTULO_PONTEIRO && operando->nome_ptr)
+        printf("%s", *(operando->nome_ptr));
     else printf("%s", operando->nome);
 
     if(operando->tipo == REMENDO)
@@ -410,7 +431,7 @@ void print_operando(OperandoILOC *operando)
 }
 
 void print_remendos(Remendo *remendo_lst) {
-   if(!print_ILOC_intermed_global) return;
+   //if(!print_ILOC_intermed_global) return;
 
    Remendo *aux = remendo_lst;
    printf("\nImprimindo lista de remendos");

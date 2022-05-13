@@ -1,8 +1,0 @@
-int f(int y) {
-	return y;
-}
-
-int main() {
-	int x;
-	x = f(x);
-}
