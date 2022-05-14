@@ -1,4 +1,5 @@
 #include "iloc_codigo.h"
+extern int global_num_registradores;
 
 /*
 INFOS:
@@ -42,10 +43,13 @@ void codigo_finaliza(Nodo *arvore) {
 	// append halt ------------------
 	_append(arvore, instrucao_halt());
 
-	// inicializa rsp e rfp (opcional)
 	CodigoILOC *codigo_lst = NULL;
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
+	
+	if(!otim_flag_global) {
+		// inicializa rsp e rfp (opcional)
+		codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
+		codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
+	}
 
 	// pula pro rotulo equivalente a main() (o rotulo de cada funcao é reconhecido na declaracao)
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
@@ -152,7 +156,7 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 // inicialização de rsp e rfp em funcoes chamadas
 void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 
-	if(!eh_main) { //TODO talvez n precise
+	if(!eh_main) {
 		CodigoILOC *codigo_copia_rsp_para_rfp = _cria_codigo(reg_rsp(), I2I, reg_rfp());
 		_append(cabecalho, codigo_copia_rsp_para_rfp);
 	}
@@ -216,14 +220,11 @@ void codigo_return(Nodo *nodo, Nodo *expressao) {
 
 	_cria_codigo_com_label_append(nodo, copia_nome(rotulo_store), origem, STOREAI, destino);
 	
-	nodo->reg_resultado = destino; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
-	//agr eu preciso kk
+	nodo->reg_resultado = destino;
 
 	codigo_retorna_funcao(nodo);
 
 	print_ILOC_intermed("Codigo return", nodo->codigo);
-
-	//instrucao_loadI_reg()
 }
 
 /*
@@ -242,6 +243,7 @@ void codigo_retorna_funcao(Nodo *cabecalho) {
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
 
 	if(otim_flag_global) {
+		global_num_registradores+=2; //pra fins de fácil comparação entre versoes apenas TODO tirar
 		_append(cabecalho, instrucao_loadai(reg_rfp(), 4, reg_rsp()));
 		_append(cabecalho, instrucao_loadai(reg_rfp(), 8, reg_rfp()));
 
@@ -468,19 +470,17 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
   
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
 
-	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
-
-	// storeAI r1 => rsp, 0
-	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
 	// storeAI rsp => rsp, 4
 	_append(nodo, instrucao_storeai(reg_rsp(), reg_rsp(), 4));
 	// storeAI rfp => rsp, 8
 	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));
 
-	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
-
-	//	loadI PC + 2 => r1 // guarda o endereço de retorno
-	_append(nodo, instrucao_addi(reg_rpc(), 2, r1));
+	// guarda o endereço de retorno
+	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+	//	loadI PC + 2 => r1 
+	_append(nodo, instrucao_addi(reg_rpc(), 3, r1));
+	// storeAI r1 => rsp, 0
+	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
 
 	// jumpI => L0 // pula pra funcao chamada
 	char **rotulo_ptr = busca_rotulo_funcao(nome_funcao);
@@ -494,14 +494,14 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 		operando = gera_operando_rotulo(copia_nome(rotulo_ptr ? *rotulo_ptr : NULL));
 	}
 	
-	_append(nodo, instrucao_jumpI(operando));
+	CodigoILOC *codigo_jumpI = instrucao_jumpI(operando);
+	_append(nodo, codigo_jumpI);
+
+	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
 
 	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 	_append(nodo, instrucao_loadai(reg_rsp(), offset_return, r0));
-
-	// para fins de nao cagar a otimização
-	nodo->codigo->label = copia_nome("ret");
 
 	nodo->reg_resultado = r0;
 }
