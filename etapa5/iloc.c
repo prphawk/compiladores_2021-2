@@ -36,11 +36,6 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
    return codigo;
 }
 
-CodigoILOC* otimiza_ILOC_janela(CodigoILOC* codigo) {
-
-}
-
-
 /*
 storeAI r17 => rfp, 24
 loadAI rfp, 24 => r18
