@@ -1,9 +1,6 @@
-loadI 84 => rbss
-loadI 1024 => rsp
-loadI 1024 => rfp
+loadI 55 => rbss
 jumpI  => L8
-L8: nop
-addI rsp, 52 => rsp
+L8: addI rsp, 52 => rsp
 loadI 1 => r2
 storeAI r2 => rfp, 0
 loadI 0 => r4
@@ -12,72 +9,46 @@ loadI 2 => r6
 storeAI r6 => rfp, 8
 loadI 3 => r8
 storeAI r8 => rfp, 12
-L5: nop
-loadAI rfp, 12 => r9
-loadI 0 => r10
-cmp_GT r9, r10 => r11
-loadI 0 => r12
-cmp_NE r11, r12 => r13
+L5: loadAI rfp, 12 => r9
+cmp_GT r9, r4 => r11
+cmp_NE r11, r4 => r13
 cbr r13 => L6, L7
-L6: nop
-loadAI rfp, 0 => r14
+L6: loadAI rfp, 0 => r14
 loadAI rfp, 4 => r15
 cmp_LT r14, r15 => r16
-loadI 0 => r17
-cmp_NE r16, r17 => r18
+cmp_NE r16, r4 => r18
 cbr r18 => L1, L4
-L1: nop
-loadAI rfp, 8 => r19
+L1: loadAI rfp, 8 => r19
 loadAI rfp, 12 => r20
 cmp_LT r19, r20 => r21
-loadI 0 => r22
-cmp_NE r21, r22 => r23
+cmp_NE r21, r4 => r23
 cbr r23 => L3, L4
-L3: nop
-loadAI rfp, 0 => r25
+L3: loadAI rfp, 0 => r25
 loadAI rfp, 4 => r26
 add r25, r26 => r27
 storeAI r27 => rfp, 16
 loadAI rfp, 4 => r29
-loadI 2 => r30
-add r29, r30 => r31
+addI r29, 2 => r31
 storeAI r31 => rfp, 4
 jumpI  => L2
-L4: nop
-loadAI rfp, 8 => r33
+L4: loadAI rfp, 8 => r33
 loadAI rfp, 12 => r34
 add r33, r34 => r35
 storeAI r35 => rfp, 16
 loadAI rfp, 0 => r37
-loadI 1 => r38
-add r37, r38 => r39
+addI r37, 1 => r39
 storeAI r39 => rfp, 0
 jumpI  => L2
-L2: nop
-loadAI rfp, 12 => r41
-loadI 1 => r42
-sub r41, r42 => r43
+L2: loadAI rfp, 12 => r41
+subI r41, 1 => r43
 storeAI r43 => rfp, 12
 jumpI  => L5
-L7: nop
-loadAI rfp, 16 => r45
-loadI 1 => r46
-mult r45, r46 => r47
+L7: loadAI rfp, 16 => r45
 loadI 4 => r48
-mult r47, r48 => r49
+multI r45, 4 => r49
 storeAI r49 => rfp, 16
-loadAI rfp, 16 => r51
-loadI 0 => r52
-add r51, r52 => r53
-storeAI r53 => rfp, 16
-loadAI rfp, 16 => r55
-loadI 0 => r56
-sub r55, r56 => r57
-storeAI r57 => rfp, 16
-loadAI rfp, 16 => r59
-loadI 1 => r60
-div r59, r60 => r61
-storeAI r61 => rfp, 16
-loadAI rfp, 16 => r62
-storeAI r62 => rfp, 12
+storeAI r49 => rfp, 16
+storeAI r49 => rfp, 16
+storeAI r49 => rfp, 16
+storeAI r49 => rfp, 12
 halt
