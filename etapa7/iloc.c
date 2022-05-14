@@ -167,6 +167,7 @@ CodigoILOC* simplif_algebrica(CodigoILOC* cod_ref, CodigoILOC *cod_atual, Codigo
 
 void vira_imediato(OperandoILOC* operando, int valor) {
    libera_nome(operando->nome);
+   operando->nome = NULL;
    operando->tipo = IMEDIATO;
    operando->valor = valor;
 }
