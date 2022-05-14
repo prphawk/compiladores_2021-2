@@ -239,15 +239,21 @@ void codigo_retorna_funcao(Nodo *cabecalho) {
 	if(eh_a_main()) return; //TODO tirar se necessario
 
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
-	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
-	OperandoILOC *r2 = gera_operando_registrador(gera_nome_registrador());
-
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
-	_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
-	_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
 
-	_append(cabecalho, _cria_codigo(copia_operando(r1), I2I, reg_rsp()));
-	_append(cabecalho, _cria_codigo(copia_operando(r2), I2I, reg_rfp()));
+	if(otim_flag_global) {
+		_append(cabecalho, instrucao_loadai(reg_rfp(), 4, reg_rsp()));
+		_append(cabecalho, instrucao_loadai(reg_rfp(), 8, reg_rfp()));
+
+	} else {
+		OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+		OperandoILOC *r2 = gera_operando_registrador(gera_nome_registrador());
+		_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
+		_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
+
+		_append(cabecalho, _cria_codigo(copia_operando(r1), I2I, reg_rsp()));
+		_append(cabecalho, _cria_codigo(copia_operando(r2), I2I, reg_rfp()));
+	}
 
 	_append(cabecalho, _cria_codigo(NULL, JUMP, copia_operando(r0)));
 }
