@@ -239,20 +239,24 @@ void codigo_retorna_funcao(Nodo *cabecalho) {
 
 	if(eh_a_main()) return;
 
+	OperandoILOC *r1, *r2, *r3;
+
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
-
+	
 	if(otim_flag_global) {
 		global_num_registradores+=2; //TODO: tirar. pra fins de fácil comparação entre versoes apenas
-		_append(cabecalho, instrucao_loadai(reg_rfp(), 4, reg_rsp()));
-		_append(cabecalho, instrucao_loadai(reg_rfp(), 8, reg_rfp()));
-
+		r1 = reg_rsp();
+		r2 = reg_rfp();
 	} else {
-		OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
-		OperandoILOC *r2 = gera_operando_registrador(gera_nome_registrador());
-		_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
-		_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
+		r1 = gera_operando_registrador(gera_nome_registrador());
+		r2 = gera_operando_registrador(gera_nome_registrador());
+	}
 
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
+	_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
+
+	if(!otim_flag_global) {
 		_append(cabecalho, _cria_codigo(copia_operando(r1), I2I, reg_rsp()));
 		_append(cabecalho, _cria_codigo(copia_operando(r2), I2I, reg_rfp()));
 	}
@@ -463,6 +467,8 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 	// storeAI rfp => rsp, 8
 	_append(nodo, instrucao_storeai(reg_rfp(), reg_rsp(), 8));
 
+	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
+
 	// guarda o endereço de retorno
 	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
 	//	loadI PC + 2 => r1 
@@ -481,17 +487,16 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 	} else {
 		operando = gera_operando_rotulo(copia_nome(rotulo_ptr ? *rotulo_ptr : NULL));
 	}
-	
-	CodigoILOC *codigo_jumpI = instrucao_jumpI(operando);
-	_append(nodo, codigo_jumpI);
 
-	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
+	_append(nodo, instrucao_jumpI(operando));
 
 	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 	_append(nodo, instrucao_loadai(reg_rsp(), offset_return, r0));
-
 	nodo->reg_resultado = r0;
+
+	// para fins de nao cagar a otimização
+	nodo->codigo->label = copia_nome("ret");
 }
 
 //ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1

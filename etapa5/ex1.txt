@@ -12,7 +12,11 @@ int main()
   if (a < b && c < d) {
      x = a + b;
   }else{
-     x = c * c;
+     x = c + d;
   };
+  x = x * 1 * 4;
+  x = x + 0;
+  x = x - 0;
+  x = x / 1;
   return x;
 }

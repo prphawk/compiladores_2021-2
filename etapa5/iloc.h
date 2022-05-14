@@ -93,6 +93,9 @@ typedef struct Remendo {
     struct Remendo *proximo;
 } Remendo;
 
+CodigoILOC*  simplifica_aritimetica(CodigoILOC* cod_ref, CodigoILOC *cod_atual, CodigoILOC *cod_anterior);
+void vira_imediato(OperandoILOC* operando, int valor);
+int eq_reg(OperandoILOC* dest1, OperandoILOC* dest2);
 int eq_str(char* str1, char* str2);
 int eh_desvio(CodigoILOC *codigo);
 void codigo_morto_jump(CodigoILOC *codigo);

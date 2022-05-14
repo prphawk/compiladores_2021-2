@@ -26,6 +26,9 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       else if(codigo_lst->operacao == STOREAI && codigo_lst->destino->tipo == REGISTRADOR_PONTEIRO) {
          propag_copias(codigo_lst);
       }
+      // else if(codigo_lst->operacao == MULT && eq_reg(codigo_lst->origem, codigo_lst->origem->proximo)) {
+      //    codigo_lst->operacao = ADD;
+      // }
 
       codigo_anterior = codigo_lst;
       codigo_lst = codigo_lst->proximo;
@@ -97,7 +100,7 @@ void imediatos_comuns(CodigoILOC* cod_ref) {
 
       if(cod_atual->operacao == LOADI && cod_atual->destino->tipo == REGISTRADOR) {
 
-         int regs_diferentes = !eq_str(cod_atual->origem->nome, cod_ref->origem->nome);
+         int regs_diferentes = !eq_reg(cod_atual->origem, cod_ref->origem);
          int imediatos_iguais = cod_atual->origem->valor == cod_ref->origem->valor;
 
          if(imediatos_iguais && regs_diferentes) {
@@ -106,9 +109,67 @@ void imediatos_comuns(CodigoILOC* cod_ref) {
          }
       }
 
+      cod_atual = simplifica_aritimetica(cod_ref, cod_atual, cod_anterior);
+
       cod_anterior = cod_atual;
       cod_atual = cod_atual->proximo;
    }
+}
+
+// se r2 eh registrador de imediato c1, substitui ADD r1, r2 -> r3 por ADDI r1, c1 -> r3
+CodigoILOC* simplifica_aritimetica(CodigoILOC* cod_ref, CodigoILOC *cod_atual, CodigoILOC *cod_anterior) {
+   
+   if(!(cod_atual && cod_atual->origem)) return cod_atual;
+    
+   OperandoILOC* operando_original = cod_atual->origem->proximo;
+   if(!eq_reg(operando_original, cod_ref->destino)) return cod_atual;
+
+   int valor = cod_ref->origem->valor;
+
+    switch (cod_atual->operacao)
+    {
+      case ADD:
+         if(valor == 0) {
+            substitui_operando(cod_atual->proximo, cod_atual->destino, cod_atual->origem);
+            return deleta_instrucao_atual(cod_anterior);
+         }
+         cod_atual->operacao = ADDI;
+         vira_imediato(operando_original, valor);
+         break;
+      case SUB:
+         if(valor == 0) {
+            substitui_operando(cod_atual->proximo, cod_atual->destino, cod_atual->origem);
+            return deleta_instrucao_atual(cod_anterior);
+         }
+         cod_atual->operacao = SUBI;
+         vira_imediato(operando_original, valor);
+         break;
+      case MULT:
+         if(valor == 1) {
+            substitui_operando(cod_atual->proximo, cod_atual->destino, cod_atual->origem);
+            return deleta_instrucao_atual(cod_anterior);
+         }
+         cod_atual->operacao = MULTI;
+         vira_imediato(operando_original, valor);
+         break;
+      case DIV:
+         if(valor == 1) {
+            substitui_operando(cod_atual->proximo, cod_atual->destino, cod_atual->origem);
+            return deleta_instrucao_atual(cod_anterior);
+         }
+         cod_atual->operacao = DIVI;
+         vira_imediato(operando_original, valor);
+         break;
+      
+      default: break;
+    }
+   return cod_atual;
+}
+
+void vira_imediato(OperandoILOC* operando, int valor) {
+   libera_nome(operando->nome);
+   operando->tipo = IMEDIATO;
+   operando->valor = valor;
 }
 
 //so ate achar um, nao vai td lista
@@ -158,11 +219,16 @@ int eq_str(char* str1, char* str2) {
    return !strcmp(str1, str2);
 }
 
+int eq_reg(OperandoILOC* dest1, OperandoILOC* dest2) {
+   if(dest1 == NULL || dest2 == NULL) return 0;
+   if(dest1->tipo != dest2->tipo) return 0;
+   return eq_str(dest1->nome, dest2->nome);
+}
 int eq_reg_ptr(OperandoILOC* dest1, OperandoILOC* dest2) {
    if(dest1 == NULL || dest2 == NULL) return 0;
-   if(dest1->tipo != REGISTRADOR_PONTEIRO || dest2->tipo != REGISTRADOR_PONTEIRO) return 0;
+   if(dest1->tipo != REGISTRADOR_PONTEIRO) return 0;
    if(dest1->proximo == NULL || dest2->proximo == NULL) return 0;
-   return eq_str(dest1->nome, dest2->nome) && dest1->proximo->valor == dest2->proximo->valor;
+   return eq_reg(dest1, dest2) && dest1->proximo->valor == dest2->proximo->valor;
 }
 
 CodigoILOC* reverte(CodigoILOC* head) {
