@@ -1,15 +1,10 @@
 Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
 
-Simulador:
-
-> ./etapa5 < ../testes_E5_incorretos/ijk25 > saida
-> python3 ilocsim.py -s saida
-
-Em etapa5, para compilar as files:
+Em etapa7, para compilar as files:
 
 > make
 
-> ./etapa5 < teste.txt
+> ./etapa7 < teste.txt
 
 Checar mem leaks com teste.txt **(instalar o valgrind)**:
 
@@ -28,7 +23,7 @@ Limpar:
 
 Entregar:
 
-> tar cvzf etapa5.tgz .
+> tar cvzf etapa7.tgz .
 
 OU
 
@@ -36,4 +31,4 @@ OU
 
 Unzip:
 
-> tar -xvzf etapa5.tgz
+> tar -xvzf etapa7.tgz
