@@ -48,31 +48,17 @@ void propag_copias(CodigoILOC *cod_ref) {
    
    while(cod_atual != NULL) {
 
-      // se for entrada de laço ou se for instrução modificando o valor do reg_ponteiro
-      if(cod_atual->label != NULL || eq_reg_ptr(cod_atual->destino, op_ponteiro)) {
+      // se tiver entrada de laço ou desvio ou se for instrução modificando o valor do reg_ponteiro
+      if(cod_atual->label != NULL || eh_desvio(cod_atual) || eq_reg_ptr(cod_atual->destino, op_ponteiro)) {
          return;
       } else if(cod_atual->operacao == LOADAI && eq_reg_ptr(cod_atual->origem, op_ponteiro)) { // rfp, 24 == rfp, 24
          OperandoILOC* op_reg_original = cod_atual->destino; // r18
          substitui_operando(cod_atual->proximo, op_reg_original, cod_ref->origem); // r18 (vira)-> r17
          cod_atual = deleta_instrucao_atual(cod_anterior);
-         //return;
       }
       cod_anterior = cod_atual;
       cod_atual = cod_atual->proximo;
    }
-}
-
-
-int eq_str(char* str1, char* str2) {
-   if(str1 == NULL || str2 == NULL) return 0;
-   return !strcmp(str1, str2);
-}
-
-int eq_reg_ptr(OperandoILOC* dest1, OperandoILOC* dest2) {
-   if(dest1 == NULL || dest2 == NULL) return 0;
-   if(dest1->tipo != REGISTRADOR_PONTEIRO || dest2->tipo != REGISTRADOR_PONTEIRO) return 0;
-   if(dest1->proximo == NULL || dest2->proximo == NULL) return 0;
-   return eq_str(dest1->nome, dest2->nome) && dest1->proximo->valor == dest2->proximo->valor;
 }
 
 CodigoILOC* nops(CodigoILOC *cod_anterior, CodigoILOC *codigo) {
@@ -162,6 +148,22 @@ CodigoILOC* deleta_instrucao_atual(CodigoILOC* codigo_anterior) {
 //#endregion Otimizacao
 
 //#region Aux
+
+int eh_desvio(CodigoILOC *codigo) {
+   return codigo->operacao == JUMP || codigo->operacao == JUMPI;
+}
+
+int eq_str(char* str1, char* str2) {
+   if(str1 == NULL || str2 == NULL) return 0;
+   return !strcmp(str1, str2);
+}
+
+int eq_reg_ptr(OperandoILOC* dest1, OperandoILOC* dest2) {
+   if(dest1 == NULL || dest2 == NULL) return 0;
+   if(dest1->tipo != REGISTRADOR_PONTEIRO || dest2->tipo != REGISTRADOR_PONTEIRO) return 0;
+   if(dest1->proximo == NULL || dest2->proximo == NULL) return 0;
+   return eq_str(dest1->nome, dest2->nome) && dest1->proximo->valor == dest2->proximo->valor;
+}
 
 CodigoILOC* reverte(CodigoILOC* head) {
 

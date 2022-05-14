@@ -1,9 +1,9 @@
-loadI 40 => rbss
+loadI 44 => rbss
 loadI 1024 => rsp
 loadI 1024 => rfp
 jumpI  => L5
 L5: nop
-addI rsp, 44 => rsp
+addI rsp, 36 => rsp
 loadI 1 => r2
 storeAI r2 => rfp, 0
 loadI 0 => r4
@@ -26,14 +26,18 @@ loadI 0 => r17
 cmp_NE r16, r17 => r18
 cbr r18 => L3, L4
 L3: nop
-loadI 293 => r20
-storeAI r20 => rfp, 16
-jumpI  => L2
-L4: nop
-loadI 325 => r22
+loadAI rfp, 0 => r20
+loadAI rfp, 4 => r21
+add r20, r21 => r22
 storeAI r22 => rfp, 16
 jumpI  => L2
+L4: nop
+loadAI rfp, 8 => r24
+loadAI rfp, 8 => r25
+mult r24, r25 => r26
+storeAI r26 => rfp, 16
+jumpI  => L2
 L2: nop
-loadAI rfp, 16 => r23
-storeAI r23 => rfp, 12
+loadAI rfp, 16 => r27
+storeAI r27 => rfp, 12
 halt

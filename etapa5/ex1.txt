@@ -1,0 +1,18 @@
+int main()
+{
+  int a;
+  int b;
+  int c;
+  int d;
+  int x;
+  a = 1;
+  b = 0;
+  c = 2;
+  d = 3;
+  if (a < b && c < d) {
+     x = a + b;
+  }else{
+     x = c * c;
+  };
+  return x;
+}

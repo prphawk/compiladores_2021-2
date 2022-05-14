@@ -44,7 +44,7 @@ void codigo_finaliza(Nodo *arvore) {
 	_append(arvore, instrucao_halt());
 
 	CodigoILOC *codigo_lst = NULL;
-	
+
 	if(!otim_flag_global) {
 		// inicializa rsp e rfp (opcional)
 		codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
@@ -237,13 +237,13 @@ jump => r0
 */
 void codigo_retorna_funcao(Nodo *cabecalho) {
 
-	if(eh_a_main()) return; //TODO tirar se necessario
+	if(eh_a_main()) return;
 
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
 
 	if(otim_flag_global) {
-		global_num_registradores+=2; //pra fins de fácil comparação entre versoes apenas TODO tirar
+		global_num_registradores+=2; //TODO: tirar. pra fins de fácil comparação entre versoes apenas
 		_append(cabecalho, instrucao_loadai(reg_rfp(), 4, reg_rsp()));
 		_append(cabecalho, instrucao_loadai(reg_rfp(), 8, reg_rfp()));
 
@@ -332,12 +332,6 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final, OperandoILOC *
 	return codigo_lst;
 }
 
-/*
-S → while { B.f=S.next; B.t=rot(); }
-	(B) { S.begin=rot(); S1.next=S.begin; }
-	S1 { S.code=gera(S.begin:) || B.code ||
-	gera(B.t:) || S1.code || gera(goto S.begin) }
-*/
 void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco) {
 	char *rotulo_expressao 	= gera_nome_rotulo();
 	char *rotulo_bloco		= gera_nome_rotulo();
@@ -415,13 +409,7 @@ void converte_para_logica(Nodo *expressao) {
 	print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
 
 }
-/*
-S -> 	if { B.t=rot(); B.f=rot(); }
-		(B) { S1 .next=S.next; }
-		S1 else { S2.next=S.next; }
-		S2 { S.code=B.code || gera(B.t:) || S1.code ||
-		gera(goto S.next) || gera(B.f:); || S2.code }
-*/
+
 void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_false) {
 	
 	//eu não tenho TEMPO pra refatorar isso aqui, bear with me:
