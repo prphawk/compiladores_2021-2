@@ -1,4 +1,5 @@
 #include "iloc_codigo.h"
+extern int global_num_registradores;
 
 /*
 INFOS:
@@ -9,7 +10,7 @@ dependendo se vc tem guardado variáveis literais no escopo global ou junto com 
 - Tem que fazer deep copy de todo ponteiro (rótulo/operando/instrução) cujo conteúdo vc queira reutilizar em outra instrução. 
 Pra evitar double free ao liberar memória.
 - Como estamos construindo o código das folhas para raíz, ele está na ordem invertida de como é impresso. Por isso o codigo
-de um nodo (CodigoILOC, que é uma linked list) tem o atributo "anterior" para indicar outro elemento da lista. 
+de um nodo (CodigoILOC, que é uma linked list) tem o atributo "proximo" para indicar outro elemento da lista. 
 Dá pra pensar nele como uma pilha, o ponteiro de código de cada nodo retorna a última instrução adicionada.
 - Recomendado ver o vídeo de exemplos de código ILOC pra fazer código de função e chamada de função.
 
@@ -31,6 +32,8 @@ rfp + 0 -> endereço de retorno
 const int MIN_OFFSET_PARAMS = 12; // 12 -> (rfp, 8) é o ultimo endereço q usamos ao chamar uma funcao, o rfp 12 tá livre pra empilhar argumentos
 extern int print_ILOC_intermed_global;
 
+extern int otim_flag_global;
+
 char *rotulo_main_global = NULL;
 
 Remendo *remendos_rotulo_funcao_global = NULL;
@@ -40,16 +43,13 @@ void codigo_finaliza(Nodo *arvore) {
 	// append halt ------------------
 	_append(arvore, instrucao_halt());
 
-	// prepend codigo de inicialização ----------------------------------------------------------------------
-	int num_instr_incompleto = conta_instrucoes(arvore->codigo);
-
-	// inicializa rsp e rfp (opcional)
 	CodigoILOC *codigo_lst = NULL;
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
 
-	// inicializa rbss com o endereço imediatamente depois da instrução halt
-	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss()));
+	if(!otim_flag_global) {
+		// inicializa rsp e rfp (opcional)
+		codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
+		codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
+	}
 
 	// pula pro rotulo equivalente a main() (o rotulo de cada funcao é reconhecido na declaracao)
 	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
@@ -60,6 +60,17 @@ void codigo_finaliza(Nodo *arvore) {
 	arvore->codigo = codigo_lst;
 }
 
+// ATENÇAO essa funcao eh chamada depois da otimização i.e., depois de ter >revertido< a ordem da lista de codigo.
+void codigo_define_seg_dados(Nodo *arvore) {
+	// prepend codigo de inicialização ----------------------------------------------------------------------
+	int num_instr_incompleto = conta_instrucoes(arvore->codigo);
+
+	// inicializa rbss com o endereço imediatamente depois da instrução halt
+	CodigoILOC *codigo_seg_dados = instrucao_loadI_reg(num_instr_incompleto + 2, NULL, reg_rbss());
+	codigo_seg_dados->proximo = arvore->codigo;
+	arvore->codigo = codigo_seg_dados;
+}
+
 //#region Auxiliares 
 
 CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst)
@@ -67,10 +78,10 @@ CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst)
 	if(new_lst == NULL) return lst;
 
 	CodigoILOC *aux_new_lst = new_lst; //new_lst é o ponteiro que aponta para o FINAL de lista de codigo 
-	while(aux_new_lst->anterior != NULL) { //subo até o topo da instrução
-		aux_new_lst = aux_new_lst->anterior;
+	while(aux_new_lst->proximo != NULL) { //subo até o topo da instrução
+		aux_new_lst = aux_new_lst->proximo;
 	} //chega no inicio do codigo a ser adicionado
-	aux_new_lst->anterior = lst; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
+	aux_new_lst->proximo = lst; //no topo, ligo o fim do codigo do nodo com o inicio do outro nodo
 	lst = new_lst; //codigo inteiro no primeiro nodo
 
 	return lst;
@@ -145,7 +156,7 @@ void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo) {
 // inicialização de rsp e rfp em funcoes chamadas
 void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int eh_main) {
 
-	if(!eh_main) { //TODO talvez n precise
+	if(!eh_main) {
 		CodigoILOC *codigo_copia_rsp_para_rfp = _cria_codigo(reg_rsp(), I2I, reg_rfp());
 		_append(cabecalho, codigo_copia_rsp_para_rfp);
 	}
@@ -209,14 +220,11 @@ void codigo_return(Nodo *nodo, Nodo *expressao) {
 
 	_cria_codigo_com_label_append(nodo, copia_nome(rotulo_store), origem, STOREAI, destino);
 	
-	nodo->reg_resultado = destino; //precisa linkar o resultado da atribuição com esses dois regs? Acho q n pq atribuição não é uma expressão. entao n deve ter reg resultado.
-	//agr eu preciso kk
+	nodo->reg_resultado = destino;
 
 	codigo_retorna_funcao(nodo);
 
 	print_ILOC_intermed("Codigo return", nodo->codigo);
-
-	//instrucao_loadI_reg()
 }
 
 /*
@@ -229,18 +237,29 @@ jump => r0
 */
 void codigo_retorna_funcao(Nodo *cabecalho) {
 
-	if(eh_a_main()) return; //TODO tirar se necessario
+	if(eh_a_main()) return;
+
+	OperandoILOC *r1, *r2, *r3;
 
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
-	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
-	OperandoILOC *r2 = gera_operando_registrador(gera_nome_registrador());
-
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
+	
+	if(otim_flag_global) {
+		global_num_registradores+=2; //TODO: tirar. pra fins de fácil comparação entre versoes apenas
+		r1 = reg_rsp();
+		r2 = reg_rfp();
+	} else {
+		r1 = gera_operando_registrador(gera_nome_registrador());
+		r2 = gera_operando_registrador(gera_nome_registrador());
+	}
+
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 4, r1));
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 8, r2));
 
-	_append(cabecalho, _cria_codigo(copia_operando(r1), I2I, reg_rsp()));
-	_append(cabecalho, _cria_codigo(copia_operando(r2), I2I, reg_rfp()));
+	if(!otim_flag_global) {
+		_append(cabecalho, _cria_codigo(copia_operando(r1), I2I, reg_rsp()));
+		_append(cabecalho, _cria_codigo(copia_operando(r2), I2I, reg_rfp()));
+	}
 
 	_append(cabecalho, _cria_codigo(NULL, JUMP, copia_operando(r0)));
 }
@@ -317,12 +336,6 @@ CodigoILOC *atribui_booleano(Nodo *expressao, char* rotulo_final, OperandoILOC *
 	return codigo_lst;
 }
 
-/*
-S → while { B.f=S.next; B.t=rot(); }
-	(B) { S.begin=rot(); S1.next=S.begin; }
-	S1 { S.code=gera(S.begin:) || B.code ||
-	gera(B.t:) || S1.code || gera(goto S.begin) }
-*/
 void codigo_while(Nodo *nodo, Nodo *expressao, Nodo *bloco) {
 	char *rotulo_expressao 	= gera_nome_rotulo();
 	char *rotulo_bloco		= gera_nome_rotulo();
@@ -400,13 +413,7 @@ void converte_para_logica(Nodo *expressao) {
 	print_ILOC_intermed("Codigo converte para logico", expressao->codigo);
 
 }
-/*
-S -> 	if { B.t=rot(); B.f=rot(); }
-		(B) { S1 .next=S.next; }
-		S1 else { S2.next=S.next; }
-		S2 { S.code=B.code || gera(B.t:) || S1.code ||
-		gera(goto S.next) || gera(B.f:); || S2.code }
-*/
+
 void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_false) {
 	
 	//eu não tenho TEMPO pra refatorar isso aqui, bear with me:
@@ -455,10 +462,6 @@ void codigo_if_else(Nodo *nodo, Nodo *expressao, Nodo *bloco_true, Nodo *bloco_f
   
 void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos) {
 
-	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
-
-	// storeAI r1 => rsp, 0
-	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
 	// storeAI rsp => rsp, 4
 	_append(nodo, instrucao_storeai(reg_rsp(), reg_rsp(), 4));
 	// storeAI rfp => rsp, 8
@@ -466,8 +469,12 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 
 	int offset_return = empilha_argumentos_chamada_funcao(nodo, lista_argumentos);
 
-	//	loadI PC + 2 => r1 // guarda o endereço de retorno
-	_append(nodo, instrucao_addi(reg_rpc(), 2, r1));
+	// guarda o endereço de retorno
+	OperandoILOC *r1 = gera_operando_registrador(gera_nome_registrador());
+	//	loadI PC + 2 => r1 
+	_append(nodo, instrucao_addi(reg_rpc(), 3, r1));
+	// storeAI r1 => rsp, 0
+	_append(nodo, instrucao_storeai(copia_operando(r1), reg_rsp(), 0));
 
 	// jumpI => L0 // pula pra funcao chamada
 	char **rotulo_ptr = busca_rotulo_funcao(nome_funcao);
@@ -480,14 +487,16 @@ void codigo_chamada_funcao(Nodo *nodo, char *nome_funcao, Nodo *lista_argumentos
 	} else {
 		operando = gera_operando_rotulo(copia_nome(rotulo_ptr ? *rotulo_ptr : NULL));
 	}
-	
+
 	_append(nodo, instrucao_jumpI(operando));
 
 	//loadAI rsp, 12 => r0 // pega o retorno da funcao (12 se não tiver sido empilhado parametros)
 	OperandoILOC *r0 = gera_operando_registrador(gera_nome_registrador());
 	_append(nodo, instrucao_loadai(reg_rsp(), offset_return, r0));
-
 	nodo->reg_resultado = r0;
+
+	// para fins de nao cagar a otimização
+	nodo->codigo->label = copia_nome("ret");
 }
 
 //ex: storeAI r1 => r2, c3 // Memoria(r2 + c3) = r1

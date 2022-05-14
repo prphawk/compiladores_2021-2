@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SUCCESS=0
-executable="./etapa5"
+executable="./etapa7"
 
 echo "------------- STARTING TEST CASES -------------\n"
 for file in ../testes_E5_incorretos/*

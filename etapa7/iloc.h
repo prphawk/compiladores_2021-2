@@ -85,7 +85,7 @@ typedef struct CodigoILOC
     OperandoILOC *origem;
     OperacaoILOC operacao;
     OperandoILOC *destino;
-    struct CodigoILOC *anterior;
+    struct CodigoILOC *proximo;
 } CodigoILOC;
 
 typedef struct Remendo {
@@ -93,8 +93,18 @@ typedef struct Remendo {
     struct Remendo *proximo;
 } Remendo;
 
+CodigoILOC* simplif_algebrica(CodigoILOC* cod_ref, CodigoILOC *cod_atual, CodigoILOC *cod_anterior);
+void vira_imediato(OperandoILOC* operando, int valor);
+int eq_reg(OperandoILOC* dest1, OperandoILOC* dest2);
+int eq_str(char* str1, char* str2);
+int eh_desvio(CodigoILOC *codigo);
+void codigo_morto_jump(CodigoILOC *codigo);
+CodigoILOC* nops(CodigoILOC *cod_anterior, CodigoILOC *codigo);
 int conta_instrucoes(CodigoILOC *codigo);
-
+CodigoILOC* reverte(CodigoILOC* head);
+void imediatos_comuns(CodigoILOC* cod_ref);
+CodigoILOC* deleta_instrucao_atual(CodigoILOC* codigo_anterior);
+void substitui_operando(CodigoILOC *codigo, OperandoILOC *original, OperandoILOC *sub);
 char *gera_nome_rotulo();
 char *gera_nome_registrador();
 char *_gera_nome(int eh_rotulo);
@@ -109,6 +119,7 @@ void libera_operando(OperandoILOC *operando);
 void libera_codigo(CodigoILOC *codigo);
 void libera_nome(char *nome);
 void libera_head_remendo(Remendo *remendo);
+void libera_head_codigo(CodigoILOC *codigo);
 
 OperandoILOC *_cria_operando_rotulo_ponteiro(char** nome_ptr);
 OperandoILOC *gera_operando_remendo();
@@ -140,3 +151,7 @@ void print_operando(OperandoILOC *operando);
 void print_remendos(Remendo *remendo_lst);
 
 void print_ILOC_intermed(char* str, CodigoILOC *codigo);
+
+CodigoILOC* otimiza_ILOC(CodigoILOC* codigo);
+void propag_copias(CodigoILOC *cod_ref);
+int eq_reg_ptr(OperandoILOC* dest1, OperandoILOC* dest2);

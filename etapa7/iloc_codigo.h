@@ -7,6 +7,7 @@ CodigoILOC *_append_codigo(CodigoILOC *lst, CodigoILOC *new_lst);
 void codigo_append_nodo(Nodo *pai, Nodo *filho);
 void _cria_codigo_append(Nodo *nodo, OperandoILOC *origem, OperacaoILOC operacao, OperandoILOC *destino);
 int tem_buracos(Nodo *nodo);
+void codigo_define_seg_dados(Nodo *arvore);
 
 void codigo_declaracao_funcao(Nodo *cabecalho, Nodo *corpo);
 void codigo_rsp_e_rfp_declaracao_funcao(Nodo *cabecalho, int offset);
