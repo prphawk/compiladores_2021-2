@@ -26,16 +26,20 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       else if(codigo_lst->operacao == STOREAI && codigo_lst->destino->tipo == REGISTRADOR_PONTEIRO) {
          propag_copias(codigo_lst);
       }
-      // else if(codigo_lst->operacao == MULT && eq_reg(codigo_lst->origem, codigo_lst->origem->proximo)) {
-      //    codigo_lst->operacao = ADD;
-      // }
 
       codigo_anterior = codigo_lst;
       codigo_lst = codigo_lst->proximo;
    }
 
+   //otimiza_ILOC_janela(codigo);
+
    return codigo;
 }
+
+CodigoILOC* otimiza_ILOC_janela(CodigoILOC* codigo) {
+
+}
+
 
 /*
 storeAI r17 => rfp, 24
@@ -109,7 +113,7 @@ void imediatos_comuns(CodigoILOC* cod_ref) {
          }
       }
 
-      cod_atual = simplifica_aritimetica(cod_ref, cod_atual, cod_anterior);
+      cod_atual = simplif_algebrica(cod_ref, cod_atual, cod_anterior);
 
       cod_anterior = cod_atual;
       cod_atual = cod_atual->proximo;
@@ -117,7 +121,7 @@ void imediatos_comuns(CodigoILOC* cod_ref) {
 }
 
 // se r2 eh registrador de imediato c1, substitui ADD r1, r2 -> r3 por ADDI r1, c1 -> r3
-CodigoILOC* simplifica_aritimetica(CodigoILOC* cod_ref, CodigoILOC *cod_atual, CodigoILOC *cod_anterior) {
+CodigoILOC* simplif_algebrica(CodigoILOC* cod_ref, CodigoILOC *cod_atual, CodigoILOC *cod_anterior) {
    
    if(!(cod_atual && cod_atual->origem)) return cod_atual;
     

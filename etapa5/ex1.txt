@@ -9,10 +9,15 @@ int main()
   b = 0;
   c = 2;
   d = 3;
-  if (a < b && c < d) {
-     x = a + b;
-  }else{
-     x = c + d;
+   while (d > 0) do {
+      if (a < b && c < d) {
+         x = a + b;
+         b = b + 2;
+      }else{
+         x = c + d;
+         a = a + 1;
+      };
+   d = d - 1;
   };
   x = x * 1 * 4;
   x = x + 0;
