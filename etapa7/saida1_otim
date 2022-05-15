@@ -1,6 +1,4 @@
-
->> entrour51
->> entrour59loadI 55 => rbss
+loadI 55 => rbss
 jumpI  => L8
 L8: addI rsp, 52 => rsp
 loadI 1 => r2

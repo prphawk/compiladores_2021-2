@@ -17,13 +17,13 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       if(codigo_lst->operacao == NOP) {
          codigo_lst = nops(codigo_anterior, codigo_lst);
       }
-      else if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
+      if(codigo_lst->operacao == LOADI && codigo_lst->destino->tipo == REGISTRADOR) {
          imediatos_comuns(codigo_lst);
       }
-      else if(codigo_lst->operacao == JUMP) {
+      if(codigo_lst->operacao == JUMP) {
          codigo_morto_jump(codigo_lst);
       }
-      else if(codigo_lst->operacao == STOREAI && codigo_lst->destino->tipo == REGISTRADOR_PONTEIRO) {
+      if(codigo_lst->operacao == STOREAI && codigo_lst->destino->tipo == REGISTRADOR_PONTEIRO) {
          propag_copias(codigo_lst);
       }
       otimiza_ILOC_janela(codigo_lst);
@@ -106,8 +106,8 @@ void propag_copias(CodigoILOC *cod_ref) {
       }
       if(cod_atual->operacao == LOADAI && eq_reg_ptr(cod_atual->origem, op_ponteiro)) { // rfp, 24 == rfp, 24
          OperandoILOC* op_reg_original = cod_atual->destino; // r18
-         printf("\n>> entrou");
-         print_operando(op_reg_original);
+         //printf("\n>> entrou");
+         //print_operando(op_reg_original);
          substitui_operando(cod_atual->proximo, op_reg_original, cod_ref->origem); // r18 (vira)-> r17
          cod_atual = deleta_instrucao_atual(cod_anterior);
       }
