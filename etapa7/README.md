@@ -1,21 +1,16 @@
 Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
 
-Simulador:
+Em etapa7, para compilar os exemplos:
 
 ```
-./etapa7 < teste > saida
-python3 ilocsim.py -s saida
+make
+./etapa7 < ex1.txt > saida1
+./etapa7 < ex2.txt > saida2
+./etapa7 -o < ex1.txt > saida1_otim
+./etapa7 -o < ex2.txt > saida2_otim
 ```
 
-Em etapa7, para compilar as files:
-
-```
-> make
-> ./etapa7 < ex1.txt > saida1
-> ./etapa7 < ex2.txt > saida2
-> ./etapa7 -o < ex1.txt > saida1_otim
-> ./etapa7 -o < ex2.txt > saida2_otim
-```
+Não temos etapa 6, a saída é ILOC.
 
 ## Exemplo 1
 
@@ -39,7 +34,20 @@ Em etapa7, para compilar as files:
 
 ### Compressão de instruções NOP com label:
 
-> tar cvzf etapa7.tgz .
+`ex1.txt`
+
+-   Código antigo:
+
+```
+L5: nop
+loadAI rfp, 12 => r9
+```
+
+-   Código otimizado:
+
+```
+L5: loadAI rfp, 12 => r9
+```
 
 Observações: O código abaixo de NOP não tem rótulo próprio.
 
@@ -63,7 +71,7 @@ jump  => r23
 jump  => r19
 ```
 
-> tar -xvzf etapa7.tgz
+Observações: Os códigos removidos não têm rótulo próprio.
 
 ### Propagação de cópia de imediatos
 
