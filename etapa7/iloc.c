@@ -99,17 +99,15 @@ void propag_copias(CodigoILOC *cod_ref) {
    CodigoILOC* cod_anterior = cod_ref;
    
    while(cod_atual != NULL) {
-
       // se tiver entrada de laço ou desvio ou se for instrução modificando o valor do reg_ponteiro
       if(cod_atual->label != NULL || eh_desvio(cod_atual) || eq_reg_ptr(cod_atual->destino, op_ponteiro)) {
          return;
       }
       if(cod_atual->operacao == LOADAI && eq_reg_ptr(cod_atual->origem, op_ponteiro)) { // rfp, 24 == rfp, 24
          OperandoILOC* op_reg_original = cod_atual->destino; // r18
-         //printf("\n>> entrou");
-         //print_operando(op_reg_original);
          substitui_operando(cod_atual->proximo, op_reg_original, cod_ref->origem); // r18 (vira)-> r17
          cod_atual = deleta_instrucao_atual(cod_anterior);
+         continue;
       }
       cod_anterior = cod_atual;
       cod_atual = cod_atual->proximo;

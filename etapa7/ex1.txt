@@ -19,9 +19,9 @@ int main()
       };
    d = d - 1;
   };
-  x = x * 1 * 4;
-  x = x + 0;
-  x = x - 0;
-  x = x / 1;
+  x = a * 1 * 4;
+  x = b + 0;
+  x = c - 0;
+  x = d / 1;
   return x;
 }

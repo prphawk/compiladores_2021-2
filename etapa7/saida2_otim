@@ -1,4 +1,4 @@
-loadI 50 => rbss
+loadI 49 => rbss
 jumpI  => L4
 L3: i2i rsp => rfp
 addI rsp, 32 => rsp
@@ -27,7 +27,6 @@ ret: loadAI rsp, 16 => r15
 loadAI rfp, 20 => r16
 mult r15, r16 => r17
 storeAI r17 => rfp, 24
-storeAI r17 => rfp, 16
 loadAI rfp, 0 => r19
 loadAI rfp, 4 => rsp
 loadAI rfp, 8 => rfp
