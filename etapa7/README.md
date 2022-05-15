@@ -180,18 +180,46 @@ storeAI r59 => rfp, 12
 -   Código antigo:
 
 ```
-storeAI r17 => rfp, 24
-loadAI rfp, 24 => r18
-storeAI r18 => rfp, 16
+loadI 6 => r27
+storeAI r27 => rfp, 0
+storeAI rsp => rsp, 4
+storeAI rfp => rsp, 8
+loadAI rfp, 0 => r29
+storeAI r29 => rsp, 12
 ```
 
 -   Código otimizado:
 
 ```
- storeAI r17 => rfp, 24
+loadI 6 => r27
+storeAI r27 => rfp, 0
+storeAI rsp => rsp, 4
+storeAI rfp => rsp, 8
+storeAI r27 => rsp, 12
 ```
 
 Observações: os temporarios substituídos não são reutilizados, o substituidor não tem seu valor mudado durante o fluxo do programa.
+(É feito a checagem de mudanças de valores, desvios e entradas de desvios.)
+
+### Simplificação de código de retorno
+
+`ex2.txt`
+
+-   Código antigo:
+
+```
+loadAI rfp, 4 => r8
+loadAI rfp, 8 => r9
+i2i r8 => rsp
+i2i r9 => rfp
+```
+
+-   Código otimizado:
+
+```
+loadAI rfp, 4 => rsp
+loadAI rfp, 8 => rfp
+```
 
 ## Código final de `ex1.txt` (otimizado)
 
