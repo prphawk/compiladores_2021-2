@@ -1,4 +1,4 @@
-loadI 57 => rbss
+loadI 58 => rbss
 jumpI  => L8
 L8: addI rsp, 52 => rsp
 loadI 1 => r2
@@ -53,4 +53,5 @@ loadAI rfp, 8 => r55
 storeAI r55 => rfp, 16
 loadAI rfp, 12 => r59
 storeAI r59 => rfp, 16
+storeAI r59 => rfp, 12
 halt

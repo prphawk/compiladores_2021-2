@@ -26,11 +26,12 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       if(codigo_lst->operacao == STOREAI && codigo_lst->destino->tipo == REGISTRADOR_PONTEIRO) {
          propag_copias(codigo_lst);
       }
-      otimiza_ILOC_janela(codigo_lst);
 
       codigo_anterior = codigo_lst;
       codigo_lst = codigo_lst->proximo;
    }
+   
+   otimiza_ILOC_janela(codigo);
 
    return codigo;
 }
@@ -45,8 +46,10 @@ int origens_iguais(CodigoILOC *cod1, CodigoILOC *cod2) {
    } return 0;
 }
 
+//TENTEI, nao rolou
 void otimiza_ILOC_janela(CodigoILOC* cod_ref) {
 
+   
    // int janela_atual = 0;
    // int janela = 2;
    // int mudou = 1;
@@ -62,21 +65,26 @@ void otimiza_ILOC_janela(CodigoILOC* cod_ref) {
          //while(cod_atual != NULL && janela_atual < janela) {
 
             // se tiver entrada de laço ou desvio ou se for instrução modificando o valor do reg_ponteiro
-            if(cod_atual->label != NULL || eh_desvio(cod_atual)) return;
+            // if(cod_atual->label != NULL || eh_desvio(cod_atual)) return;
 
 
-            if(cod_atual->operacao != cod_ref->operacao) break;
+            // if(cod_atual->operacao != cod_ref->operacao) break;
 
-            if(eq_reg(cod_atual->destino, cod_ref->destino)) {
+            // if(eq_reg(cod_atual->destino, cod_ref->destino)) {
                
-               if(!origens_iguais(cod_atual, cod_ref)) return; //ta mexendo no destino, deixa quieto
+            //    if(!origens_iguais(cod_atual, cod_ref)) return; //ta mexendo no destino, deixa quieto
 
-               cod_atual = deleta_instrucao_atual(cod_anterior); //eh igual
-               //mudou = 1;
+            //    cod_atual = deleta_instrucao_atual(cod_anterior); //eh igual
+            //    //mudou = 1;
+            // }
+            //janela_atual++;
+
+            if(cod_atual->operacao == STOREAI && cod_atual->destino->tipo == REGISTRADOR_PONTEIRO) {
+               propag_copias(cod_atual);
             }
+
             cod_anterior = cod_atual;
             cod_atual = cod_atual->proximo;
-            //janela_atual++;
          }
          //janela_atual = 0;
       //}
@@ -107,7 +115,6 @@ void propag_copias(CodigoILOC *cod_ref) {
          OperandoILOC* op_reg_original = cod_atual->destino; // r18
          substitui_operando(cod_atual->proximo, op_reg_original, cod_ref->origem); // r18 (vira)-> r17
          cod_atual = deleta_instrucao_atual(cod_anterior);
-         continue;
       }
       cod_anterior = cod_atual;
       cod_atual = cod_atual->proximo;
