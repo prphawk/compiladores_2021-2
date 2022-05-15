@@ -26,14 +26,64 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       else if(codigo_lst->operacao == STOREAI && codigo_lst->destino->tipo == REGISTRADOR_PONTEIRO) {
          propag_copias(codigo_lst);
       }
+      otimiza_ILOC_janela(codigo_lst);
 
       codigo_anterior = codigo_lst;
       codigo_lst = codigo_lst->proximo;
    }
 
-   //otimiza_ILOC_janela(codigo);
-
    return codigo;
+}
+
+int origens_iguais(CodigoILOC *cod1, CodigoILOC *cod2) {
+
+   if(eq_reg(cod1->origem, cod2->origem)) {
+
+      if(!cod1->origem->proximo && !cod2->origem->proximo) return 1;
+
+      else return eq_reg(cod1->origem->proximo, cod2->origem->proximo);
+   } return 0;
+}
+
+void otimiza_ILOC_janela(CodigoILOC* cod_ref) {
+
+   // int janela_atual = 0;
+   // int janela = 2;
+   // int mudou = 1;
+
+   CodigoILOC* cod_atual = cod_ref->proximo;
+   CodigoILOC* cod_anterior = cod_ref;
+
+   // while(mudou) {
+
+   //    mudou = 0;
+      while(cod_atual != NULL) {
+         
+         //while(cod_atual != NULL && janela_atual < janela) {
+
+            // se tiver entrada de laço ou desvio ou se for instrução modificando o valor do reg_ponteiro
+            if(cod_atual->label != NULL || eh_desvio(cod_atual)) return;
+
+
+            if(cod_atual->operacao != cod_ref->operacao) break;
+
+            if(eq_reg(cod_atual->destino, cod_ref->destino)) {
+               
+               if(!origens_iguais(cod_atual, cod_ref)) return; //ta mexendo no destino, deixa quieto
+
+               cod_atual = deleta_instrucao_atual(cod_anterior); //eh igual
+               //mudou = 1;
+            }
+            cod_anterior = cod_atual;
+            cod_atual = cod_atual->proximo;
+            //janela_atual++;
+         }
+         //janela_atual = 0;
+      //}
+      // cod_ref = codigo;
+      // cod_atual = codigo->proximo;
+      // cod_anterior = codigo;
+      // janela += 2;
 }
 
 /*
@@ -53,8 +103,11 @@ void propag_copias(CodigoILOC *cod_ref) {
       // se tiver entrada de laço ou desvio ou se for instrução modificando o valor do reg_ponteiro
       if(cod_atual->label != NULL || eh_desvio(cod_atual) || eq_reg_ptr(cod_atual->destino, op_ponteiro)) {
          return;
-      } else if(cod_atual->operacao == LOADAI && eq_reg_ptr(cod_atual->origem, op_ponteiro)) { // rfp, 24 == rfp, 24
+      }
+      if(cod_atual->operacao == LOADAI && eq_reg_ptr(cod_atual->origem, op_ponteiro)) { // rfp, 24 == rfp, 24
          OperandoILOC* op_reg_original = cod_atual->destino; // r18
+         printf("\n>> entrou");
+         print_operando(op_reg_original);
          substitui_operando(cod_atual->proximo, op_reg_original, cod_ref->origem); // r18 (vira)-> r17
          cod_atual = deleta_instrucao_atual(cod_anterior);
       }
@@ -99,7 +152,7 @@ void imediatos_comuns(CodigoILOC* cod_ref) {
 
       if(cod_atual->operacao == LOADI && cod_atual->destino->tipo == REGISTRADOR) {
 
-         int regs_diferentes = !eq_reg(cod_atual->origem, cod_ref->origem);
+         int regs_diferentes = !eq_reg(cod_atual->destino, cod_ref->destino);
          int imediatos_iguais = cod_atual->origem->valor == cod_ref->origem->valor;
 
          if(imediatos_iguais && regs_diferentes) {
@@ -222,6 +275,7 @@ int eq_str(char* str1, char* str2) {
 int eq_reg(OperandoILOC* dest1, OperandoILOC* dest2) {
    if(dest1 == NULL || dest2 == NULL) return 0;
    if(dest1->tipo != dest2->tipo) return 0;
+   if(dest1->tipo == IMEDIATO) return dest1->valor == dest2->valor;
    return eq_str(dest1->nome, dest2->nome);
 }
 int eq_reg_ptr(OperandoILOC* dest1, OperandoILOC* dest2) {
