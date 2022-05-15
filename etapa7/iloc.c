@@ -31,7 +31,7 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       codigo_lst = codigo_lst->proximo;
    }
    
-   otimiza_ILOC_janela(codigo);
+   //otimiza_ILOC_janela(codigo);
 
    return codigo;
 }
@@ -79,12 +79,8 @@ void otimiza_ILOC_janela(CodigoILOC* cod_ref) {
             // }
             //janela_atual++;
 
-            if(cod_atual->operacao == STOREAI && cod_atual->destino->tipo == REGISTRADOR_PONTEIRO) {
-               propag_copias(cod_atual);
-            }
-
-            cod_anterior = cod_atual;
-            cod_atual = cod_atual->proximo;
+            // cod_anterior = cod_atual;
+            // cod_atual = cod_atual->proximo;
          }
          //janela_atual = 0;
       //}
