@@ -2,49 +2,53 @@ Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
 
 Simulador:
 
-> ./etapa5 < ../testes_E5_incorretos/ijk25 > saida
-> python3 ilocsim.py -s saida
+```
+./etapa7 < teste > saida
+python3 ilocsim.py -s saida
+```
 
-Em etapa5, para compilar as files:
+Em etapa7, para compilar as files:
 
+```
 > make
 > ./etapa7 < ex1.txt > saida1
 > ./etapa7 < ex2.txt > saida2
 > ./etapa7 -o < ex1.txt > saida1_otim
 > ./etapa7 -o < ex2.txt > saida2_otim
-
-> ./etapa5 < teste.txt
+```
 
 ## Exemplo 1
 
-- Arquivo do exemplo: ``ex1.txt``
+-   Arquivo do exemplo: `ex1.txt`
 
-| Arquivo           | Otimizado | Temporários usados | Linhas de código |
-|:-----------------:|:---------:|:------------------:|:----------------:|
-| ``saida1``        | não       | 41                 | 83               |
-| ``saida1_otim``   | sim       | 26                 | 57               |
+|    Arquivo    | Otimizado | Temporários usados | Linhas de código |
+| :-----------: | :-------: | :----------------: | :--------------: |
+|   `saida1`    |    não    |         41         |        83        |
+| `saida1_otim` |    sim    |         26         |        57        |
 
 ## Exemplo 2
 
-- Arquivo do exemplo: ``ex2.txt``
+-   Arquivo do exemplo: `ex2.txt`
 
-| Arquivo           | Otimizado | Temporários usados | Linhas de código |
-|:-----------------:|:---------:|:------------------:|:----------------:|
-| ``saida2``        | não       | 33                 | 69               |
-| ``saida2_otim``   | sim       | 22                 | 47               |
+|    Arquivo    | Otimizado | Temporários usados | Linhas de código |
+| :-----------: | :-------: | :----------------: | :--------------: |
+|   `saida2`    |    não    |         33         |        69        |
+| `saida2_otim` |    sim    |         22         |        47        |
 
-## Melhorias 
+## Melhorias
 
 ### Compressão de instruções NOP com label:
 
-> tar cvzf etapa5.tgz .
+> tar cvzf etapa7.tgz .
 
 Observações: O código abaixo de NOP não tem rótulo próprio.
 
 ### Remoção de código inalcançável
 
-``ex2.txt``
-- Código antigo:
+`ex2.txt`
+
+-   Código antigo:
+
 ```
 jump  => r19
 loadAI rfp, 0 => r23
@@ -52,17 +56,21 @@ loadAI rfp, 4 => rsp
 loadAI rfp, 8 => rfp
 jump  => r23
 ```
-- Código otimizado:
+
+-   Código otimizado:
+
 ```
 jump  => r19
 ```
 
-> tar -xvzf etapa5.tgz
+> tar -xvzf etapa7.tgz
 
 ### Propagação de cópia de imediatos
 
-``ex2.txt``
-- Código antigo:
+`ex2.txt`
+
+-   Código antigo:
+
 ```
 loadI 0 => r4
 storeAI r4 => rfp, 4
@@ -72,7 +80,9 @@ cmp_GT r9, r10 => r11
 loadI 0 => r12
 cmp_NE r11, r12 => r13
 ```
-- Código otimizado:
+
+-   Código otimizado:
+
 ```
 loadI 0 => r4
 storeAI r4 => rfp, 4
@@ -85,13 +95,17 @@ Observações: Os temporários de imediatos não sofreram alterações ao longo 
 
 ### Substituição de temporários de imediatos por constantes em expressões algébricas + Simplificação de expressões algébricas
 
-``ex2.txt``
-- Código antigo:
+`ex2.txt`
+
+-   Código antigo:
+
 ```
 loadI 1 => r34
 add r31, r34 => r35
 ```
-- Código otimizado:
+
+-   Código otimizado:
+
 ```
  addI r31, 1 => r35
 ```
@@ -100,8 +114,10 @@ Observações: Os temporários de imediatos não sofreram alterações ao longo 
 
 ### Remoção de operações identidade em expressões algébricas
 
-``ex1.txt``
-- Código antigo:
+`ex1.txt`
+
+-   Código antigo:
+
 ```
  multI r45, 1 => r47
 loadI 4 => r48
@@ -117,7 +133,9 @@ loadAI rfp, 12 => r59
 divI r59, 1 => r61
 storeAI r61 => rfp, 16
 ```
-- Código otimizado:
+
+-   Código otimizado:
+
 ```
 loadI 4 => r48
 multI r45, 4 => r49
@@ -132,32 +150,41 @@ storeAI r59 => rfp, 16
 
 ### Remoção de instruções redundantes
 
-``ex1.txt``
-- Código antigo:
+`ex1.txt`
+
+-   Código antigo:
+
 ```
 storeAI r59 => rfp, 16
 storeAI r59 => rfp, 12
 ```
-- Código otimizado:
+
+-   Código otimizado:
+
 ```
 storeAI r59 => rfp, 16
 ```
 
-``ex2.txt``
-- Código antigo:
+`ex2.txt`
+
+-   Código antigo:
+
 ```
 storeAI r17 => rfp, 24
 loadAI rfp, 24 => r18
 storeAI r18 => rfp, 16
 ```
-- Código otimizado:
+
+-   Código otimizado:
+
 ```
  storeAI r17 => rfp, 24
 ```
 
 Observações: o r18 não é reutilizado, r17 não tem seu valor mudado durante o fluxo do programa.
 
-## Código final de ``ex1.txt`` (otimizado)
+## Código final de `ex1.txt` (otimizado)
+
 ```
 loadI 58 => rbss
 jumpI  => L8
@@ -218,8 +245,8 @@ storeAI r59 => rfp, 12
 halt
 ```
 
+## Código final de `ex2.txt` (otimizado)
 
-## Código final de ``ex2.txt`` (otimizado)
 ```
 loadI 48 => rbss
 jumpI  => L4
@@ -270,5 +297,6 @@ storeAI r4 => rfp, 12
 halt
 ```
 
-## Observação Final: 
+## Observação Final:
+
 Tentei outras coisas que não funcionaram. Espero que isso seja o bastante.
