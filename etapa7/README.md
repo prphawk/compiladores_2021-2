@@ -164,13 +164,15 @@ storeAI r59 => rfp, 16
 
 ```
 storeAI r59 => rfp, 16
-storeAI r59 => rfp, 12
+loadAI rfp, 16 => r62
+storeAI r62 => rfp, 12
 ```
 
 -   Código otimizado:
 
 ```
 storeAI r59 => rfp, 16
+storeAI r59 => rfp, 12
 ```
 
 `ex2.txt`
@@ -189,7 +191,7 @@ storeAI r18 => rfp, 16
  storeAI r17 => rfp, 24
 ```
 
-Observações: o r18 não é reutilizado, r17 não tem seu valor mudado durante o fluxo do programa.
+Observações: os temporarios substituídos não são reutilizados, o substituidor não tem seu valor mudado durante o fluxo do programa.
 
 ## Código final de `ex1.txt` (otimizado)
 
