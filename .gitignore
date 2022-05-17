@@ -2,7 +2,6 @@ lex.yy.*
 parser.tab.*
 *.exe
 *.tgz
-
 *.o
 
 etapa1/etapa1
