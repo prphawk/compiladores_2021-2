@@ -4,7 +4,7 @@ SUCCESS=0
 executable="./etapa3"
 echo "STARTING OFFICIAL TEST CASES"
 
-for file in ../testes_E3/*
+for file in ../testes_E3/entradas/*
     do
     valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes "$executable" < "$file"
     result=$?
