@@ -855,7 +855,6 @@ void _verifica_conversao_implicita(Tipo tipo_esq, ValorLexico esq, Tipo tipo_dir
             throwWrongTypeError(dir.linha, dir.label, esq.label, _tipo_str(tipo_esq));
         }
 
-        //TODO ver se tem um jeito de resolver aquele problem dos kal73, kal74
         if(tipo_dir == TIPO_STRING) {
             throwStringToXError(dir.linha, dir.label, esq.label);
         }

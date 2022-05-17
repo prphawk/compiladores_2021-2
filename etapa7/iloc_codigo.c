@@ -236,7 +236,6 @@ void codigo_retorna_funcao(Nodo *cabecalho) {
 	_append(cabecalho, instrucao_loadai(reg_rfp(), 0, r0));
 	
 	if(otim_flag_global) {
-		global_num_registradores+=2; //TODO: tirar. pra fins de fácil comparação entre versoes apenas
 		r1 = reg_rsp();
 		r2 = reg_rfp();
 	} else {
