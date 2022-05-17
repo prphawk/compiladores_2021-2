@@ -1,0 +1,4 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_094
+> 1 TOKEN_ERRO

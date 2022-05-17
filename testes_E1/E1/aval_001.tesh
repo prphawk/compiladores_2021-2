@@ -1,0 +1,4 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_001
+> 1 TK_PR_INT [int]

@@ -1,0 +1,27 @@
+//idem kwj51
+int a;
+
+int recursive(int v)
+{
+  int t;
+  if (a > 0)
+  {
+    a = a-1;
+    t = v + recursive(v+1);
+    return t;
+  }
+  else
+  {
+    t = v + 1;
+    return t;
+  };
+}
+
+int main()
+{
+  int b;
+  a = 10;
+
+  b = recursive(1);
+  return b;
+}

@@ -1,0 +1,6 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_077
+> 1 TK_ESPECIAL [%]
+> 1 TK_ESPECIAL [>]
+> 1 TK_ESPECIAL [%]

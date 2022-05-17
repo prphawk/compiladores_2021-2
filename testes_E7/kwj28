@@ -1,0 +1,19 @@
+int fatorial (int n)
+{
+  int temp;
+  if (n == 1) {
+     return n;
+  };
+  temp = fatorial(n-1) * n;
+  return temp;          
+}
+
+int main()
+{
+  int x;
+  int y;
+  y = 3;
+  x = fatorial(y);
+  x = x + 1;
+  return x;
+}

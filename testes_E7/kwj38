@@ -1,0 +1,11 @@
+//função não chamada
+int oi() {
+
+  if(true) {
+    return 10;
+  };
+  return 40;
+}
+int main() {
+  return 20;
+}

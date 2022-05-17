@@ -1,0 +1,15 @@
+//Chamada de função
+int f()
+{
+  int x;
+  x = 9;
+  return x;
+}
+
+int main() {
+  int a;
+  int c;
+  c = 4;
+  a = f();
+  return a;
+}

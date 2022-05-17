@@ -1,0 +1,14 @@
+//outra função não chamada
+int superExtensiveFunction() {
+  int x;
+  x = 2;
+  x = 3;
+  x = 4;
+  x = 5;
+  x = x + 10 + true + (2 < 3);
+  return x;
+}
+
+int main() {
+  return 2;
+}

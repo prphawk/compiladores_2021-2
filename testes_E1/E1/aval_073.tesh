@@ -1,0 +1,4 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_073
+> 1 TK_LIT_STRING ["x = 3"]

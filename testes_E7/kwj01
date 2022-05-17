@@ -1,0 +1,12 @@
+int z;
+int main()
+{
+  int d;
+  int c;
+  int b;
+  int a;
+  z = 9;
+  b = 4;
+  a = z + b;
+  return a;
+}

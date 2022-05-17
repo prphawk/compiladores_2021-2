@@ -1,0 +1,27 @@
+//funções não chamadas
+int funcNotCalled() {
+  return 400;
+}
+int funcCalled() {
+  return 10;
+  int x <= 3;
+  x = 45 + 25;
+  return x;
+}
+int funcCalled2() {
+  return 30;
+  int x <= 3;
+  x = 45 + 25;
+  return x;
+}
+int funcNotCalled2() {
+  if (true) {
+    return 40;
+  };
+  int x <= 3;
+  x = 45 + 25; 
+  return x;
+}
+int main() {
+  return funcCalled() + funcCalled2();
+}

@@ -1,0 +1,13 @@
+//return dentro de while
+int main() {
+  while(true) do {
+      if(true) {
+	return 30;
+      };
+      return 10;
+    };
+  int x;
+  x = 2 + 3 + 4 + 5 + 6 + 10;
+  return x;
+}
+

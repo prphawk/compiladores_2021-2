@@ -1,0 +1,18 @@
+//remover LOADAIs desnecessários entre dois STOREAIs
+int main()
+{
+  int a <= 0;
+  int b <= 1;
+  int c <= 6;
+
+  if (a > 0)
+  {
+    a = b + c;
+    return a;
+  }
+  else
+  {
+    a = c - b;
+    return a;
+  };
+}

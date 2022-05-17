@@ -1,0 +1,41 @@
+//função nunca chamada
+int intArray[7];
+
+int partition(int left, int right, int pivot) {
+   int leftPointer;
+   int rightPointer;
+   leftPointer = left -1;
+   rightPointer = right;
+
+   while(true) do {
+      while(intArray[leftPointer] < pivot) do {
+         leftPointer = leftPointer + 1;
+      };
+		
+      while(rightPointer > 0 && intArray[rightPointer] > pivot) do {
+         rightPointer = rightPointer - 1;
+      };
+
+      if(leftPointer >= rightPointer) {
+         break;
+      } else {
+         int temp;
+         temp = intArray[leftPointer];
+         intArray[leftPointer] = intArray[rightPointer];
+         intArray[rightPointer] = temp;
+      };
+   };
+	
+
+   int temp;
+   temp = intArray[leftPointer];
+   intArray[leftPointer] = intArray[right];
+   intArray[right] = temp;
+
+   return leftPointer;
+}
+
+int main() {
+    // none of the above functions are used
+    return 0;
+}

@@ -1,0 +1,14 @@
+//Os seguintes comandos de fluxo de controle: if com else
+int main()
+{
+  int a;
+  int b;
+  a = 1;
+  b = 2;
+  if (a > 0) {
+    b = 3;
+  }else{
+    b = 4;
+  };
+  return b;
+}

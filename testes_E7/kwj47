@@ -1,0 +1,10 @@
+// item ao kwj46, porém com variáveis misturadas
+int z;
+int main()
+{
+  int a;
+  int b;
+  b = (9 - 3)/2;
+  a = b*((2+3)*4);
+  return a;
+}

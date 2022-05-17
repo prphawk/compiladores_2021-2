@@ -1,0 +1,29 @@
+//idem kwj53
+int fatorial(int n){
+  int res<=1;
+  while (n>0) do {
+    res = res*n;
+    n=n-1;
+  };
+  return res;
+}
+
+int potencia(int n, int p){
+  int res<=1, i;
+  for(i=0 : p>i : i=i+1){
+    res = res*n;
+  };
+  return res;
+}
+
+int main()
+{
+  int a;
+  int b;
+  int c;
+  //a=fatorial(b);
+  b = 4;
+  c = 3;
+  a = potencia(b,c);
+  return a; // Retorno esperado 64
+}

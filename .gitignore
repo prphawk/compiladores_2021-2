@@ -3,7 +3,6 @@ parser.tab.*
 *.exe
 *.tgz
 
-*.pdf
 *.o
 
 etapa1/etapa1

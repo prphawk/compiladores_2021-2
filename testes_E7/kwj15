@@ -1,0 +1,16 @@
+int z;
+int main()
+{
+  int a;
+  int b;
+  int c;
+  z = 2;
+  b = 4;
+  c = 9;
+  a = 1;
+  if (a > 0) {
+    c = 1;
+    b = z + c;
+  };
+  return b;
+}

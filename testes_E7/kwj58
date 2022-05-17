@@ -1,0 +1,9 @@
+int main() {
+  int a, b;
+  a = 1;
+  while(a < 10)  do {
+      a = a + 1;
+      b = 5 * 5 * 5 * 5 * 5 * 5 * 5 * 5;
+    };
+  return a;
+}

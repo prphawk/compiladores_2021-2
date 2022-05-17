@@ -1,0 +1,11 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_076
+> 1 TK_IDENTIFICADOR [id12]
+> 2 TK_LIT_INT [34]
+> 3 TK_LIT_FLOAT [56.78]
+#! setenv INF47_TABLE=True
+#$ "./main < tests/e1/entrada_076 | sort"
+#> 1 [id12]
+#> 2 [34]
+#> 3 [56.78]

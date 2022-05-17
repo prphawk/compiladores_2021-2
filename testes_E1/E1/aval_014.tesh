@@ -1,0 +1,4 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_014
+> 1 TK_PR_CONST [const]

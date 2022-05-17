@@ -1,0 +1,22 @@
+//return antecipado
+int main()
+{
+  int a;
+  int b;
+  int c;
+  int d;
+  int x;
+  a = 1;
+  b = 0;
+  c = 2;
+  d = 3;
+
+  return 100;
+
+  if (a < b && c < d) {
+     x = 2;
+  }else{
+     x = 3;
+  };
+  return x;
+}

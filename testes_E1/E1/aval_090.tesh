@@ -1,0 +1,19 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_090
+> 1 TK_PR_FOR [for]
+> 1 TK_ESPECIAL [(]
+> 1 TK_PR_INT [int]
+> 1 TK_IDENTIFICADOR [i]
+> 1 TK_ESPECIAL [=]
+> 1 TK_LIT_INT [0]
+> 1 TK_ESPECIAL [;]
+> 1 TK_IDENTIFICADOR [i]
+> 1 TK_ESPECIAL [<]
+> 1 TK_LIT_INT [10]
+> 1 TK_ESPECIAL [;]
+> 1 TK_ESPECIAL [+]
+> 1 TK_ESPECIAL [+]
+> 1 TK_IDENTIFICADOR [i]
+> 1 TK_ESPECIAL [)]
+> 1 TK_ESPECIAL [;]

@@ -1,0 +1,13 @@
+// múltiplos comandos return
+int main() {
+
+  if(false) {
+    return 10;
+    return 30;
+  } else {
+    return 20;
+    return 50;
+  };
+  return 40;
+  return 60;
+}

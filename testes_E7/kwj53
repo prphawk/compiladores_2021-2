@@ -1,0 +1,16 @@
+//para otim. por janela
+int x;
+int main()
+{
+  int a <= 0, b <= 4, c <= 3, i;
+  if(a>4){
+    x = a;
+  } else{
+    x=0;
+    for(i=1 : i<=b : i=i+1){
+      x = x + (i*b)/2 - c;
+    };
+    x = x+c;
+  };
+  return x; //Retorno esperado 11
+}

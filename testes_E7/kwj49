@@ -1,0 +1,13 @@
+//idem ao kwj48
+int z;
+int main()
+{
+  int a;
+  int b;
+  int c;
+  a = 5;
+  c = a * 2 + 2 / 1;
+  b = (c/2) * 1 + 0;
+  a = (((a*1) * b)+0)/1 - 0;
+  return a;
+}

@@ -1,0 +1,6 @@
+#! ./tesh
+! timeout 1
+$ ./main < tests/e1/entrada_096
+> 1 TK_LIT_INT [-3]
+> 2 TK_LIT_INT [+3]
+> 3 TK_LIT_INT [3]

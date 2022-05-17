@@ -1,0 +1,15 @@
+//Os seguintes comandos de fluxo de controle: do-while
+int main()
+{
+  int a;
+  int b;
+  int c;
+  a = 10;
+  b = 2;
+  c = 0;
+  while (a > 5) do {
+    a = a - 1;
+    c = c + 1;
+  };
+  return c;
+}
