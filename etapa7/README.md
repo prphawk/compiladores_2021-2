@@ -10,7 +10,7 @@ make
 ./etapa7 -o < ex2.txt > saida2_otim
 ```
 
-Não temos etapa 6, a saída é ILOC.
+Não foi entregue a etapa 6, a saída é ILOC.
 
 ## Exemplo 1
 
@@ -334,7 +334,3 @@ storeAI r31 => rbss, 0
 storeAI r4 => rfp, 12
 halt
 ```
-
-## Observação Final:
-
-Tentei outras coisas que não funcionaram. Espero que isso seja o bastante.
