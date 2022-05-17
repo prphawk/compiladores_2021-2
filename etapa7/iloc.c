@@ -31,8 +31,6 @@ CodigoILOC* otimiza_ILOC(CodigoILOC* codigo) {
       codigo_lst = codigo_lst->proximo;
    }
    
-   //otimiza_ILOC_janela(codigo);
-
    return codigo;
 }
 
@@ -44,51 +42,7 @@ int origens_iguais(CodigoILOC *cod1, CodigoILOC *cod2) {
 
       else return eq_reg(cod1->origem->proximo, cod2->origem->proximo);
    } return 0;
-}
-
-//TENTEI, nao rolou
-void otimiza_ILOC_janela(CodigoILOC* cod_ref) {
-
-   
-   // int janela_atual = 0;
-   // int janela = 2;
-   // int mudou = 1;
-
-   CodigoILOC* cod_atual = cod_ref->proximo;
-   CodigoILOC* cod_anterior = cod_ref;
-
-   // while(mudou) {
-
-   //    mudou = 0;
-      while(cod_atual != NULL) {
-         
-         //while(cod_atual != NULL && janela_atual < janela) {
-
-            // se tiver entrada de laço ou desvio ou se for instrução modificando o valor do reg_ponteiro
-            // if(cod_atual->label != NULL || eh_desvio(cod_atual)) return;
-
-
-            // if(cod_atual->operacao != cod_ref->operacao) break;
-
-            // if(eq_reg(cod_atual->destino, cod_ref->destino)) {
-               
-            //    if(!origens_iguais(cod_atual, cod_ref)) return; //ta mexendo no destino, deixa quieto
-
-            //    cod_atual = deleta_instrucao_atual(cod_anterior); //eh igual
-            //    //mudou = 1;
-            // }
-            //janela_atual++;
-
-            // cod_anterior = cod_atual;
-            // cod_atual = cod_atual->proximo;
-         }
-         //janela_atual = 0;
-      //}
-      // cod_ref = codigo;
-      // cod_atual = codigo->proximo;
-      // cod_anterior = codigo;
-      // janela += 2;
-}
+}WQ
 
 /*
 storeAI r17 => rfp, 24
