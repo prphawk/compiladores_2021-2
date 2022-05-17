@@ -15,7 +15,7 @@ Pq eu morri na semana que tinha que entregar <3
 
 ## Arquivo `testes.sh`
 
-Em várias etapas tem um script `teste.sh` para rodar todos os casos de testes em uma pasta específica. se vc estiver rodando o trabalho no windows com o Ubuntu LTS e ficar tendo o problema `word unexpected (expecting "do")` ISSO É PROBLEMA DE CONVERSÃO do character de fim de linha entre linux e windows. qnd isso acontece cmg eu abro arquivo no notepad++, uso a conversão de acabamento de linha para sistema linux e salvo.
+Em várias etapas tem um script `teste.sh` para rodar todos os casos de testes em uma pasta específica. se vc estiver rodando o trabalho no windows com o Ubuntu LTS e ficar tendo o problema `word unexpected (expecting "do")` ISSO É PROBLEMA DE CONVERSÃO do character de fim de linha entre UNIX e windows. qnd isso acontece cmg eu abro arquivo no notepad++, uso a conversão de acabamento de linha para sistema linux e salvo.
 
 ## Abrir Ubuntu LTS na etapa de maneira rápida
 Abre a pasta da etapa no explorador de arquivos do Windows, na barra de endereço acima digita "bash" e aperta Enter.
