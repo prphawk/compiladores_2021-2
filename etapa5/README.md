@@ -1,4 +1,4 @@
-###Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
+### Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
 
 -   Em etapa5, para compilar as files:
 
@@ -16,7 +16,9 @@ python3 ilocsim.py -s saida
 
 -   Checar mem leaks com teste.txt **(instalar o valgrind)**:
 
-`make checkleak`
+```
+make checkleak
+```
 
 -   Debugar **(instalar o gdb)**:
 
@@ -25,28 +27,40 @@ make debug
 run < teste.txt
 ```
 
-(outros comandos: next, print (x), **where**)
+> (outros comandos: next, print (x), **where**)
 
 -   Executar casos de testes (converter \eof para UNIX):
 
-`sh teste.sh`
+```
+sh teste.sh
+```
 
 -   Executar casos de testes avaliando leaks de memória (converter \eof para UNIX):
 
-`sh teste_leak.sh`
+```
+sh teste_leak.sh
+```
 
 -   Limpar:
 
-`make clear`
+```
+make clear
+```
 
 -   Entregar:
 
-`tar cvzf etapa5.tgz`
+```
+tar cvzf etapa5.tgz
+```
 
-OU
+- Entregar (alternativamente)
 
-`make submit`
+```
+make submit
+```
 
 -   Unzip:
 
-`tar -xvzf -f etapa5.tgz`
+```
+tar -xvzf -f etapa5.tgz
+```
