@@ -45,30 +45,21 @@ void codigo_finaliza(Nodo *arvore) {
 
 	CodigoILOC *codigo_lst = NULL;
 
-	if(!otim_flag_global) {
-		// inicializa rsp e rfp (opcional)
-		codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
-		codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
-	}
+	// prepend codigo de inicialização ----------------------------------------------------------------------
+	int num_instr_incompleto = conta_instrucoes(arvore->codigo);
 
-	// pula pro rotulo equivalente a main() (o rotulo de cada funcao é reconhecido na declaracao)
-	CodigoILOC *codigo_jump_main = instrucao_jumpI(gera_operando_rotulo(copia_nome(rotulo_main_global)));
+	// inicializa rsp e rfp (opcional)
+	CodigoILOC *codigo_lst = NULL;
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rsp()));
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(1024, NULL, reg_rfp()));
+
+	// inicializa rbss com o endereço imediatamente depois da instrução halt
+	codigo_lst = _append_codigo(codigo_lst, instrucao_loadI_reg(num_instr_incompleto + 4, NULL, reg_rbss()));
 
 	codigo_lst = _append_codigo(codigo_lst, codigo_jump_main);
 	codigo_lst = _append_codigo(codigo_lst, arvore->codigo);
 
 	arvore->codigo = codigo_lst;
-}
-
-// ATENÇAO essa funcao eh chamada depois da otimização i.e., depois de ter >revertido< a ordem da lista de codigo.
-void codigo_define_seg_dados(Nodo *arvore) {
-	// prepend codigo de inicialização ----------------------------------------------------------------------
-	int num_instr_incompleto = conta_instrucoes(arvore->codigo);
-
-	// inicializa rbss com o endereço imediatamente depois da instrução halt
-	CodigoILOC *codigo_seg_dados = instrucao_loadI_reg(num_instr_incompleto + 2, NULL, reg_rbss());
-	codigo_seg_dados->proximo = arvore->codigo;
-	arvore->codigo = codigo_seg_dados;
 }
 
 //#region Auxiliares 

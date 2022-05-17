@@ -9,7 +9,6 @@ int yylex(void);
 int yyerror (char const *s);
 extern int get_line_number (void);
 extern void *arvore;
-extern int E4_CHECK_FLAG;
 %}
 %define parse.error verbose
 %code requires {
@@ -108,8 +107,6 @@ extern int E4_CHECK_FLAG;
 %type<nodo> chamada_funcao
 %type<nodo> lista_comandos
 %type<nodo> corpo
-/* %type<nodo> corpo_1
-%type<nodo> corpo_2 */
 %type<nodo> lista_argumentos
 %type<nodo> argumentos
 %type<nodo> cabecalho
@@ -214,7 +211,7 @@ bloco_comandos_fim_escopo: '}'     { desempilha(); } ;
 chamada_funcao: TK_IDENTIFICADOR'('lista_argumentos')' {
                 Nodo *novo_nodo = adiciona_nodo_label_concat("call ", $1.label);
                 adiciona_filho(novo_nodo, $3);
-                if(E4_CHECK_FLAG) verifica_funcao_no_escopo($1, $3, novo_nodo);
+                verifica_funcao_no_escopo($1, $3, novo_nodo);
                 $$ = novo_nodo;
                 codigo_chamada_funcao(novo_nodo, $1.label, $3);
                 libera_vlex($1);
@@ -285,7 +282,7 @@ comando_atribuicao: variavel_ou_vetor '=' expressao
                         adiciona_filho(novo_nodo, $1);
                         adiciona_filho(novo_nodo, $3);
                         $$ = novo_nodo;
-                        if(E4_CHECK_FLAG) verifica_atribuicao($1, novo_nodo, $3);
+                        verifica_atribuicao($1, novo_nodo, $3);
                         codigo_atribuicao($1, $$, $3);
                     };
 
@@ -294,7 +291,7 @@ comando_entrada: TK_PR_INPUT variavel
                     Nodo *novo_nodo = adiciona_nodo_label("input");
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
-                    if(E4_CHECK_FLAG) verifica_input(novo_nodo, $2);
+                    verifica_input(novo_nodo, $2);
                 };
 
 comando_saida: TK_PR_OUTPUT variavel_ou_literal 
@@ -302,7 +299,7 @@ comando_saida: TK_PR_OUTPUT variavel_ou_literal
                     Nodo *novo_nodo = adiciona_nodo_label("output");
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
-                    if(E4_CHECK_FLAG) verifica_output(novo_nodo, $2);
+                    verifica_output(novo_nodo, $2);
                 };
 
 comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT 
@@ -311,7 +308,7 @@ comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    if(E4_CHECK_FLAG) verifica_shift(novo_nodo, $3);
+                    verifica_shift(novo_nodo, $3);
                     insere_literal_pilha(TIPO_INT,$3);
                 }
                | variavel_ou_vetor TK_OC_SR TK_LIT_INT 
@@ -320,7 +317,7 @@ comando_shift: variavel_ou_vetor TK_OC_SL TK_LIT_INT
                     adiciona_filho(novo_nodo, $1);
                     adiciona_filho(novo_nodo, adiciona_nodo($3));
                     $$ = novo_nodo;
-                    if(E4_CHECK_FLAG) verifica_shift(novo_nodo, $3);
+                    verifica_shift(novo_nodo, $3);
                     insere_literal_pilha(TIPO_INT,$3);
                 }
                ;
@@ -330,7 +327,7 @@ comando_retorno: TK_PR_RETURN expressao
                     Nodo *novo_nodo = adiciona_nodo_label("return");
                     adiciona_filho(novo_nodo, $2);
                     $$ = novo_nodo;
-                    if(E4_CHECK_FLAG) verifica_return(novo_nodo, $2);
+                    verifica_return(novo_nodo, $2);
                     codigo_return($$, $2);
                 };
 
@@ -435,7 +432,7 @@ expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao
                 adiciona_filho(novo_nodo, $3); 
                 adiciona_filho(novo_nodo, $5); 
                 $$ = novo_nodo; 
-                if(E4_CHECK_FLAG) verifica_expr_ternaria($1, $3, $5, novo_nodo);
+                verifica_expr_ternaria($1, $3, $5, novo_nodo);
             }
             | expr_bin_logica '?' expressao ':' expressao
             {
@@ -445,7 +442,7 @@ expr_ternaria: expr_bin_aritmetica '?' expressao ':' expressao
                 adiciona_filho(novo_nodo, $3);
                 adiciona_filho(novo_nodo, $5);
                 $$ = novo_nodo;
-                if(E4_CHECK_FLAG) verifica_expr_ternaria($1, $3, $5, novo_nodo);
+                verifica_expr_ternaria($1, $3, $5, novo_nodo);
             };
 
 expr_bin_aritmetica: expr_bin_aritmetica_0 { $$ = $1; }
@@ -454,7 +451,7 @@ expr_bin_aritmetica: expr_bin_aritmetica_0 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
+                    verifica_expr_binaria($1, $2, $3); 
                     codigo_expr_logica($1, $2, $3);
                 };
 expr_bin_aritmetica_0: expr_bin_aritmetica_1 { $$ = $1; }
@@ -463,7 +460,7 @@ expr_bin_aritmetica_0: expr_bin_aritmetica_1 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3); 
+                    verifica_expr_binaria($1, $2, $3); 
                     codigo_expr_logica($1, $2, $3);
                 };
 expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
@@ -472,7 +469,7 @@ expr_bin_aritmetica_1: expr_bin_aritmetica_2 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    verifica_expr_binaria($1, $2, $3);
                     codigo_expr_aritmetica($1, $2, $3);
                 };
 expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
@@ -481,7 +478,7 @@ expr_bin_aritmetica_2: expr_bin_aritmetica_3 { $$ = $1; }
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    verifica_expr_binaria($1, $2, $3);
                     codigo_expr_aritmetica($1, $2, $3);
                 };
 expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
@@ -490,7 +487,7 @@ expr_bin_aritmetica_3: expr_bin_aritmetica_4 { $$ = $1; }
 						adiciona_filho($2, $1);
 						adiciona_filho($2, $3);
 						$$ = $2;
-                        if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                        verifica_expr_binaria($1, $2, $3);
                         codigo_expr_aritmetica($1, $2, $3);
 					};
 expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
@@ -499,7 +496,7 @@ expr_bin_aritmetica_4: expr_unaria_aritmetica { $$ = $1; }
 						adiciona_filho($2, $1);
 						adiciona_filho($2, $3);
 						$$ = $2;
-                        if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                        verifica_expr_binaria($1, $2, $3);
                         codigo_expr_aritmetica($1, $2, $3);
 					};            
 expr_unaria_aritmetica: expr_parenteses_aritmetica 
@@ -510,14 +507,14 @@ expr_unaria_aritmetica: expr_parenteses_aritmetica
 				{
 					adiciona_filho($1, $2);
 					$$ = $1;
-                    if(E4_CHECK_FLAG) verifica_expr_unaria($1, $2);
+                    verifica_expr_unaria($1, $2);
                     codigo_expr_unaria($1, $2);
 				}
 				| operador_asterisco expr_unaria_aritmetica
 				{
 					adiciona_filho($1, $2);
 					$$ = $1;
-                    if(E4_CHECK_FLAG) verifica_expr_unaria($1, $2);
+                    verifica_expr_unaria($1, $2);
 				};
 
 expr_parenteses_aritmetica: operando_aritmetico         { $$ = $1; } 
@@ -534,7 +531,7 @@ operando_aritmetico: variavel           { $$ = $1; }
 variavel: TK_IDENTIFICADOR 
         { 
             Nodo *novo_nodo = adiciona_nodo($1); 
-            if(E4_CHECK_FLAG) verifica_variavel_no_escopo(novo_nodo); 
+            verifica_variavel_no_escopo(novo_nodo); 
             $$ = novo_nodo;
             codigo_carrega_variavel($$);
         };
@@ -545,7 +542,7 @@ vetor: TK_IDENTIFICADOR'['expr_bin_aritmetica']'
                     Nodo *identificador_novo_nodo = adiciona_nodo($1);
                     adiciona_filho(novo_nodo, identificador_novo_nodo);
                     adiciona_filho(novo_nodo, $3);
-                    if(E4_CHECK_FLAG) verifica_vetor_no_escopo(novo_nodo, identificador_novo_nodo);
+                    verifica_vetor_no_escopo(novo_nodo, identificador_novo_nodo);
                     $$ = novo_nodo;
                 };
 
@@ -554,7 +551,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    verifica_expr_binaria($1, $2, $3);
                     codigo_expr_logica($1, $2, $3);
 
                 }
@@ -563,7 +560,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    verifica_expr_binaria($1, $2, $3);
                     codigo_expr_logica($1, $2, $3);
                 }
                 | expr_bin_logica operador_binario_logico expr_parenteses_aritmetica
@@ -571,7 +568,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    verifica_expr_binaria($1, $2, $3);
                     codigo_expr_logica($1, $2, $3);
                 }
                 | expr_parenteses_logica operador_binario_logico expr_parenteses_aritmetica
@@ -579,7 +576,7 @@ expr_bin_logica: expr_bin_logica operador_binario_logico expr_parenteses_logica
                     adiciona_filho($2, $1);
                     adiciona_filho($2, $3);
                     $$ = $2;
-                    if(E4_CHECK_FLAG) verifica_expr_binaria($1, $2, $3);
+                    verifica_expr_binaria($1, $2, $3);
                     codigo_expr_logica($1, $2, $3);
                 };
 
