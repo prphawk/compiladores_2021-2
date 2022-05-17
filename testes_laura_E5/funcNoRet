@@ -1,9 +1,0 @@
-int z;
-int f() {
-}
-
-int main() {
-	int x;
-	x = 10;
-	z = x + f();
-}

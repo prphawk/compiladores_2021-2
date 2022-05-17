@@ -1,4 +1,4 @@
-# Queride alune de Compiladores:
+## Queride alune:
 
 Tentei corrigir todos erros de cada etapa após a entrega oficial, e essas correções se propagam para outras etapas.
 Depois resolvi comentar algumas partes interessantes e correções no código, mas essas só se encontram na pasta da etapa correspondente.
@@ -13,6 +13,10 @@ Beijinhos,
 
 \- Mayra.
 
-# Arquivo testes.sh
+## Pq n tem etapa 6?
+
+Pq eu morri na semana que tinha que entregar <3
+
+## Arquivo testes.sh
 
 Em várias etapas tem um script `teste.sh` para rodar todos os casos de testes em uma pasta específica. se vc estiver rodando o trabalho no windows com o WSL e ficar tendo o problema `word unexpected (expecting "do")` ISSO É PROBLEMA DE CONVERSÃO do character de fim de linha entre linux e windows. qnd isso acontece cmg eu abro arquivo no notepad++, uso a conversão de acabamento de linha para sistema linux e salvo.

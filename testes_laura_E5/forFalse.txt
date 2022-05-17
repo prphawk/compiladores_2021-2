@@ -1,7 +1,0 @@
-int main() {
-	int x;
-	for (x = 0 : false : x = 1) {
-		x = 10;
-	};
-
-}

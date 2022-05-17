@@ -1,7 +1,0 @@
-int main() {
-	int x;
-	x = 2000;
-	if (true && false) {
-		x = 1000;
-	};
-}

@@ -1,7 +1,0 @@
-int main() {
-	int x;
-	x = 0;
-	while(x) do {
-		x = 1;
-	};
-}
