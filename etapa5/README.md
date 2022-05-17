@@ -1,4 +1,4 @@
-###Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
+### Aline Hommerding Amorim (00301570) & Mayra Camargo Cademartori (00301639)
 
 -   Em etapa5, para compilar as files:
 
